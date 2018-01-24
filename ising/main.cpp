@@ -1,4 +1,9 @@
 //#define RANDOM_TEST_ON
+//#define JSON_TEST_ON
+
+#if defined(RANDOM_TEST_ON) || defined(JSON_TEST_ON)
+#define TEST_ON
+#endif
 
 #ifdef RANDOM_TEST_ON
 #include <iostream>
@@ -19,8 +24,21 @@ int main(int argc, char * argv[])
 
     return 0;
 }
-#else
+#endif
 
+#ifdef JSON_TEST_ON
+#include <iostream>
+#include "json.h"
+
+int main(int argc, char * argv[])
+{
+    JSON json("{\n\t\"Size\": 100,\n\t\"Iterations\": 1e6\n}");
+    std::cout << "Size       = " << json.getNumberValue("Size") << std::endl;
+    std::cout << "Iterations = " << json.getNumberValue("Iterations") << std::endl;
+}
+#endif
+
+#ifndef TEST_ON
 #include <array>
 #include <iostream>
 #include <string>
@@ -30,8 +48,8 @@ int main(int argc, char * argv[])
 #include "ising-2d.h"
 #include "win-timing.h"
 
-#define $ESSEMBLE_NUMBER    120
-#define $ESSEMBLE_DELTA     4
+#define $ENSEMBLE_NUMBER    120
+#define $ENSEMBLE_DELTA     4
 #define $REPEAT_NUMBER      100
 
 using namespace std;
@@ -40,7 +58,7 @@ Quantity eval(const size_t & size, const size_t & steps, const double & temperat
 {
     Ising2D s{ size,size };
     // Set magnetic_b = 0.
-    return s.evaluate(1.0 / temperature, 0.0, steps, $ESSEMBLE_NUMBER, $ESSEMBLE_DELTA);
+    return s.evaluate(1.0 / temperature, 0.0, steps, $ENSEMBLE_NUMBER, $ENSEMBLE_DELTA);
 }
 
 struct EvalCell

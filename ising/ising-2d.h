@@ -39,7 +39,7 @@ public:
     ~Ising2D();
 
     Quantity evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
-        const size_t & n_essemble, const size_t & n_delta = 1);
+        const size_t & n_ensemble, const size_t & n_delta = 1);
     Quantity analysis(const double & magnetic_b);
     void show();
 
@@ -86,17 +86,17 @@ Ising2D::~Ising2D()
 {}
 
 Quantity Ising2D::evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
-    const size_t & n_essemble, const size_t & n_delta)
+    const size_t & n_ensemble, const size_t & n_delta)
 {
     // Sweep.
-    for (auto i = 0; i != steps - n_essemble; ++i)
+    for (auto i = 0; i != steps - n_ensemble; ++i)
         sweep(beta, magnetic_b);
 
     // Sweep and analysis.
     // n_delta is used to avoid correlation between successive configurations.
     auto count = 0;
     Quantity quantity;
-    for (auto i = steps - n_essemble - 1; i != steps; ++i)
+    for (auto i = steps - n_ensemble - 1; i != steps; ++i)
     {
         sweep(beta, magnetic_b);
         if (count == n_delta)
@@ -108,7 +108,7 @@ Quantity Ising2D::evaluate(const double & beta, const double & magnetic_b, const
     }
 
     // Normalize.
-    quantity /= static_cast<double>(n_essemble / n_delta);
+    quantity /= static_cast<double>(n_ensemble / n_delta);
     return quantity;
 }
 
