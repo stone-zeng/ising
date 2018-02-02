@@ -41,6 +41,7 @@ public:
     Quantity evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
         const size_t & n_ensemble, const size_t & n_delta = 1);
     Quantity analysis(const double & magnetic_b);
+    std::vector<int> renormalize(const size_t & x_scale, const size_t & y_scale);
     void show();
 
 private:
@@ -129,6 +130,38 @@ Quantity Ising2D::analysis(const double & magnetic_b)
     //        m += j;
     quantity /= static_cast<double>(x_length_ * y_length_);
     return quantity;
+}
+
+std::vector<int> Ising2D::renormalize(const size_t & x_scale, const size_t & y_scale)
+{
+    size_t x_length_renormalized = x_length_ / x_scale;
+    size_t y_length_renormalized = y_length_ / y_scale;
+
+    std::vector<int> result;
+    result.resize(x_length_renormalized * y_length_renormalized);
+
+    std::vector<std::vector<int>> local_lattice;
+    local_lattice.resize(x_scale);
+    for (auto i = local_lattice.begin(); i != local_lattice.end(); ++i)
+        i->resize(y_scale);
+
+    for (auto i = 0; i != x_length_renormalized; ++i)
+        for (auto j = 0; j != y_length_renormalized; ++j)
+        {
+            std::vector<int> local_lattice;
+            local_lattice.resize(x_scale * y_scale);
+            for (auto k = 0; k != x_scale; ++k)
+                for (auto l = 0; l != y_scale; ++l)
+                    // Use "+1" to skip the boundary.
+                    local_lattice[y_scale * k + l]
+                        = lattice_[x_scale * i + k + 1][y_scale * j + l + 1];
+
+            for (auto t = 0; t != x_scale * y_scale; ++t)
+                result[y_length_renormalized * i + j]
+                    += (local_lattice[t] + 1) / 2 * static_cast<int>(std::pow(2, t));
+        }
+
+    return result;
 }
 
 void Ising2D::show()

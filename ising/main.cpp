@@ -1,7 +1,8 @@
 //#define RANDOM_TEST_ON
 //#define JSON_TEST_ON
+#define DATA_GENERATION_ON
 
-#if defined(RANDOM_TEST_ON) || defined(JSON_TEST_ON)
+#if defined(RANDOM_TEST_ON) || defined(JSON_TEST_ON) || defined(DATA_GENERATION_ON)
 #define TEST_ON
 #endif
 
@@ -35,6 +36,56 @@ int main(int argc, char * argv[])
     JSON json("{\n\t\"Size\": 100,\n\t\"Iterations\": 1e6\n}");
     std::cout << "Size       = " << json.getNumberValue("Size") << std::endl;
     std::cout << "Iterations = " << json.getNumberValue("Iterations") << std::endl;
+}
+#endif
+
+#ifdef DATA_GENERATION_ON
+#include <iostream>
+#include <vector>
+#include "ising-2d.h"
+#include "win-timing.h"
+
+using namespace std;
+
+const double c_beta_critical = 0.4406867935;
+
+void outputVector(const vector<int> & v)
+{
+    for (auto i = v.begin(); i != v.end() - 1; ++i)
+        cout << *i << ',';
+    cout << *(v.end() - 1) << endl;
+}
+
+int main(int argc, char * argv[])
+{
+    size_t size    = stoi(argv[1]);
+    size_t scale   = stoi(argv[2]);
+    size_t steps   = stoi(argv[3]);
+    size_t samples = stoi(argv[4]);
+
+    cerr << "0% ";
+
+    Timing clock;
+
+    clock.timingStart();
+#pragma omp parallel for
+    for (auto i = 0; i < samples; ++i)
+    {
+        Ising2D s{ size, size };
+        s.evaluate(c_beta_critical, 0.0, steps, 0);
+        auto result = s.renormalize(scale, scale);
+        outputVector(result);
+
+        if (samples < 10) { cerr << "=="; }
+        else
+            if ((i + 1) % (samples / 10) == 0)
+                cerr << "==";
+    }
+    clock.timingEnd();
+
+    cerr << "Computation time: " << clock.getRunTime() << "s." << endl;
+
+    return 0;
 }
 #endif
 
