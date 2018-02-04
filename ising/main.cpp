@@ -1,8 +1,7 @@
 //#define RANDOM_TEST_ON
-//#define JSON_TEST_ON
 #define DATA_GENERATION_ON
 
-#if defined(RANDOM_TEST_ON) || defined(JSON_TEST_ON) || defined(DATA_GENERATION_ON)
+#if defined(RANDOM_TEST_ON) || defined(DATA_GENERATION_ON)
 #define TEST_ON
 #endif
 
@@ -24,18 +23,6 @@ int main(int argc, char * argv[])
     //randomTest(size);
 
     return 0;
-}
-#endif
-
-#ifdef JSON_TEST_ON
-#include <iostream>
-#include "json.h"
-
-int main(int argc, char * argv[])
-{
-    JSON json("{\n\t\"Size\": 100,\n\t\"Iterations\": 1e6\n}");
-    std::cout << "Size       = " << json.getNumberValue("Size") << std::endl;
-    std::cout << "Iterations = " << json.getNumberValue("Iterations") << std::endl;
 }
 #endif
 
