@@ -1,30 +1,4 @@
-//#define RANDOM_TEST_ON
 #define DATA_GENERATION_ON
-
-#if defined(RANDOM_TEST_ON) || defined(DATA_GENERATION_ON)
-#define TEST_ON
-#endif
-
-#ifdef RANDOM_TEST_ON
-#include <iostream>
-#include <string>
-#include "fast-rand.h"
-
-int main(int argc, char * argv[])
-{
-    for (int i = 0; i != 10; ++i)
-    {
-        std::cout << "Seed: " << g_seed << ",\t";
-        std::cout << fastRand() << std::endl;
-    }
-
-    //srand(static_cast<unsigned int>(time(NULL)));
-    //auto size = std::stoi(argv[1]);
-    //randomTest(size);
-
-    return 0;
-}
-#endif
 
 #ifdef DATA_GENERATION_ON
 #include <iostream>
@@ -76,7 +50,7 @@ int main(int argc, char * argv[])
 }
 #endif
 
-#ifndef TEST_ON
+#ifndef DATA_GENERATION_ON
 #include <array>
 #include <iostream>
 #include <string>
