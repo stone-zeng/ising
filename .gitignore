@@ -1,13 +1,12 @@
+.vs/
+.vscode/
+ising-sync/
+
 Debug/
 Release/
 x64/
+x86/
 
-.vs/
-.vscode/
-
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
+data/
 
 *.nb

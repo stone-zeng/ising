@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
-#include "../fast-rand.h"
-#include "../getopt.h"
-#include "../json.h"
+#include "../ising-core/fast-rand.h"
+#include "../ising-core/getopt.h"
+#include "../ising-core/json.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
