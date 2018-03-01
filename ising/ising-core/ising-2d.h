@@ -31,6 +31,7 @@ struct Quantity
     }
 };
 
+/*
 class Ising2D
 {
 public:
@@ -202,6 +203,130 @@ void Ising2D::sweep(const double & beta, const double & magnetic_b)
             auto sweep_probability = metropolisFunction(energy_difference, beta);
             //if (randReal_0_1() < sweep_probability)
             if ((static_cast<double>(fastRand()) / RAND_MAX) < sweep_probability)
+                lattice_[i][j] *= -1;
+        }
+}
+*/
+
+
+class Ising2D
+{
+public:
+    Ising2D() = default;
+    Ising2D(const size_t & x_length, const size_t & y_length)
+    {
+        x_length_ = x_length;
+        y_length_ = y_length;
+        initialize();
+    }
+
+    ~Ising2D() = default;
+
+    //Quantity evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
+    //    const size_t & n_ensemble, const size_t & n_delta = 1);
+    //Quantity analysis(const double & magnetic_b);
+    //std::vector<int> renormalize(const size_t & x_scale, const size_t & y_scale);
+
+    inline void show()
+    {
+        for (auto i = lattice_.begin(); i != lattice_.end(); ++i)
+        {
+            for (auto j = i->begin(); j != i->end(); ++j)
+                std::cout << *j << " ";
+            std::cout << std::endl;
+        }
+    }
+
+protected:
+    size_t x_length_;
+    size_t y_length_;
+
+    std::vector<std::vector<int>> lattice_;
+
+    virtual void initialize() {}
+    virtual void sweep(const double & beta, const double & magnetic_b) {}
+
+    inline bool isFlip(const int & spin_sum, const int & spin_value,
+        const double & magnetic_b, const double & beta)
+    {
+        auto energy_difference = 2 * (spin_sum + magnetic_b) * spin_value;
+        auto flip_probability = metropolisFunction(energy_difference, beta);
+        return (static_cast<double>(fastRand()) / RAND_MAX) < flip_probability;
+    }
+    inline double metropolisFunction(const double & energy, const double & beta)
+    {
+        auto boltzmann_probability = std::exp(-beta * energy);
+        return boltzmann_probability < 1.0 ? boltzmann_probability : 1.0;
+    }
+};
+
+// Periodic boundary condition.
+class Ising2D_PBC : public Ising2D
+{
+public:
+    Ising2D_PBC() = default;
+private:
+    void initialize() override;
+    void sweep(const double & beta, const double & magnetic_b) override;
+
+    inline size_t xPlusOne (const size_t & x) { return (x == x_length_ - 1 ? 0 : x + 1); }
+    inline size_t xMinusOne(const size_t & x) { return (x == 0 ? x_length_ - 1 : x - 1); }
+    inline size_t yPlusOne (const size_t & y) { return (y == y_length_ - 1 ? 0 : y + 1); }
+    inline size_t yMinusOne(const size_t & y) { return (y == 0 ? y_length_ - 1 : y - 1); }
+};
+
+// Free boundary condition (with zero padding).
+class Ising2D_FBC : public Ising2D
+{
+public:
+    Ising2D_FBC() = default;
+private:
+    void initialize() override;
+    void sweep(const double & beta, const double & magnetic_b) override;
+};
+
+void Ising2D_PBC::initialize()
+{
+    lattice_.resize(x_length_);
+    for (int i = 0; i != x_length_; ++i)
+    {
+        lattice_[i].resize(y_length_);
+        for (int j = 0; j != y_length_; ++j)
+            lattice_[i][j] = 1;
+    }
+}
+
+void Ising2D_FBC::initialize()
+{
+    // Add zero padding to the original lattice.
+    lattice_.resize(x_length_ + 2);
+    for (auto i = lattice_.begin(); i != lattice_.end(); ++i)
+        i->resize(y_length_ + 2);
+    for (auto i = 1; i != x_length_ + 1; ++i)
+        for (auto j = 1; j != y_length_ + 1; ++j)
+            lattice_[i][j] = 1;
+}
+
+void Ising2D_PBC::sweep(const double & beta, const double & magnetic_b)
+{
+    for (auto i = 0; i != x_length_; ++i)
+        for (auto j = 0; j != y_length_; ++j)
+        {
+            auto spin_sum = lattice_[i][yMinusOne(j)] + lattice_[i][yPlusOne(j)]
+                + lattice_[xMinusOne(i)][j] + lattice_[xPlusOne(i)][j];
+            if (isFlip(spin_sum, lattice_[i][j], magnetic_b, beta))
+                lattice_[i][j] *= -1;
+        }
+}
+
+void Ising2D_FBC::sweep(const double & beta, const double & magnetic_b)
+{
+    for (auto i = 1; i != x_length_ + 1; ++i)
+        for (auto j = 1; j != y_length_ + 1; ++j)
+        {
+            auto spin_sum = lattice_[i][j - 1] + lattice_[i][j + 1]
+                + lattice_[i - 1][j] + lattice_[i + 1][j];
+            if (isFlip(spin_sum, lattice_[i][j], magnetic_b, beta))
                 lattice_[i][j] *= -1;
         }
 }

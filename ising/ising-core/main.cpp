@@ -1,3 +1,4 @@
+/*
 #define DATA_GENERATION_ON
 
 #ifdef DATA_GENERATION_ON
@@ -127,3 +128,12 @@ int main(int argc, char * argv[])
 }
 
 #endif
+*/
+
+#include "ising-2d.h"
+using namespace std;
+
+int main()
+{
+    return 0;
+}
