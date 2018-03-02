@@ -7,8 +7,9 @@
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace Ising::Toolkit;
 
-namespace IsingTest
+namespace Ising::Test
 {
     TEST_CLASS(AuxiliariesTest)
     {

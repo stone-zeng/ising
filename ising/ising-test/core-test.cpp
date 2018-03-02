@@ -8,9 +8,9 @@
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace IsingTest
+namespace Ising::Test
 {
-    TEST_CLASS(IsingTest)
+    TEST_CLASS(CoreTest)
     {
     public:
         TEST_METHOD(InitializePBC)

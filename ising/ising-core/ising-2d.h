@@ -6,30 +6,35 @@
 #include <cstdlib>
 #include "fast-rand.h"
 
-struct Quantity
+using namespace Ising::Toolkit;
+
+namespace Ising
 {
-    Quantity()
+    struct Quantity
     {
-        magnetic_dipole = 0.0;
-        energy = 0.0;
-    }
+        Quantity()
+        {
+            magnetic_dipole = 0.0;
+            energy = 0.0;
+        }
 
-    double magnetic_dipole;
-    double energy;
+        double magnetic_dipole;
+        double energy;
 
-    Quantity & operator/=(const double & scale)
-    {
-        magnetic_dipole /= scale;
-        energy /= scale;
-        return *this;
-    }
-    Quantity & operator+=(const Quantity & quantity)
-    {
-        magnetic_dipole += quantity.magnetic_dipole;
-        energy += quantity.energy;
-        return *this;
-    }
-};
+        Quantity & operator/=(const double & scale)
+        {
+            magnetic_dipole /= scale;
+            energy /= scale;
+            return *this;
+        }
+        Quantity & operator+=(const Quantity & quantity)
+        {
+            magnetic_dipole += quantity.magnetic_dipole;
+            energy += quantity.energy;
+            return *this;
+        }
+    };
+}
 
 /*
 class Ising2D

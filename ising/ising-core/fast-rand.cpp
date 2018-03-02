@@ -9,20 +9,23 @@
 
 using namespace std;
 
-static unsigned int g_seed = 0;
-
-unsigned int fastRand()
+namespace Ising::Toolkit
 {
-    g_seed = (214013 * g_seed + 2531011);
-    return (g_seed >> 16) & 0x7fff;
-}
+    static unsigned int _g_seed = 0;
 
-long long int _getTimeInt()
-{
-    LARGE_INTEGER t;
-    QueryPerformanceCounter(&t);
-    return t.QuadPart;
-}
+    unsigned int fastRand()
+    {
+        _g_seed = (214013 * _g_seed + 2531011);
+        return (_g_seed >> 16) & 0x7fff;
+    }
 
-void fastRandInitialize() { g_seed = static_cast<unsigned int>(_getTimeInt()); }
-void fastRandInitialize(const int & seed) { g_seed = seed; }
+    long long int _getTimeInt()
+    {
+        LARGE_INTEGER t;
+        QueryPerformanceCounter(&t);
+        return t.QuadPart;
+    }
+
+    void fastRandInitialize() { _g_seed = static_cast<unsigned int>(_getTimeInt()); }
+    void fastRandInitialize(const int & seed) { _g_seed = seed; }
+}

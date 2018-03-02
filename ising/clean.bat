@@ -23,3 +23,7 @@ rmdir /S /Q "ising-test\Release\"
 rmdir /S /Q "ising-test\x64\Debug\"
 rmdir /S /Q "ising-test\x64\Release\"
 rmdir /S /Q "ising-test\x64\"
+
+del      /Q ".vs\ising\v15\ipch\*"
+rmdir /S /Q ".vs\ising\v15\ipch\AutoPCH"
+rmdir /S /Q ".vs\ising\v15\ipch\"

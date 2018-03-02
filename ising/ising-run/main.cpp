@@ -141,6 +141,8 @@ int main(int argc, char * argv[])
 #include <iostream>
 #include "../ising-core/fast-rand.h"
 
+using namespace Ising::Toolkit;
+
 int main()
 {
     std::cout << fastRand() << std::endl;

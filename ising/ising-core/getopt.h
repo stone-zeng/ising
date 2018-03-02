@@ -5,19 +5,22 @@
 #include <string>
 #include <vector>
 
-// Unix-like option "-a option_a -b option_b" parser.
-class GetOpt
+namespace Ising::Toolkit
 {
-public:
-    GetOpt() = default;
-    GetOpt(int argc, char * argv[]);
+    // Unix-like option "-a option_a -b option_b" parser.
+    class GetOpt
+    {
+    public:
+        GetOpt() = default;
+        GetOpt(int argc, char * argv[]);
 
-    std::string parse(char c);
-    // int parse(std::string s);
+        std::string parse(char c);
+        // int parse(std::string s);
 
-private:
-    std::vector<std::string> raw_opt_list_;
-    std::map<char, std::string> opt_key_val_list_;
-};
+    private:
+        std::vector<std::string> raw_opt_list_;
+        std::map<char, std::string> opt_key_val_list_;
+    };
+}
 
 #endif

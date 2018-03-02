@@ -29,7 +29,7 @@
     <ClCompile Include="auxiliaries-test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ising-test.cpp">
+    <ClCompile Include="core-test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,16 +4,19 @@
 #include <map>
 #include <string>
 
-class JSON
+namespace Ising::Toolkit
 {
-public:
-    JSON() = default;
-    JSON(const std::string & json_str);
+    class JSON
+    {
+    public:
+        JSON() = default;
+        JSON(const std::string & json_str);
 
-    double getNumberValue(const std::string & key);
+        double getNumberValue(const std::string & key);
 
-private:
-    std::map<std::string, double> key_value_list_;
-};
+    private:
+        std::map<std::string, double> key_value_list_;
+    };
+}
 
 #endif
