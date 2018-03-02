@@ -18,41 +18,20 @@
 class Timing
 {
 public:
-    inline Timing() { QueryPerformanceFrequency(&performance_freq_); }
-    inline void timingStart() { QueryPerformanceCounter(&counter_begin_time_); }
-    inline void timingEnd() { QueryPerformanceCounter(&counter_end_time_); }
+    Timing();
+
+    void timingStart();
+    void timingEnd();
 
     // "Run time" equals the difference of two counters over counter frequency.
     // run_time = end_time - start_time
     //          = (`counter_begin_time` - `counter_begin_time`) / `performance_freq`
-    inline double getRunTime() const;
-    inline double getRunTime(const std::string &unit) const;
+    double getRunTime() const;
+    double getRunTime(const std::string & unit) const;
 
 private:
     LARGE_INTEGER performance_freq_;
     LARGE_INTEGER counter_begin_time_, counter_end_time_;
 };
-
-inline double Timing::getRunTime() const
-{
-    // The default unit for the result is second.
-    double counter_difference = static_cast<double>(counter_end_time_.QuadPart)
-        - static_cast<double>(counter_begin_time_.QuadPart);
-    return counter_difference / performance_freq_.QuadPart;
-}
-
-inline double Timing::getRunTime(const std::string &unit) const
-{
-    // The default unit for the result is second.
-    if (unit == "ms")
-        return 1000.0 * getRunTime();
-    if (unit == "us")
-        return 1000000.0 * getRunTime();
-    if (unit == "ns")
-        return 1000000000.0 * getRunTime();
-    if (unit == "min")
-        return getRunTime() / 60.0;
-    return getRunTime();
-}
 
 #endif

@@ -122,11 +122,13 @@
     <ClInclude Include="ising-2d.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="win-timing.h" />
-    <ClInclude Include="toolkit.h" />
     <ClInclude Include="fast-rand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp" />
+    <ClCompile Include="getopt.cpp" />
+    <ClCompile Include="json.cpp" />
+    <ClCompile Include="win-timing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

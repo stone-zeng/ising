@@ -18,9 +18,6 @@
     <ClInclude Include="ising-2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="toolkit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="win-timing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,6 +33,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="getopt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win-timing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
