@@ -128,6 +128,7 @@
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp" />
     <ClCompile Include="getopt.cpp" />
+    <ClCompile Include="ising-2d.cpp" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="win-timing.cpp" />
   </ItemGroup>

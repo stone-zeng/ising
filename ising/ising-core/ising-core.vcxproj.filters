@@ -44,5 +44,8 @@
     <ClCompile Include="win-timing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ising-2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

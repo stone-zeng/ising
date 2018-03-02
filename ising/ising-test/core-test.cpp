@@ -13,7 +13,7 @@ namespace Ising::Test
     TEST_CLASS(CoreTest)
     {
     public:
-        TEST_METHOD(InitializePBC)
+        TEST_METHOD(PBCInitialize)
         {
             const size_t lattice_size = 10;
             Ising2D_PBC ising(lattice_size, lattice_size);

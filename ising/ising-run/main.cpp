@@ -139,12 +139,30 @@ int main(int argc, char * argv[])
 //}
 
 #include <iostream>
-#include "../ising-core/fast-rand.h"
+#include "../ising-core/ising-2d.h"
 
-using namespace Ising::Toolkit;
+using namespace std;
+using namespace Ising;
 
 int main()
 {
-    std::cout << fastRand() << std::endl;
-    return 0;
+    double beta = 0.1;
+    double magnet = 0;
+    cout << "Free boundary condition:" << endl;
+    Ising2D_FBC s_fbc(5);
+    s_fbc.initialize();
+    s_fbc.show();
+    cout << endl << endl;
+    s_fbc.sweep(beta, magnet);
+    s_fbc.show();
+    cout << endl << endl;
+
+    cout << "Periodic boundary condition:" << endl;
+    Ising2D_PBC s_pbc(5);
+    s_pbc.initialize();
+    s_pbc.show();
+    cout << endl << endl;
+    s_fbc.sweep(beta, magnet);
+    s_fbc.show();
+    cout << endl;
 }
