@@ -237,14 +237,14 @@ public:
         }
     }
 
+    virtual void initialize() {}
+    virtual void sweep(const double & beta, const double & magnetic_b) {}
+
 protected:
     size_t x_length_;
     size_t y_length_;
 
     std::vector<std::vector<int>> lattice_;
-
-    virtual void initialize() {}
-    virtual void sweep(const double & beta, const double & magnetic_b) {}
 
     inline bool isFlip(const int & spin_sum, const int & spin_value,
         const double & magnetic_b, const double & beta)
@@ -264,11 +264,12 @@ protected:
 class Ising2D_PBC : public Ising2D
 {
 public:
-    Ising2D_PBC() = default;
-private:
+    using Ising2D::Ising2D;
+
     void initialize() override;
     void sweep(const double & beta, const double & magnetic_b) override;
 
+private:
     inline size_t xPlusOne (const size_t & x) { return (x == x_length_ - 1 ? 0 : x + 1); }
     inline size_t xMinusOne(const size_t & x) { return (x == 0 ? x_length_ - 1 : x - 1); }
     inline size_t yPlusOne (const size_t & y) { return (y == y_length_ - 1 ? 0 : y + 1); }
@@ -279,8 +280,8 @@ private:
 class Ising2D_FBC : public Ising2D
 {
 public:
-    Ising2D_FBC() = default;
-private:
+    using Ising2D::Ising2D;
+
     void initialize() override;
     void sweep(const double & beta, const double & magnetic_b) override;
 };

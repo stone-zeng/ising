@@ -1,12 +1,9 @@
 #include "stdafx.h"
-#include "CppUnitTest.h"
 
-#include <cstdlib>
-#include <vector>
-#include <string>
 #include "../ising-core/fast-rand.h"
 #include "../ising-core/getopt.h"
 #include "../ising-core/json.h"
+#include "../ising-core/win-timing.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -18,21 +15,50 @@ namespace IsingTest
     public:
         TEST_METHOD(FastRandTest)
         {
-            const size_t test_num = 10;
+            const size_t test_num = 100;
+            const size_t show_num = 5;
+            auto rand_seed = static_cast<unsigned int>(time(NULL));
 
-            // Set `rand_seed` to be an arbitrary number
-            const unsigned int rand_seed = 1602;
-            g_seed = rand_seed;
+            Timing clock;
+            string message;
+
+            vector<int> fast_rand_result(test_num);
+            vector<int> std_rand_result  (test_num);
+            vector<int> cpp11_rand_result(test_num);
+
+#define _RAND_TEST_RESULT(_f, _result)  \
+    clock.timingStart();                \
+    for (auto & i : (_result))          \
+        i = (_f);                       \
+    clock.timingEnd();
+
+#define _RAND_TEST_MESSAGE(_head, _result)                  \
+    message = (_head);                                      \
+    message += to_string(clock.getRunTime("ms")) + "ms. ";  \
+    message += "Result: ";                                  \
+    for (auto i = 0; i != show_num;                         \
+            ++i)                                            \
+        message += to_string((_result)[i]) + " ";           \
+    message += "...";                                       \
+    Logger::WriteMessage(message.c_str());
+
+#define _RAND_TEST(_f, _result, _head)      \
+    _RAND_TEST_RESULT((_f), (_result))      \
+    _RAND_TEST_MESSAGE((_head), (_result))
+
+            // My fast random integer.
+            fastRandInitialize(rand_seed);
+            _RAND_TEST(fastRand(), fast_rand_result, "fastRand(): ")
+
+            // C standard random integer.
             srand(rand_seed);
+            _RAND_TEST(rand(), std_rand_result, "C rand(): ")
 
-            vector<int> fast_rand_result;
-            vector<int> std_rand_result;
-
-            for (int i = 0; i != test_num; ++i)
-            {
-                fast_rand_result.push_back(fastRand());
-                std_rand_result.push_back(rand());
-            }
+            // C++ 11 STL random library.
+            static std::default_random_engine engine;
+            static std::uniform_int_distribution<> dist(0, RAND_MAX);
+            engine.seed(rand_seed);
+            _RAND_TEST(dist(engine), cpp11_rand_result, "C++ 11 random: ")
 
             Assert::IsTrue(std_rand_result == fast_rand_result);
         }

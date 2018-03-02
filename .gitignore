@@ -5,8 +5,9 @@ ising-sync/
 Debug/
 Release/
 x64/
-x86/
 
 data/
+
+*.vcxproj.user
 
 *.nb

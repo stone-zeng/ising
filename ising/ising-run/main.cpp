@@ -130,10 +130,19 @@ int main(int argc, char * argv[])
 #endif
 */
 
-#include "ising-2d.h"
-using namespace std;
+//#include "ising-2d.h"
+//using namespace std;
+//
+//int main()
+//{
+//    return 0;
+//}
+
+#include <iostream>
+#include "../ising-core/fast-rand.h"
 
 int main()
 {
+    std::cout << fastRand() << std::endl;
     return 0;
 }

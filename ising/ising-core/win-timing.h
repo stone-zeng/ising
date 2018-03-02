@@ -25,15 +25,15 @@ public:
     // "Run time" equals the difference of two counters over counter frequency.
     // run_time = end_time - start_time
     //          = (`counter_begin_time` - `counter_begin_time`) / `performance_freq`
-    inline double getRunTime();
-    inline double getRunTime(const std::string &unit);
+    inline double getRunTime() const;
+    inline double getRunTime(const std::string &unit) const;
 
 private:
     LARGE_INTEGER performance_freq_;
     LARGE_INTEGER counter_begin_time_, counter_end_time_;
 };
 
-inline double Timing::getRunTime()
+inline double Timing::getRunTime() const
 {
     // The default unit for the result is second.
     double counter_difference = static_cast<double>(counter_end_time_.QuadPart)
@@ -41,7 +41,7 @@ inline double Timing::getRunTime()
     return counter_difference / performance_freq_.QuadPart;
 }
 
-inline double Timing::getRunTime(const std::string &unit)
+inline double Timing::getRunTime(const std::string &unit) const
 {
     // The default unit for the result is second.
     if (unit == "ms")
