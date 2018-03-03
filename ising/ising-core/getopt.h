@@ -14,7 +14,7 @@ namespace Ising::Toolkit
         GetOpt() = default;
         GetOpt(int argc, char * argv[]);
 
-        std::string parse(char c);
+        std::string parse(char c) const;
         // int parse(std::string s);
 
     private:

@@ -36,5 +36,5 @@ namespace Ising::Toolkit
         }
     }
 
-    string GetOpt::parse(char c) { return opt_key_val_list_[c]; }
+    string GetOpt::parse(char c) const { return opt_key_val_list_.at(c); }
 }

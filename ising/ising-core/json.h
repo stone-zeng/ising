@@ -12,7 +12,7 @@ namespace Ising::Toolkit
         JSON() = default;
         JSON(const std::string & json_str);
 
-        double getNumberValue(const std::string & key);
+        double getNumberValue(const std::string & key) const;
 
     private:
         std::map<std::string, double> key_value_list_;

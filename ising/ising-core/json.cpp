@@ -35,7 +35,7 @@ namespace Ising::Toolkit
         }
     }
 
-    double JSON::getNumberValue(const string & key)
+    double JSON::getNumberValue(const string & key) const
     {
         if (key_value_list_.find(key) == key_value_list_.end())
         {
@@ -43,6 +43,6 @@ namespace Ising::Toolkit
             return NULL;
         }
         else
-            return key_value_list_[key];
+            return key_value_list_.at(key);
     }
 }

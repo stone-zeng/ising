@@ -146,23 +146,29 @@ using namespace Ising;
 
 int main()
 {
-    double beta = 0.1;
-    double magnet = 0;
+    size_t x_length = 10;
+    size_t y_length = 5;
+    double beta = 0.001;
+    double magnet = -16;
+    size_t iteration = 10;
+
     cout << "Free boundary condition:" << endl;
-    Ising2D_FBC s_fbc(5);
+    Ising2D_FBC s_fbc(x_length, y_length);
     s_fbc.initialize();
     s_fbc.show();
     cout << endl << endl;
-    s_fbc.sweep(beta, magnet);
+    for (auto i = 0; i != iteration; ++i)
+        s_fbc.sweep(beta, magnet);
     s_fbc.show();
     cout << endl << endl;
 
     cout << "Periodic boundary condition:" << endl;
-    Ising2D_PBC s_pbc(5);
+    Ising2D_PBC s_pbc(x_length, y_length);
     s_pbc.initialize();
     s_pbc.show();
     cout << endl << endl;
-    s_fbc.sweep(beta, magnet);
-    s_fbc.show();
+    for (auto i = 0; i != iteration; ++i)
+        s_pbc.sweep(beta, magnet);
+    s_pbc.show();
     cout << endl;
 }
