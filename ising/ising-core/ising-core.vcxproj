@@ -121,6 +121,8 @@
   <ItemGroup>
     <ClInclude Include="getopt.h" />
     <ClInclude Include="ising-2d.h" />
+    <ClInclude Include="ising-definitions.h" />
+    <ClInclude Include="ising-option.h" />
     <ClInclude Include="win-timing.h" />
     <ClInclude Include="fast-rand.h" />
   </ItemGroup>
@@ -128,6 +130,7 @@
     <ClCompile Include="fast-rand.cpp" />
     <ClCompile Include="getopt.cpp" />
     <ClCompile Include="ising-2d.cpp" />
+    <ClCompile Include="ising-option.cpp" />
     <ClCompile Include="win-timing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

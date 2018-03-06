@@ -5,32 +5,10 @@
 #include <vector>
 #include <cstdlib>
 #include "fast-rand.h"
+#include "ising-definitions.h"
 
 namespace Ising
 {
-    typedef std::vector<std::vector<int>> Lattice2D;
-
-    struct Quantity
-    {
-        Quantity() : magnetic_dipole(0.0), energy(0.0) {}
-
-        double magnetic_dipole;
-        double energy;
-
-        Quantity & operator/=(const double & scale)
-        {
-            magnetic_dipole /= scale;
-            energy /= scale;
-            return *this;
-        }
-        Quantity & operator+=(const Quantity & quantity)
-        {
-            magnetic_dipole += quantity.magnetic_dipole;
-            energy += quantity.energy;
-            return *this;
-        }
-    };
-
     // Abstract base class for general 2D Ising model.
     class Ising2D
     {

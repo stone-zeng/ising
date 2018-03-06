@@ -49,7 +49,7 @@ namespace Ising::Test
     _RAND_TEST_RESULT((_f), (_result))      \
     _RAND_TEST_MESSAGE((_head), (_result))
 
-            // My fast random integer.
+            // Fast random integer.
             fastRandInitialize(rand_seed);
             _RAND_TEST(fastRand(), fast_rand_result, "fastRand(): ")
 
@@ -108,18 +108,23 @@ namespace Ising::Test
             Document json;
             json.Parse(json_str.c_str());
 
+            // Basic types.
             Assert::AreEqual(json["size"].GetInt(), 23);
             Assert::AreEqual(json["pi"].GetDouble(), 3.1416);
             Assert::AreEqual(json["happy"].GetBool(), true);
             Assert::AreEqual(json["name"].GetString(), "Niels");
 
+            // Array.
             auto list = json["list"].GetArray();
             vector<int> v;
             for (auto & i : list)
                 v.push_back(i.GetInt());
             Assert::IsTrue(v == vector<int>{1, 0, 2});
 
-            // I do not need object type at present.
+            // Object.
+            Assert::AreEqual(json["answer"]["everything"].GetInt(), 42);
+            Assert::AreEqual(json["object"]["currency"].GetString(), "USD");
+            Assert::AreEqual(json["object"]["value"].GetDouble(), 42.99);
         }
     };
 }

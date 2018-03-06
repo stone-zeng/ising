@@ -27,6 +27,12 @@
     <ClInclude Include="fast-rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ising-option.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ising-definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">
@@ -39,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ising-2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ising-option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

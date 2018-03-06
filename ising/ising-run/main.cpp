@@ -138,37 +138,34 @@ int main(int argc, char * argv[])
 //    return 0;
 //}
 
+#include <fstream>
 #include <iostream>
+#include "ising-core/getopt.h"
 #include "ising-core/ising-2d.h"
 
 using namespace std;
 using namespace Ising;
+using namespace Ising::Toolkit;
 
-int main()
+int main(int argc, char * argv[])
 {
+    GetOpt option(argc, argv);
+    auto settings_path_str = option.parse('s');
+
     size_t x_length = 10;
-    size_t y_length = 5;
-    double beta = 0.001;
-    double magnet = -16;
-    size_t iteration = 10;
+    size_t y_length = 10;
+    double beta = 1;
+    double magnet = 0;
+    size_t iteration = 100;
+    size_t n_ensemble = 10;
 
-    cout << "Free boundary condition:" << endl;
-    Ising2D_FBC s_fbc(x_length, y_length);
-    s_fbc.initialize();
-    s_fbc.show();
-    cout << endl << endl;
-    for (auto i = 0; i != iteration; ++i)
-        s_fbc.sweep(beta, magnet);
-    s_fbc.show();
-    cout << endl << endl;
+    Ising2D_FBC s(x_length, y_length);
+    s.initialize();
+    Quantity result;
 
-    cout << "Periodic boundary condition:" << endl;
-    Ising2D_PBC s_pbc(x_length, y_length);
-    s_pbc.initialize();
-    s_pbc.show();
-    cout << endl << endl;
-    for (auto i = 0; i != iteration; ++i)
-        s_pbc.sweep(beta, magnet);
-    s_pbc.show();
-    cout << endl;
+    for (auto t = 0.01; t < 4; t += 0.01)
+    {
+        result = s.evaluate(1 / t, magnet, iteration, n_ensemble);
+        cout << t << ", " << result.magnetic_dipole << ", " << result.energy << endl;
+    }
 }
