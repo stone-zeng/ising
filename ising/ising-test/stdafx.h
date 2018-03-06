@@ -20,4 +20,6 @@
 #include <string>
 #include <vector>
 
+#include "../ising-core/include/rapidjson/document.h"
+
 #endif

@@ -82,7 +82,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -120,8 +120,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="getopt.h" />
+    <ClInclude Include="include\rapidjson\document.h" />
     <ClInclude Include="ising-2d.h" />
-    <ClInclude Include="json.h" />
     <ClInclude Include="win-timing.h" />
     <ClInclude Include="fast-rand.h" />
   </ItemGroup>
@@ -129,7 +129,6 @@
     <ClCompile Include="fast-rand.cpp" />
     <ClCompile Include="getopt.cpp" />
     <ClCompile Include="ising-2d.cpp" />
-    <ClCompile Include="json.cpp" />
     <ClCompile Include="win-timing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

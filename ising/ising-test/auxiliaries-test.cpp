@@ -2,12 +2,17 @@
 
 #include "../ising-core/fast-rand.h"
 #include "../ising-core/getopt.h"
-#include "../ising-core/json.h"
 #include "../ising-core/win-timing.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace rapidjson;
 using namespace Ising::Toolkit;
+
+#define PRINT_TEST_INFO(_name)                  \
+    string info_head("Start test: ");           \
+    info_head += (_name);                       \
+    Logger::WriteMessage(info_head.c_str());
 
 namespace Ising::Test
 {
@@ -16,6 +21,8 @@ namespace Ising::Test
     public:
         TEST_METHOD(FastRandTest)
         {
+            PRINT_TEST_INFO("Fast rand")
+
             const size_t test_num = 100;
             const size_t show_num = 5;
             auto rand_seed = static_cast<unsigned int>(time(NULL));
@@ -66,6 +73,8 @@ namespace Ising::Test
 
         TEST_METHOD(GetOptTest)
         {
+            PRINT_TEST_INFO("Getopt")
+
             char * arg_exe_name = "test.exe";
             char * arg_n = "123";
             char * arg_o = "options";
@@ -81,28 +90,41 @@ namespace Ising::Test
 
         TEST_METHOD(JSONTest)
         {
-            const string json_begin = "{";
-            const string json_end = "}";
-            const string json_keyval_seperator = ": ";
-            const string json_item_seperator = ",\n";
+            PRINT_TEST_INFO("Rapid JSON")
 
-            string key_1 = "Size";
-            string key_2 = "Iterations";
-            double value_1 = 100;
-            double value_2 = 1e6;
+            const string json_str =
+                R"(
+                    {
+                        "size": 23,
+                        "pi": 3.1416,
+                        "happy" : true,
+                        "name" : "Niels",
+                        "nothing" : null,
+                        "list" : [1, 0, 2],
+                        "answer" : { "everything": 42 },
+                        "object" :
+                            {
+                                "currency": "USD",
+                                "value" : 42.99
+                            }
+                    }
+                )";
 
-            string keyval_1 = "\"" + key_1 + "\"" + json_keyval_seperator + to_string(value_1);
-            string keyval_2 = "\"" + key_2 + "\"" + json_keyval_seperator + to_string(value_2);
+            Document json;
+            json.Parse(json_str.c_str());
 
-            string json_str = json_begin + "\n"
-                + "\t" + keyval_1 + json_item_seperator
-                + "\t" + keyval_2 + "\n"
-                + json_end;
+            Assert::AreEqual(json["size"].GetInt(), 23);
+            Assert::AreEqual(json["pi"].GetDouble(), 3.1416);
+            Assert::AreEqual(json["happy"].GetBool(), true);
+            Assert::AreEqual(json["name"].GetString(), "Niels");
 
-            JSON json(json_str);
+            auto list = json["list"].GetArray();
+            vector<int> v;
+            for (auto & i : list)
+                v.push_back(i.GetInt());
+            Assert::IsTrue(v == vector<int>{1, 0, 2});
 
-            Assert::AreEqual(value_1, json.getNumberValue(key_1));
-            Assert::AreEqual(value_2, json.getNumberValue(key_2));
+            // I do not need object type at present.
         }
     };
 }

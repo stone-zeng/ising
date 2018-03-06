@@ -8,6 +8,8 @@ x64/
 
 data/
 
+ising/ising-core/include/
+
 *.vcxproj.user
 
 *.nb
