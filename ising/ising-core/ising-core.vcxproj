@@ -120,7 +120,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="getopt.h" />
-    <ClInclude Include="include\rapidjson\document.h" />
     <ClInclude Include="ising-2d.h" />
     <ClInclude Include="win-timing.h" />
     <ClInclude Include="fast-rand.h" />

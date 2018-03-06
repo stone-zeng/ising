@@ -77,6 +77,7 @@
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

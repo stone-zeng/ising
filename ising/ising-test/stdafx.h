@@ -20,6 +20,11 @@
 #include <string>
 #include <vector>
 
-#include "../ising-core/include/rapidjson/document.h"
+#include "ising-core/include/rapidjson/document.h"
+
+#define PRINT_TEST_INFO(_name)                  \
+    std::string info_head(">> Start test: ");   \
+    info_head += (_name);                       \
+    Microsoft::VisualStudio::CppUnitTestFramework::Logger::WriteMessage(info_head.c_str());
 
 #endif

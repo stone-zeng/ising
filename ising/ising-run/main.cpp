@@ -139,7 +139,7 @@ int main(int argc, char * argv[])
 //}
 
 #include <iostream>
-#include "../ising-core/ising-2d.h"
+#include "ising-core/ising-2d.h"
 
 using namespace std;
 using namespace Ising;

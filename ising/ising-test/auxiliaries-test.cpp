@@ -1,18 +1,13 @@
 #include "stdafx.h"
 
-#include "../ising-core/fast-rand.h"
-#include "../ising-core/getopt.h"
-#include "../ising-core/win-timing.h"
+#include "ising-core/fast-rand.h"
+#include "ising-core/getopt.h"
+#include "ising-core/win-timing.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace rapidjson;
 using namespace Ising::Toolkit;
-
-#define PRINT_TEST_INFO(_name)                  \
-    string info_head("Start test: ");           \
-    info_head += (_name);                       \
-    Logger::WriteMessage(info_head.c_str());
 
 namespace Ising::Test
 {

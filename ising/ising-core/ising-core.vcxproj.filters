@@ -27,9 +27,6 @@
     <ClInclude Include="fast-rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\rapidjson\document.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">
