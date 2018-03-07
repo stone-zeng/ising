@@ -1,5 +1,5 @@
-#ifndef ISING_CORE_ISING_OPTION_H_
-#define ISING_CORE_ISING_OPTION_H_
+#ifndef ISING_CORE_ISING_PARAMETER_H_
+#define ISING_CORE_ISING_PARAMETER_H_
 
 #include <string>
 #include <vector>
@@ -11,11 +11,11 @@
 
 ISING_NAMESPACE_BEGIN
 
-class Option
+class Parameter
 {
 public:
-    Option() = default;
-    Option(const std::string & file_name);
+    Parameter() = default;
+    Parameter(const std::string & file_name);
 
     BoundaryTypes boundary_type_;
     std::vector<double> beta_list_;

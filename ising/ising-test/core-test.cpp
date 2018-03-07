@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "ising-core/ising-option.h"
+#include "ising-core/ising-parameter.h"
 #include "ising-core/ising-2d.h"
 
 using namespace std;
@@ -12,13 +12,13 @@ namespace ising::Test
 TEST_CLASS(CoreTest)
 {
 public:
-    TEST_METHOD(OptionParse)
+    TEST_METHOD(ParameterParse)
     {
         PRINT_TEST_INFO("Ising parameters")
 
         const string file_path = ISING_SOLUTION_DIRECTORY;
         const string file_name = "ising-parameter-test.json";
-        Option param(file_path + file_name);
+        Parameter param(file_path + file_name);
 
         vector<double> beta_array{ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
                                    1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0 };

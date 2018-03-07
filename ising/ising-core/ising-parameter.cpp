@@ -1,4 +1,4 @@
-#include "ising-option.h"
+#include "ising-parameter.h"
 
 #include <fstream>
 #include <sstream>
@@ -15,7 +15,7 @@ using namespace rapidjson;
 
 ISING_NAMESPACE_BEGIN
 
-Option::Option(const string & file_name)
+Parameter::Parameter(const string & file_name)
 {
     ifstream file(file_name);
     // Read the whole file. See https://stackoverflow.com/a/116220/8479490.
@@ -23,7 +23,7 @@ Option::Option(const string & file_name)
     Parse();
 }
 
-void Option::Parse()
+void Parameter::Parse()
 {
     Document doc;
     // Allow relaxed JSON syntax (comments and trailing commas).
@@ -33,7 +33,7 @@ void Option::Parse()
     beta_list_     = ParseBetaList(doc);
 }
 
-BoundaryTypes Option::ParseBoundaryType(const Document & json)
+BoundaryTypes Parameter::ParseBoundaryType(const Document & json)
 {
     string s(json["boundary"].GetString());
     if (s == "periodic")
@@ -42,7 +42,7 @@ BoundaryTypes Option::ParseBoundaryType(const Document & json)
         return kFree;
 }
 
-vector<double> Option::ParseBetaList(const Document & json)
+vector<double> Parameter::ParseBetaList(const Document & json)
 {
     vector<double> beta_list;
 
