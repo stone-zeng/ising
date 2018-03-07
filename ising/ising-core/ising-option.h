@@ -21,13 +21,11 @@ public:
     std::vector<double> beta_list_;
 
 private:
-    typedef rapidjson::Document JSON;
-
     std::string raw_json_str_;
 
     void Parse();
-    BoundaryTypes parseBoundaryType(const JSON & json);
-    std::vector<double> parseBetaList(const JSON & json);
+    BoundaryTypes ParseBoundaryType(const rapidjson::Document & json);
+    std::vector<double> ParseBetaList(const rapidjson::Document & json);
 };
 
 ISING_NAMESPACE_END

@@ -18,29 +18,31 @@ ISING_NAMESPACE_BEGIN
 Option::Option(const string & file_name)
 {
     ifstream file(file_name);
-    file >> raw_json_str_;
+    // Read the whole file. See https://stackoverflow.com/a/116220/8479490.
+    raw_json_str_ = static_cast<stringstream const&>(stringstream() << file.rdbuf()).str();
     Parse();
 }
 
 void Option::Parse()
 {
-    JSON json;
-    json.Parse(raw_json_str_.c_str());
+    Document doc;
+    // Allow relaxed JSON syntax (comments and trailing commas).
+    doc.Parse<kParseCommentsFlag + kParseTrailingCommasFlag>(raw_json_str_.c_str());
 
-    boundary_type_ = parseBoundaryType(json);
-    beta_list_     = parseBetaList(json);
+    boundary_type_ = ParseBoundaryType(doc);
+    beta_list_     = ParseBetaList(doc);
 }
 
-BoundaryTypes Option::parseBoundaryType(const JSON & json)
+BoundaryTypes Option::ParseBoundaryType(const Document & json)
 {
-    auto s = json["boundary"].GetString();
-    if (strcmp(s, "periodic"))
+    string s(json["boundary"].GetString());
+    if (s == "periodic")
         return kPeriodic;
-    if (strcmp(s, "free"))
+    if (s == "free")
         return kFree;
 }
 
-vector<double> Option::parseBetaList(const JSON & json)
+vector<double> Option::ParseBetaList(const Document & json)
 {
     vector<double> beta_list;
 
@@ -49,7 +51,7 @@ vector<double> Option::parseBetaList(const JSON & json)
         auto beta_list_begin = json["beta"]["begin"].GetDouble();
         auto beta_list_end   = json["beta"]["end"].GetDouble();
         auto beta_list_step  = json["beta"]["step"].GetDouble();
-        for (auto i = beta_list_begin; i < beta_list_end; i += beta_list_step)
+        for (auto i = beta_list_begin; i <= beta_list_end + beta_list_step; i += beta_list_step)
             beta_list.push_back(i);
     }
     else
@@ -57,7 +59,7 @@ vector<double> Option::parseBetaList(const JSON & json)
         auto temp_list_begin = json["temperature"]["begin"].GetDouble();
         auto temp_list_end   = json["temperature"]["end"].GetDouble();
         auto temp_list_step  = json["temperature"]["step"].GetDouble();
-        for (auto i = temp_list_begin; i < temp_list_end; i += temp_list_step)
+        for (auto i = temp_list_begin; i <= temp_list_end + temp_list_step; i += temp_list_step)
             beta_list.push_back(1 / i);
     }
 

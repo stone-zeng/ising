@@ -26,7 +26,7 @@ public:
         Timing clock;
         string message;
 
-        vector<int> fast_rand_result(test_num);
+        vector<int> fast_rand_result (test_num);
         vector<int> std_rand_result  (test_num);
         vector<int> cpp11_rand_result(test_num);
 
@@ -106,26 +106,26 @@ public:
                 }
             )";
 
-        Document json;
-        json.Parse(json_str.c_str());
+        Document doc;
+        doc.Parse(json_str.c_str());
 
         // Basic types.
-        Assert::AreEqual(json["size"].GetInt(), 23);
-        Assert::AreEqual(json["pi"].GetDouble(), 3.1416);
-        Assert::AreEqual(json["happy"].GetBool(), true);
-        Assert::AreEqual(json["name"].GetString(), "Alice");
+        Assert::AreEqual(23,      doc["size"].GetInt());
+        Assert::AreEqual(3.1416,  doc["pi"].GetDouble());
+        Assert::AreEqual(true,    doc["happy"].GetBool());
+        Assert::AreEqual("Alice", doc["name"].GetString());
 
         // Array.
-        auto list = json["list"].GetArray();
+        auto list = doc["list"].GetArray();
         vector<int> v;
         for (auto & i : list)
             v.push_back(i.GetInt());
-        Assert::IsTrue(v == vector<int>{1, 0, 2});
+        Assert::IsTrue(vector<int>{1, 0, 2} == v);
 
         // Object.
-        Assert::AreEqual(json["answer"]["everything"].GetInt(), 42);
-        Assert::AreEqual(json["object"]["currency"].GetString(), "USD");
-        Assert::AreEqual(json["object"]["value"].GetDouble(), 42.99);
+        Assert::AreEqual(42,    doc["answer"]["everything"].GetInt());
+        Assert::AreEqual("USD", doc["object"]["currency"].GetString());
+        Assert::AreEqual(42.99, doc["object"]["value"].GetDouble());
     }
 };
 
