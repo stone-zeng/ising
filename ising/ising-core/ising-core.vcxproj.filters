@@ -21,9 +21,6 @@
     <ClInclude Include="win-timing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="getopt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="fast-rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,12 +33,12 @@
     <ClInclude Include="ising.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="get-option.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="getopt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="win-timing.cpp">
@@ -51,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ising-option.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="get-option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

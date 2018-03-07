@@ -1,5 +1,5 @@
-#ifndef ISING_CORE_GETOPT_H_
-#define ISING_CORE_GETOPT_H_
+#ifndef ISING_CORE_GET_OPTION_H_
+#define ISING_CORE_GET_OPTION_H_
 
 #include <map>
 #include <string>

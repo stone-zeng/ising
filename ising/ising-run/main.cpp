@@ -141,7 +141,7 @@ int main(int argc, char * argv[])
 #include <fstream>
 #include <iostream>
 
-#include "ising-core/getopt.h"
+#include "ising-core/get-option.h"
 #include "ising-core/ising-2d.h"
 #include "ising-core/ising-definitions.h"
 

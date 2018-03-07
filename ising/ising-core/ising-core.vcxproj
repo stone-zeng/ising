@@ -119,7 +119,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="getopt.h" />
+    <ClInclude Include="get-option.h" />
     <ClInclude Include="ising-2d.h" />
     <ClInclude Include="ising-definitions.h" />
     <ClInclude Include="ising-option.h" />
@@ -129,7 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp" />
-    <ClCompile Include="getopt.cpp" />
+    <ClCompile Include="get-option.cpp" />
     <ClCompile Include="ising-2d.cpp" />
     <ClCompile Include="ising-option.cpp" />
     <ClCompile Include="win-timing.cpp" />

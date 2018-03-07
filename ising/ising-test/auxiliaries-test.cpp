@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "ising-core/fast-rand.h"
-#include "ising-core/getopt.h"
+#include "ising-core/get-option.h"
 #include "ising-core/win-timing.h"
 
 using namespace std;
@@ -94,7 +94,7 @@ public:
                     "size": 23,
                     "pi": 3.1416,
                     "happy" : true,
-                    "name" : "Niels",
+                    "name" : "Alice",
                     "nothing" : null,
                     "list" : [1, 0, 2],
                     "answer" : { "everything": 42 },
@@ -113,7 +113,7 @@ public:
         Assert::AreEqual(json["size"].GetInt(), 23);
         Assert::AreEqual(json["pi"].GetDouble(), 3.1416);
         Assert::AreEqual(json["happy"].GetBool(), true);
-        Assert::AreEqual(json["name"].GetString(), "Niels");
+        Assert::AreEqual(json["name"].GetString(), "Alice");
 
         // Array.
         auto list = json["list"].GetArray();
