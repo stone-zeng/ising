@@ -5,8 +5,8 @@
 
 #pragma once
 
-#ifndef STDAFX_H
-#define STDAFX_H
+#ifndef ISING_TEST_STDAFX_H_
+#define ISING_TEST_STDAFX_H_
 
 #include "targetver.h"
 

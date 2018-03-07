@@ -140,12 +140,14 @@ int main(int argc, char * argv[])
 
 #include <fstream>
 #include <iostream>
+
 #include "ising-core/getopt.h"
 #include "ising-core/ising-2d.h"
+#include "ising-core/ising-definitions.h"
 
 using namespace std;
-using namespace Ising;
-using namespace Ising::Toolkit;
+using namespace ising;
+using namespace ising::toolkit;
 
 int main(int argc, char * argv[])
 {

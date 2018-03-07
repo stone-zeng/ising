@@ -1,12 +1,15 @@
-#ifndef FATS_RAND_H
-#define FATS_RAND_H
+#ifndef ISING_CORE_FAST_RAND_H_
+#define ISING_CORE_FAST_RAND_H_
 
-namespace Ising::Toolkit
-{
-    unsigned int fastRand();
+#include "ising.h"
 
-    void fastRandInitialize();
-    void fastRandInitialize(const int & seed);
-}
+ISING_TOOLKIT_NAMESPACE_BEGIN
+
+unsigned int fastRand();
+
+void fastRandInitialize();
+void fastRandInitialize(const int & seed);
+
+ISING_TOOLKIT_NAMESPACE_END
 
 #endif

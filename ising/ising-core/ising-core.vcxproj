@@ -123,6 +123,7 @@
     <ClInclude Include="ising-2d.h" />
     <ClInclude Include="ising-definitions.h" />
     <ClInclude Include="ising-option.h" />
+    <ClInclude Include="ising.h" />
     <ClInclude Include="win-timing.h" />
     <ClInclude Include="fast-rand.h" />
   </ItemGroup>

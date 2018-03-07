@@ -33,6 +33,9 @@
     <ClInclude Include="ising-definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ising.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">

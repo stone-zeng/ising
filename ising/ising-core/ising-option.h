@@ -1,32 +1,35 @@
-#ifndef ISING_OPTION_H
-#define ISING_OPTION_H
+#ifndef ISING_CORE_ISING_OPTION_H_
+#define ISING_CORE_ISING_OPTION_H_
 
 #include <string>
 #include <vector>
 
 #include "include/rapidjson/document.h"
+
+#include "ising.h"
 #include "ising-definitions.h"
 
-namespace Ising
+ISING_NAMESPACE_BEGIN
+
+class Option
 {
-    class Option
-    {
-    public:
-        Option() = default;
-        Option(const std::string & file_name);
+public:
+    Option() = default;
+    Option(const std::string & file_name);
 
-        BoundaryTypes boundary_type_;
-        std::vector<double> beta_list_;
+    BoundaryTypes boundary_type_;
+    std::vector<double> beta_list_;
 
-    private:
-        typedef rapidjson::Document JSON;
+private:
+    typedef rapidjson::Document JSON;
 
-        std::string raw_json_str_;
+    std::string raw_json_str_;
 
-        void parse();
-        BoundaryTypes parseBoundaryType(const JSON & json);
-        std::vector<double> parseBetaList(const JSON & json);
-    };
-}
+    void parse();
+    BoundaryTypes parseBoundaryType(const JSON & json);
+    std::vector<double> parseBetaList(const JSON & json);
+};
+
+ISING_NAMESPACE_END
 
 #endif

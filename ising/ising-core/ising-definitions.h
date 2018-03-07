@@ -1,33 +1,36 @@
-#ifndef ISING_DEFINITIONS_H
-#define ISING_DEFINITIONS_H
+#ifndef ISING_CORE_ISING_DEFINITIONS_H_
+#define ISING_CORE_ISING_DEFINITIONS_H_
 
 #include <vector>
 
-namespace Ising
+#include "ising.h"
+
+ISING_NAMESPACE_BEGIN
+
+typedef std::vector<std::vector<int>> Lattice2D;
+enum BoundaryTypes { periodic, free };
+
+struct Quantity
 {
-    typedef std::vector<std::vector<int>> Lattice2D;
-    enum BoundaryTypes { periodic, free };
+    Quantity() : magnetic_dipole(0.0), energy(0.0) {}
 
-    struct Quantity
+    double magnetic_dipole;
+    double energy;
+
+    Quantity & operator/=(const double & scale)
     {
-        Quantity() : magnetic_dipole(0.0), energy(0.0) {}
+        magnetic_dipole /= scale;
+        energy /= scale;
+        return *this;
+    }
+    Quantity & operator+=(const Quantity & quantity)
+    {
+        magnetic_dipole += quantity.magnetic_dipole;
+        energy += quantity.energy;
+        return *this;
+    }
+};
 
-        double magnetic_dipole;
-        double energy;
-
-        Quantity & operator/=(const double & scale)
-        {
-            magnetic_dipole /= scale;
-            energy /= scale;
-            return *this;
-        }
-        Quantity & operator+=(const Quantity & quantity)
-        {
-            magnetic_dipole += quantity.magnetic_dipole;
-            energy += quantity.energy;
-            return *this;
-        }
-    };
-}
+ISING_NAMESPACE_END
 
 #endif
