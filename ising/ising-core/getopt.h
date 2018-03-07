@@ -10,18 +10,17 @@
 ISING_TOOLKIT_NAMESPACE_BEGIN
 
 // Unix-like option "-a option_a -b option_b" parser.
-class GetOpt
+class GetOption
 {
 public:
-    GetOpt() = default;
-    GetOpt(int argc, char * argv[]);
+    GetOption() = default;
+    GetOption(int argc, char * argv[]);
 
-    std::string parse(char c) const;
-    // int parse(std::string s);
+    std::string Parse(const char & c) const;
+    // int Parse(std::string s);
 
 private:
-    std::vector<std::string> raw_opt_list_;
-    std::map<char, std::string> opt_key_val_list_;
+    std::map<char, std::string> option_;
 };
 
 ISING_TOOLKIT_NAMESPACE_END

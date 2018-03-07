@@ -9,22 +9,23 @@ using namespace std;
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 
-static unsigned int _g_seed = 0;
+static unsigned int _fast_rand_seed = 0;
 
-unsigned int fastRand()
+unsigned int FastRand()
 {
-    _g_seed = (214013 * _g_seed + 2531011);
-    return (_g_seed >> 16) & 0x7fff;
+    // See https://stackoverflow.com/a/3747462/8479490.
+    _fast_rand_seed = (214013 * _fast_rand_seed + 2531011);
+    return (_fast_rand_seed >> 16) & 0x7fff;
 }
 
-long long int _getTimeInt()
+long long int _GetTime()
 {
     LARGE_INTEGER t;
     QueryPerformanceCounter(&t);
     return t.QuadPart;
 }
 
-void fastRandInitialize() { _g_seed = static_cast<unsigned int>(_getTimeInt()); }
-void fastRandInitialize(const int & seed) { _g_seed = seed; }
+void FastRandInitialize() { _fast_rand_seed = static_cast<unsigned int>(_GetTime()); }
+void FastRandInitialize(const int & seed) { _fast_rand_seed = seed; }
 
 ISING_TOOLKIT_NAMESPACE_END

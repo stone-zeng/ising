@@ -5,10 +5,10 @@
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 
-unsigned int fastRand();
+unsigned int FastRand();
 
-void fastRandInitialize();
-void fastRandInitialize(const int & seed);
+void FastRandInitialize();
+void FastRandInitialize(const int & seed);
 
 ISING_TOOLKIT_NAMESPACE_END
 

@@ -29,13 +29,13 @@ int main(int argc, char * argv[])
 
     Timing clock;
 
-    clock.timingStart();
+    clock.TimingStart();
 #pragma omp parallel for
     for (auto i = 0; i < samples; ++i)
     {
         Ising2D s{ size, size };
-        s.evaluate(c_beta_critical, 0.0, steps, 0);
-        auto result = s.renormalize(scale, scale);
+        s.Evaluate(c_beta_critical, 0.0, steps, 0);
+        auto result = s.Renormalize(scale, scale);
         outputVector(result);
 
         if (samples < 10) { cerr << "=="; }
@@ -43,9 +43,9 @@ int main(int argc, char * argv[])
             if ((i + 1) % (samples / 10) == 0)
                 cerr << "==";
     }
-    clock.timingEnd();
+    clock.TimingEnd();
 
-    cerr << "Computation time: " << clock.getRunTime() << "s." << endl;
+    cerr << "Computation time: " << clock.GetRunningTime() << "s." << endl;
 
     return 0;
 }
@@ -71,7 +71,7 @@ Quantity eval(const size_t & size, const size_t & steps, const double & temperat
 {
     Ising2D s{ size,size };
     // Set magnetic_b = 0.
-    return s.evaluate(1.0 / temperature, 0.0, steps, $ENSEMBLE_NUMBER, $ENSEMBLE_DELTA);
+    return s.Evaluate(1.0 / temperature, 0.0, steps, $ENSEMBLE_NUMBER, $ENSEMBLE_DELTA);
 }
 
 struct EvalCell
@@ -105,7 +105,7 @@ int main(int argc, char * argv[])
 
     Timing clock;
 
-    clock.timingStart();
+    clock.TimingStart();
 #pragma omp parallel for
     for (auto i = 0; i < t_num + 1; ++i)
     {
@@ -116,10 +116,10 @@ int main(int argc, char * argv[])
             if ((i + 1) % (t_num / 10) == 0)
                 cerr << "==";
     }
-    clock.timingEnd();
+    clock.TimingEnd();
 
     cerr << "> 100%  Finished!" << endl
-         << "Computation time: " << clock.getRunTime() << "s." << endl;
+         << "Computation time: " << clock.GetRunningTime() << "s." << endl;
 
     for (auto i = result_arr.begin(); i != result_arr.end(); ++i)
         cout << *i << endl;
@@ -151,8 +151,8 @@ using namespace ising::toolkit;
 
 int main(int argc, char * argv[])
 {
-    GetOpt option(argc, argv);
-    auto settings_path_str = option.parse('s');
+    GetOption option(argc, argv);
+    auto settings_path_str = option.Parse('s');
 
     size_t x_length = 10;
     size_t y_length = 10;
@@ -162,12 +162,12 @@ int main(int argc, char * argv[])
     size_t n_ensemble = 10;
 
     Ising2D_FBC s(x_length, y_length);
-    s.initialize();
+    s.Initialize();
     Quantity result;
 
     for (auto t = 0.01; t < 4; t += 0.01)
     {
-        result = s.evaluate(1 / t, magnet, iteration, n_ensemble);
+        result = s.Evaluate(1 / t, magnet, iteration, n_ensemble);
         cout << t << ", " << result.magnetic_dipole << ", " << result.energy << endl;
     }
 }

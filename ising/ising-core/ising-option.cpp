@@ -19,10 +19,10 @@ Option::Option(const string & file_name)
 {
     ifstream file(file_name);
     file >> raw_json_str_;
-    parse();
+    Parse();
 }
 
-void Option::parse()
+void Option::Parse()
 {
     JSON json;
     json.Parse(raw_json_str_.c_str());
@@ -35,9 +35,9 @@ BoundaryTypes Option::parseBoundaryType(const JSON & json)
 {
     auto s = json["boundary"].GetString();
     if (strcmp(s, "periodic"))
-        return periodic;
+        return kPeriodic;
     if (strcmp(s, "free"))
-        return free;
+        return kFree;
 }
 
 vector<double> Option::parseBetaList(const JSON & json)

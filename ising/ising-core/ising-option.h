@@ -25,7 +25,7 @@ private:
 
     std::string raw_json_str_;
 
-    void parse();
+    void Parse();
     BoundaryTypes parseBoundaryType(const JSON & json);
     std::vector<double> parseBetaList(const JSON & json);
 };

@@ -17,7 +17,7 @@ public:
 
         const size_t lattice_size = 10;
         Ising2D_PBC ising(lattice_size, lattice_size);
-        ising.initialize();
+        ising.Initialize();
     }
 
     TEST_METHOD(FBCInitialize)
@@ -26,7 +26,7 @@ public:
 
         const size_t lattice_size = 10;
         Ising2D_FBC ising(lattice_size, lattice_size);
-        ising.initialize();
+        ising.Initialize();
     }
 };
 

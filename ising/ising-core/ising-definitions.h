@@ -8,7 +8,7 @@
 ISING_NAMESPACE_BEGIN
 
 typedef std::vector<std::vector<int>> Lattice2D;
-enum BoundaryTypes { periodic, free };
+enum BoundaryTypes { kPeriodic, kFree };
 
 struct Quantity
 {

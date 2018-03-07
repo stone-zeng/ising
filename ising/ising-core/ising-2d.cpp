@@ -12,18 +12,18 @@ using namespace ising::toolkit;
 
 ISING_NAMESPACE_BEGIN
 
-inline double _metropolisFunction(const double & energy, const double & beta)
+inline double _MetropolisFunction(const double & energy, const double & beta)
 {
     auto boltzmann_probability = exp(-beta * energy);
     return boltzmann_probability < 1.0 ? boltzmann_probability : 1.0;
 }
 
-inline bool _isFlip(const int & spin_sum, const int & spin_value,
+inline bool _IsFlip(const int & spin_sum, const int & spin_value,
     const double & magnetic_b, const double & beta)
 {
     auto energy_difference = 2 * (spin_sum + magnetic_b) * spin_value;
-    auto flip_probability = _metropolisFunction(energy_difference, beta);
-    return (static_cast<double>(fastRand()) / RAND_MAX) < flip_probability;
+    auto flip_probability = _MetropolisFunction(energy_difference, beta);
+    return (static_cast<double>(FastRand()) / RAND_MAX) < flip_probability;
 }
 
 Ising2D::Ising2D(const size_t & length) : Ising2D(length, length) {}
@@ -31,18 +31,18 @@ Ising2D::Ising2D(const size_t & length) : Ising2D(length, length) {}
 Ising2D::Ising2D(const size_t & x_length, const size_t & y_length) :
     x_length_(x_length), y_length_(y_length) {}
 
-void Ising2D::sweep(const double & beta, const double & magnetic_b)
+void Ising2D::Sweep(const double & beta, const double & magnetic_b)
 {
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
-            auto spin_sum = nearestSum(i, j);
-            if (_isFlip(spin_sum, lattice_[i][j], magnetic_b, beta))
+            auto spin_sum = NearestSum(i, j);
+            if (_IsFlip(spin_sum, lattice_[i][j], magnetic_b, beta))
                 lattice_[i][j] *= -1;
         }
 }
 
-Quantity Ising2D::analysis(const double & magnetic_b) const
+Quantity Ising2D::Analysis(const double & magnetic_b) const
 {
     Quantity quantity;
 
@@ -50,19 +50,19 @@ Quantity Ising2D::analysis(const double & magnetic_b) const
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
             quantity.magnetic_dipole += lattice_[i][j];
-            auto spin_sum = nearestSum(i, j);
+            auto spin_sum = NearestSum(i, j);
             quantity.energy -= (spin_sum + magnetic_b) * lattice_[i][j];
         }
     quantity /= static_cast<double>(x_length_ * y_length_);
     return quantity;
 }
 
-Quantity Ising2D::evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
+Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
     const size_t & n_ensemble, const size_t & n_delta)
 {
     // Sweep.
     for (auto i = 0; i != steps - n_ensemble; ++i)
-        sweep(beta, magnetic_b);
+        Sweep(beta, magnetic_b);
 
     // Sweep and analysis.
     // n_delta is used to avoid correlation between successive configurations.
@@ -70,10 +70,10 @@ Quantity Ising2D::evaluate(const double & beta, const double & magnetic_b, const
     Quantity quantity;
     for (auto i = steps - n_ensemble - 1; i != steps; ++i)
     {
-        sweep(beta, magnetic_b);
+        Sweep(beta, magnetic_b);
         if (count == n_delta)
         {
-            quantity += analysis(magnetic_b);
+            quantity += Analysis(magnetic_b);
             count = 0;
         }
         count += 1;
@@ -84,7 +84,7 @@ Quantity Ising2D::evaluate(const double & beta, const double & magnetic_b, const
     return quantity;
 }
 
-vector<int> Ising2D::renormalize(const size_t & x_scale, const size_t & y_scale)
+vector<int> Ising2D::Renormalize(const size_t & x_scale, const size_t & y_scale)
 {
     vector<int> v;
     return v;
@@ -121,7 +121,7 @@ vector<int> Ising2D::renormalize(const size_t & x_scale, const size_t & y_scale)
     */
 }
 
-void Ising2D::show()
+void Ising2D::Show()
 {
     for (auto i = lattice_.begin(); i != lattice_.end(); ++i)
     {
@@ -151,7 +151,7 @@ Ising2D_FBC::Ising2D_FBC(const size_t & x_length, const size_t & y_length) :
     y_end_index_ = y_length + 1;
 }
 
-void Ising2D_PBC::initialize()
+void Ising2D_PBC::Initialize()
 {
     lattice_.resize(x_length_);
     for (int i = 0; i != x_length_; ++i)
@@ -162,7 +162,7 @@ void Ising2D_PBC::initialize()
     }
 }
 
-void Ising2D_FBC::initialize()
+void Ising2D_FBC::Initialize()
 {
     // Add zero padding to the original lattice.
     lattice_.resize(x_length_ + 2);

@@ -6,10 +6,10 @@ ISING_TOOLKIT_NAMESPACE_BEGIN
 
 Timing::Timing() { QueryPerformanceFrequency(&performance_freq_); }
 
-void Timing::timingStart() { QueryPerformanceCounter(&counter_begin_time_); }
-void Timing::timingEnd  () { QueryPerformanceCounter(&counter_end_time_);   }
+void Timing::TimingStart() { QueryPerformanceCounter(&counter_begin_time_); }
+void Timing::TimingEnd  () { QueryPerformanceCounter(&counter_end_time_);   }
 
-double Timing::getRunTime() const
+double Timing::GetRunningTime() const
 {
     // The default unit for the result is second.
     double counter_difference = static_cast<double>(counter_end_time_.QuadPart)
@@ -17,17 +17,17 @@ double Timing::getRunTime() const
     return counter_difference / performance_freq_.QuadPart;
 }
 
-double Timing::getRunTime(const string & unit) const
+double Timing::GetRunningTime(const string & unit) const
 {
     if (unit == "ms")
-        return 1.0e3 * getRunTime();
+        return 1.0e3 * GetRunningTime();
     if (unit == "us")
-        return 1.0e6 * getRunTime();
+        return 1.0e6 * GetRunningTime();
     if (unit == "ns")
-        return 1.0e9 * getRunTime();
+        return 1.0e9 * GetRunningTime();
     if (unit == "min")
-        return getRunTime() / 60.0;
-    return getRunTime();
+        return GetRunningTime() / 60.0;
+    return GetRunningTime();
 }
 
 ISING_TOOLKIT_NAMESPACE_END

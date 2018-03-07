@@ -11,11 +11,11 @@ ISING_TOOLKIT_NAMESPACE_BEGIN
 // High precision timing using Windows API.
 // Usage:
 //     Timing my_timer;
-//     my_timer.timingStart();
+//     my_timer.TimingStart();
 //     /* Some codes here. */
-//     my_timer.timingEnd();
+//     my_timer.TimingEnd();
 //
-// Then use `my_timer.getRunTime()` or `my_timer.getRunTime("<Units>")`
+// Then use `my_timer.GetRunningTime()` or `my_timer.GetRunningTime("<Units>")`
 //   to get the running time (in seconds).
 // "Units" can be "ms" (=millisecond), "us" (=microsecond), "ns" (=nanosecond)
 //   or "min" (=minute).
@@ -24,14 +24,14 @@ class Timing
 public:
     Timing();
 
-    void timingStart();
-    void timingEnd();
+    void TimingStart();
+    void TimingEnd();
 
     // "Run time" equals the difference of two counters over counter frequency.
     // run_time = end_time - start_time
     //          = (`counter_begin_time` - `counter_begin_time`) / `performance_freq`
-    double getRunTime() const;
-    double getRunTime(const std::string & unit) const;
+    double GetRunningTime() const;
+    double GetRunningTime(const std::string & unit) const;
 
 private:
     LARGE_INTEGER performance_freq_;

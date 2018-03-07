@@ -17,24 +17,24 @@ public:
     Ising2D(const size_t & length);
     Ising2D(const size_t & x_length, const size_t & y_length);
 
-    //std::vector<int> renormalize(const size_t & x_scale, const size_t & y_scale);
+    //std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
 
     // Initialize all the spins to be +1.
-    virtual void initialize() = 0;
+    virtual void Initialize() = 0;
 
     // Sweep through the lattice once using Metropolis algorithm.
-    void sweep(const double & beta, const double & magnetic_b);
+    void Sweep(const double & beta, const double & magnetic_b);
 
     // Calculate physical quantities.
-    Quantity analysis(const double & magnetic_b) const;
+    Quantity Analysis(const double & magnetic_b) const;
 
-    Quantity evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
+    Quantity Evaluate(const double & beta, const double & magnetic_b, const size_t & steps,
         const size_t & n_ensemble, const size_t & n_delta = 1);
 
-    std::vector<int> renormalize(const size_t & x_scale, const size_t & y_scale);
+    std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
 
     // Show lattice (including zero padding if existing).
-    void show();
+    void Show();
 
 protected:
     const size_t x_length_;
@@ -47,7 +47,7 @@ protected:
 
     Lattice2D lattice_;
 
-    inline virtual int nearestSum(const size_t & x, const size_t & y) const = 0;
+    inline virtual int NearestSum(const size_t & x, const size_t & y) const = 0;
 };
 
 // 2D Ising model with periodic boundary condition.
@@ -58,18 +58,18 @@ public:
     Ising2D_PBC(const size_t & length);
     Ising2D_PBC(const size_t & x_length, const size_t & y_length);
 
-    void initialize() override;
+    void Initialize() override;
 
 private:
-    inline size_t xPlusOne (const size_t & x) const { return (x == x_length_ - 1 ? 0 : x + 1); }
-    inline size_t xMinusOne(const size_t & x) const { return (x == 0 ? x_length_ - 1 : x - 1); }
-    inline size_t yPlusOne (const size_t & y) const { return (y == y_length_ - 1 ? 0 : y + 1); }
-    inline size_t yMinusOne(const size_t & y) const { return (y == 0 ? y_length_ - 1 : y - 1); }
+    inline size_t XPlusOne (const size_t & x) const { return (x == x_length_ - 1 ? 0 : x + 1); }
+    inline size_t XMinusOne(const size_t & x) const { return (x == 0 ? x_length_ - 1 : x - 1); }
+    inline size_t YPlusOne (const size_t & y) const { return (y == y_length_ - 1 ? 0 : y + 1); }
+    inline size_t YMinusOne(const size_t & y) const { return (y == 0 ? y_length_ - 1 : y - 1); }
 
-    inline int nearestSum(const size_t & x, const size_t & y) const override
+    inline int NearestSum(const size_t & x, const size_t & y) const override
     {
-        return lattice_[x][yMinusOne(y)] + lattice_[x][yPlusOne(y)]
-                + lattice_[xMinusOne(x)][y] + lattice_[xPlusOne(x)][y];
+        return lattice_[x][YMinusOne(y)] + lattice_[x][YPlusOne(y)]
+             + lattice_[XMinusOne(x)][y] + lattice_[XPlusOne(x)][y];
     }
 };
 
@@ -81,13 +81,13 @@ public:
     Ising2D_FBC(const size_t & length);
     Ising2D_FBC(const size_t & x_length, const size_t & y_length);
 
-    void initialize() override;
+    void Initialize() override;
 
 private:
-    inline int nearestSum(const size_t & x, const size_t & y) const override
+    inline int NearestSum(const size_t & x, const size_t & y) const override
     {
         return lattice_[x][y - 1] + lattice_[x][y + 1]
-                + lattice_[x - 1][y] + lattice_[x + 1][y];
+             + lattice_[x - 1][y] + lattice_[x + 1][y];
     }
 };
 
