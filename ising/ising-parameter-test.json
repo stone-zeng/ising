@@ -1,17 +1,17 @@
 {
-    // Boundary condition. Accepted values: "periodic", "free".
     "boundary": "free",
-    // Specify temperature or beta. "begin", "end" and "step" are all required.
-    // beta = 1 / temperature.
-    // Use "temperature" if both items exist.
-    "temperature": {
+    "temperature.span": {
         "begin": 0.1,
         "end": 2,
         "step": 0.1
     },
+    // Comments for testing.
     // "beta": {
     //     "begin": 0.1,
     //     "end": 2,
     //     "step": 0.1
     // },
+    "externalMagneticField.list": [0],
+    "iterations": 200,
+    "analysisEnsembleInterval": 3
 }

@@ -1,5 +1,6 @@
 #include "ising-parameter.h"
 
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -15,6 +16,39 @@ using namespace rapidjson;
 
 ISING_NAMESPACE_BEGIN
 
+bool _LessEqual(const double & a, const double & b, const double & tolerance)
+{
+    return a - b <= fabs(tolerance);
+}
+
+vector<double> _SpanToVector(const Value & span, const double & tolerance)
+{
+    vector<double> v;
+    auto v_begin = span["begin"].GetDouble();
+    auto v_end   = span["end"].GetDouble();
+    auto v_step  = span["step"].GetDouble();
+    for (double i = v_begin; _LessEqual(i, v_end, tolerance); i += v_step)
+        v.push_back(i);
+    return v;
+}
+
+size_t _GetSizeType(const Document & doc, const char key[], const size_t & default_value)
+{
+    auto iter = doc.FindMember(key);
+    if (iter != doc.MemberEnd())
+        return iter->value.GetInt();
+    else
+        return default_value;
+}
+
+vector<double> _GetVector(const Value & arr)
+{
+    vector<double> v;
+    for (auto & i : arr.GetArray())
+        v.push_back(i.GetDouble());
+    return v;
+}
+
 Parameter::Parameter(const string & file_name)
 {
     ifstream file(file_name);
@@ -28,42 +62,77 @@ void Parameter::Parse()
     Document doc;
     // Allow relaxed JSON syntax (comments and trailing commas).
     doc.Parse<kParseCommentsFlag + kParseTrailingCommasFlag>(raw_json_str_.c_str());
-
-    boundary_type_ = ParseBoundaryType(doc);
-    beta_list_     = ParseBetaList(doc);
+    // Get all variables.
+    boundary_condition_ = ParseBoundaryCondition(doc);
+    beta_list_          = ParseBetaList(doc);
+    magnetic_h_list_    = ParseMagneticFieldList(doc);
+    iterations_         = ParseIterations(doc);
+    n_ensemble_         = ParseEnsembleCount(doc);
+    n_delta_            = ParseEnsembleInterval(doc);
 }
 
-BoundaryTypes Parameter::ParseBoundaryType(const Document & json)
+BoundaryConditions Parameter::ParseBoundaryCondition(const Document & doc)
 {
-    string s(json["boundary"].GetString());
-    if (s == "periodic")
-        return kPeriodic;
-    if (s == "free")
+    if (doc.HasMember("boundary") && strcmp(doc["boundary"].GetString(), "free") == 0)
         return kFree;
+    else
+        return kPeriodic;
 }
 
-vector<double> Parameter::ParseBetaList(const Document & json)
+vector<double> Parameter::ParseBetaList(const Document & doc)
 {
+    // `temp` = temperature
     vector<double> beta_list;
 
-    if (json.HasMember("beta"))
+    auto span_iter = doc.FindMember("temperature.span");
+    auto list_iter = doc.FindMember("temperature.list");
+
+    if (span_iter != doc.MemberEnd() || list_iter != doc.MemberEnd())
     {
-        auto beta_list_begin = json["beta"]["begin"].GetDouble();
-        auto beta_list_end   = json["beta"]["end"].GetDouble();
-        auto beta_list_step  = json["beta"]["step"].GetDouble();
-        for (auto i = beta_list_begin; i <= beta_list_end + beta_list_step; i += beta_list_step)
-            beta_list.push_back(i);
+        if (span_iter != doc.MemberEnd())
+            beta_list = _SpanToVector(span_iter->value, kDoubleTolerance);
+        else
+            beta_list = _GetVector(list_iter->value);
+        for (auto & i : beta_list)
+            i = 1.0 / i;
+        return beta_list;
     }
     else
     {
-        auto temp_list_begin = json["temperature"]["begin"].GetDouble();
-        auto temp_list_end   = json["temperature"]["end"].GetDouble();
-        auto temp_list_step  = json["temperature"]["step"].GetDouble();
-        for (auto i = temp_list_begin; i <= temp_list_end + temp_list_step; i += temp_list_step)
-            beta_list.push_back(1 / i);
+        span_iter = doc.FindMember("beta.span");
+        if (span_iter != doc.MemberEnd())
+            return _SpanToVector(span_iter->value, kDoubleTolerance);
+        list_iter = doc.FindMember("beta.list");
+        if (list_iter != doc.MemberEnd())
+            return _GetVector(list_iter->value);
+        // ELSE: Error
     }
+}
 
-    return beta_list;
+vector<double> Parameter::ParseMagneticFieldList(const Document & doc)
+{
+    auto span_iter = doc.FindMember("externalMagneticField.span");
+    if (span_iter != doc.MemberEnd())
+        return _SpanToVector(span_iter->value, kDoubleTolerance);
+    auto list_iter= doc.FindMember("externalMagneticField.list");
+    if (list_iter != doc.MemberEnd())
+        return _GetVector(list_iter->value);
+    // ELSE: Error
+}
+
+size_t Parameter::ParseIterations(const Document & doc)
+{
+    return _GetSizeType(doc, "iterations", kDefaultIterations);
+}
+
+size_t Parameter::ParseEnsembleCount(const Document & doc)
+{
+    return _GetSizeType(doc, "analysisEnsembleCount", iterations_ / kDefaultIterationsEnsembleRatio);
+}
+
+size_t Parameter::ParseEnsembleInterval(const Document & doc)
+{
+    return _GetSizeType(doc, "analysisEnsembleInterval", kDefaultEnsembleInterval);
 }
 
 ISING_NAMESPACE_END

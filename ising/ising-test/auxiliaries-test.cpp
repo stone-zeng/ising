@@ -19,8 +19,8 @@ public:
     {
         PRINT_TEST_INFO("Fast rand")
 
-        const size_t test_num = 100;
-        const size_t show_num = 5;
+        size_t test_num = 100;
+        size_t show_num = 5;
         auto rand_seed = static_cast<unsigned int>(time(NULL));
 
         Timing clock;
@@ -88,7 +88,7 @@ public:
     {
         PRINT_TEST_INFO("Rapid JSON")
 
-        const string json_str =
+        string json_str =
             R"(
                 {
                     "size": 23,

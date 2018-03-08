@@ -17,15 +17,28 @@ public:
     Parameter() = default;
     Parameter(const std::string & file_name);
 
-    BoundaryTypes boundary_type_;
+    BoundaryConditions boundary_condition_;
     std::vector<double> beta_list_;
+    std::vector<double> magnetic_h_list_;
+    size_t iterations_;
+    size_t n_ensemble_;
+    size_t n_delta_;
 
 private:
     std::string raw_json_str_;
 
+    const size_t kDefaultIterations              = 1000;
+    const size_t kDefaultIterationsEnsembleRatio = 10;
+    const size_t kDefaultEnsembleInterval        = 1;
+    const double kDoubleTolerance                = 1.0e-6;
+
     void Parse();
-    BoundaryTypes ParseBoundaryType(const rapidjson::Document & json);
-    std::vector<double> ParseBetaList(const rapidjson::Document & json);
+    BoundaryConditions ParseBoundaryCondition(const rapidjson::Document & doc);
+    std::vector<double> ParseBetaList(const rapidjson::Document & doc);
+    std::vector<double> ParseMagneticFieldList(const rapidjson::Document & doc);
+    size_t ParseIterations(const rapidjson::Document & doc);
+    size_t ParseEnsembleCount(const rapidjson::Document & doc);
+    size_t ParseEnsembleInterval(const rapidjson::Document & doc);
 };
 
 ISING_NAMESPACE_END

@@ -144,6 +144,7 @@ int main(int argc, char * argv[])
 #include "ising-core/get-option.h"
 #include "ising-core/ising-2d.h"
 #include "ising-core/ising-definitions.h"
+#include "ising-core/ising-parameter.h"
 
 using namespace std;
 using namespace ising;
@@ -153,6 +154,16 @@ int main(int argc, char * argv[])
 {
     GetOption option(argc, argv);
     auto settings_path_str = option.Parse('s');
+    Parameter parameter(settings_path_str);
+
+    if (parameter.boundary_condition_ == kPeriodic)
+    {
+    }
+    else if (parameter.boundary_condition_ == kFree)
+    {
+    }
+    else
+    {}
 
     size_t x_length = 10;
     size_t y_length = 10;

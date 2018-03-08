@@ -1,0 +1,38 @@
+{
+    // Specify lattice size.
+    "size": 10,
+    // "xSize": 5,
+    // "ySize": 8,
+
+    // Boundary condition. Accepted values: "periodic", "free".
+    "boundary": "free",
+
+    // Specify temperature or beta. "begin", "end" and "step" are all required.
+    // beta = 1 / temperature.
+    // Use "temperature" if both items exist.
+    "temperature.span": {
+        "begin": 0.1,
+        "end": 2,
+        "step": 0.1
+    },
+    // "temperature.list": [0.1, 0.2, 0.4, 0.8, 1.6, 3.2],
+    // "beta.span": {
+    //     "begin": 0.1,
+    //     "end": 2,
+    //     "step": 0.1
+    // },
+    // "beta.list": [0.1, 0.2, 0.4, 0.8, 1.6, 3.2],
+
+    // "externalMagneticField.span": {
+    //     "begin": 0.1,
+    //     "end": 2,
+    //     "step": 0.1
+    // },
+    "externalMagneticField.list": [0],
+
+    "iterations": 100,
+
+    "analysisEnsembleCount": 10,
+
+    "analysisEnsembleInterval": 1
+}

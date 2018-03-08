@@ -16,26 +16,37 @@ public:
     {
         PRINT_TEST_INFO("Ising parameters")
 
-        const string file_path = ISING_SOLUTION_DIRECTORY;
-        const string file_name = "ising-parameter-test.json";
+        double double_tolerance = 1.0e-6;
+
+        string file_path = ISING_SOLUTION_DIRECTORY;
+        string file_name = "ising-parameter-test.json";
         Parameter param(file_path + file_name);
 
-        vector<double> beta_array{ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
-                                   1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0 };
-        for (auto & i : beta_array)
-            i = 1 / i;
+        // Expected values.
+        size_t beta_list_size = 20;
+        vector<double> beta_list(beta_list_size);
+        for (auto i = 0; i != beta_list_size; ++i)
+            beta_list[i] = 10.0 / static_cast<double>(i + 1);
+        vector<double> magnetic_h_list = { 0.0 };
+        size_t iterations = 200;
+        size_t n_ensemble = 20;
+        size_t n_delta    = 3;
 
-        Assert::IsTrue(kFree == param.boundary_type_);
-        // Due to the float point numbers' precision problem, I need to set tolerance = 1e-6.
-        for(auto i = 0; i != beta_array.size(); ++i)
-            Assert::AreEqual(beta_array[i], param.beta_list_[i], 1.0e-6);
+        Assert::IsTrue(kFree == param.boundary_condition_);
+        for(auto i = 0; i != beta_list.size(); ++i)
+            Assert::AreEqual(beta_list[i], param.beta_list_[i], double_tolerance);
+        for (auto i = 0; i != magnetic_h_list.size(); ++i)
+            Assert::AreEqual(magnetic_h_list[i], param.magnetic_h_list_[i], double_tolerance);
+        Assert::AreEqual(iterations, param.iterations_);
+        Assert::AreEqual(n_ensemble, param.n_ensemble_);
+        Assert::AreEqual(n_delta,    param.n_delta_);
     }
 
     TEST_METHOD(PBCInitialize)
     {
         PRINT_TEST_INFO("Ising lattice initialization (PBC)")
 
-        const size_t lattice_size = 10;
+        size_t lattice_size = 10;
         Ising2D_PBC ising(lattice_size, lattice_size);
         ising.Initialize();
     }
@@ -44,7 +55,7 @@ public:
     {
         PRINT_TEST_INFO("Ising lattice initialization (FBC)")
 
-        const size_t lattice_size = 10;
+        size_t lattice_size = 10;
         Ising2D_FBC ising(lattice_size, lattice_size);
         ising.Initialize();
     }
