@@ -6,8 +6,7 @@
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace ising::Test
-{
+ISING_TEST_NAMESPACE_BEGIN
 
 TEST_CLASS(CoreTest)
 {
@@ -61,4 +60,4 @@ public:
     }
 };
 
-}  // End of ising::test.
+ISING_TEST_NAMESPACE_END

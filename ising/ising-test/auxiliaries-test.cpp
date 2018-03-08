@@ -9,8 +9,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace rapidjson;
 using namespace ising::toolkit;
 
-namespace ising::test
-{
+ISING_TEST_NAMESPACE_BEGIN
 
 TEST_CLASS(AuxiliariesTest)
 {
@@ -129,4 +128,4 @@ public:
     }
 };
 
-}  // End of ising::test.
+ISING_TEST_NAMESPACE_END

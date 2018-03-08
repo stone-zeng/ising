@@ -41,10 +41,10 @@ size_t _GetSizeType(const Document & doc, const char key[], const size_t & defau
         return default_value;
 }
 
-vector<double> _GetVector(const Value & arr)
+vector<double> _GetVector(const Value & array)
 {
     vector<double> v;
-    for (auto & i : arr.GetArray())
+    for (auto & i : array.GetArray())
         v.push_back(i.GetDouble());
     return v;
 }

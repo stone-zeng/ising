@@ -27,4 +27,7 @@
     info_head += (_name);                       \
     Microsoft::VisualStudio::CppUnitTestFramework::Logger::WriteMessage(info_head.c_str());
 
+#define ISING_TEST_NAMESPACE_BEGIN namespace ising { namespace test {
+#define ISING_TEST_NAMESPACE_END } }
+
 #endif
