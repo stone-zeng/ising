@@ -1,5 +1,6 @@
 {
     "boundary": "free",
+    "size": 10,
     "temperature.span": {
         "begin": 0.1,
         "end": 2,

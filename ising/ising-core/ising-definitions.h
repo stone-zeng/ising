@@ -10,6 +10,17 @@ ISING_NAMESPACE_BEGIN
 typedef std::vector<std::vector<int>> Lattice2D;
 enum BoundaryConditions { kPeriodic, kFree };
 
+struct LatticeSize
+{
+    size_t x;
+    size_t y;
+};
+
+inline bool operator==(const LatticeSize & size_l, const LatticeSize & size_r)
+{
+    return size_l.x == size_r.x && size_l.y == size_r.y;
+}
+
 struct Quantity
 {
     Quantity() : magnetic_dipole(0.0), energy(0.0) {}

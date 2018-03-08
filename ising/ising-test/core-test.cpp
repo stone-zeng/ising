@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "ising-core/ising-definitions.h"
 #include "ising-core/ising-parameter.h"
 #include "ising-core/ising-2d.h"
 
@@ -22,6 +23,7 @@ public:
         Parameter param(file_path + file_name);
 
         // Expected values.
+        LatticeSize size{ 10, 10 };
         size_t beta_list_size = 20;
         vector<double> beta_list(beta_list_size);
         for (auto i = 0; i != beta_list_size; ++i)
@@ -31,6 +33,7 @@ public:
         size_t n_ensemble = 20;
         size_t n_delta    = 3;
 
+        Assert::IsTrue(size == param.size_);
         Assert::IsTrue(kFree == param.boundary_condition_);
         for(auto i = 0; i != beta_list.size(); ++i)
             Assert::AreEqual(beta_list[i], param.beta_list_[i], double_tolerance);

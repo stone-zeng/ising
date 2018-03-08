@@ -165,14 +165,14 @@ int main(int argc, char * argv[])
     else
     {}
 
-    size_t x_length = 10;
-    size_t y_length = 10;
+    size_t x_size = 10;
+    size_t y_size = 10;
     double beta = 1;
     double magnet = 0;
     size_t iteration = 100;
     size_t n_ensemble = 10;
 
-    Ising2D_FBC s(x_length, y_length);
+    Ising2D_FBC s(x_size, y_size);
     s.Initialize();
     Quantity result;
 

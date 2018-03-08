@@ -36,7 +36,7 @@ size_t _GetSizeType(const Document & doc, const char key[], const size_t & defau
 {
     auto iter = doc.FindMember(key);
     if (iter != doc.MemberEnd())
-        return iter->value.GetInt();
+        return static_cast<size_t>(iter->value.GetInt());
     else
         return default_value;
 }
@@ -64,6 +64,7 @@ void Parameter::Parse()
     doc.Parse<kParseCommentsFlag + kParseTrailingCommasFlag>(raw_json_str_.c_str());
     // Get all variables.
     boundary_condition_ = ParseBoundaryCondition(doc);
+    size_               = ParseSize(doc);
     beta_list_          = ParseBetaList(doc);
     magnetic_h_list_    = ParseMagneticFieldList(doc);
     iterations_         = ParseIterations(doc);
@@ -77,6 +78,22 @@ BoundaryConditions Parameter::ParseBoundaryCondition(const Document & doc)
         return kFree;
     else
         return kPeriodic;
+}
+
+LatticeSize Parameter::ParseSize(const Document & doc)
+{
+    auto iter = doc.FindMember("size");
+    if (iter != doc.MemberEnd())
+    {
+        size_t size = static_cast<size_t>(iter->value.GetInt());
+        return LatticeSize{ size, size };
+    }
+    else
+    {
+        size_t x_size = static_cast<size_t>(doc["xSize"].GetInt());
+        size_t y_size = static_cast<size_t>(doc["ySize"].GetInt());
+        return LatticeSize{ x_size, y_size };
+    }
 }
 
 vector<double> Parameter::ParseBetaList(const Document & doc)
