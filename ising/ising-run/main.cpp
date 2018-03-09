@@ -138,7 +138,6 @@ int main(int argc, char * argv[])
 //    return 0;
 //}
 
-#include <fstream>
 #include <iostream>
 
 #include "ising-core/get-option.h"
@@ -153,13 +152,13 @@ using namespace ising::toolkit;
 int main(int argc, char * argv[])
 {
     GetOption option(argc, argv);
-    auto settings_path_str = option.Parse('s');
-    Parameter parameter(settings_path_str);
+    Parameter parameter(option.Parse('s'));
+    parameter.Parse();
 
-    if (parameter.boundary_condition_ == kPeriodic)
+    if (parameter.boundary_condition == kPeriodic)
     {
     }
-    else if (parameter.boundary_condition_ == kFree)
+    else if (parameter.boundary_condition == kFree)
     {
     }
     else

@@ -21,6 +21,7 @@ public:
         string file_path = ISING_SOLUTION_DIRECTORY;
         string file_name = "ising-parameter-test.json";
         Parameter param(file_path + file_name);
+        param.Parse();
 
         // Expected values.
         LatticeSize size{ 10, 10 };
@@ -33,15 +34,15 @@ public:
         size_t n_ensemble = 20;
         size_t n_delta    = 3;
 
-        Assert::IsTrue(size == param.size_);
-        Assert::IsTrue(kFree == param.boundary_condition_);
+        Assert::IsTrue(size == param.lattice_size);
+        Assert::IsTrue(kFree == param.boundary_condition);
         for(auto i = 0; i != beta_list.size(); ++i)
-            Assert::AreEqual(beta_list[i], param.beta_list_[i], double_tolerance);
+            Assert::AreEqual(beta_list[i], param.beta_list[i], double_tolerance);
         for (auto i = 0; i != magnetic_h_list.size(); ++i)
-            Assert::AreEqual(magnetic_h_list[i], param.magnetic_h_list_[i], double_tolerance);
-        Assert::AreEqual(iterations, param.iterations_);
-        Assert::AreEqual(n_ensemble, param.n_ensemble_);
-        Assert::AreEqual(n_delta,    param.n_delta_);
+            Assert::AreEqual(magnetic_h_list[i], param.magnetic_h_list[i], double_tolerance);
+        Assert::AreEqual(iterations, param.iterations);
+        Assert::AreEqual(n_ensemble, param.n_ensemble);
+        Assert::AreEqual(n_delta,    param.n_delta);
     }
 
     TEST_METHOD(PBCInitialize)
