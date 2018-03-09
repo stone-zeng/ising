@@ -1,7 +1,10 @@
+#include <iomanip>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "ising-core/get-option.h"
+#include "ising-core/win-timing.h"
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"
 #include "ising-core/ising-2d.h"
@@ -34,6 +37,35 @@ private:
     double magnetic_h_;
 };
 
+void PrintParameters(const Parameter & param)
+{
+    cerr << endl
+         << "******************************" << endl
+         << "Boundary condition: "
+         << (param.boundary_condition == kPeriodic ? "periodic" : "free") << endl
+         << "Lattice size:       "
+         << param.lattice_size.x << "*" << param.lattice_size.y << endl
+         << "Iterations:         "
+         << param.iterations << endl
+         << "******************************" << endl << endl;
+}
+
+void PrintProgress(const size_t & total, const size_t & progress)
+{
+    const size_t     kProgressBarWidth = 80;
+    const streamsize kPrecision        = 2;
+    const streamsize kDefaultPrecision = cout.precision();
+    size_t width = kProgressBarWidth * progress / total;
+    // Progress bar.
+    cerr << "[" << string(width, '=') << ">" << string(kProgressBarWidth - width, ' ') << "]";
+    // Percentage.
+    cerr << setw(5 + kPrecision) << setprecision(kPrecision) << fixed
+        << 100.0 * progress / total
+        << "%\r"
+        << skipws << setprecision(kDefaultPrecision) << defaultfloat;
+    cerr.flush();
+}
+
 template<typename T>
 vector<EvaluationResult> Run(vector<T> * eval_list, const Parameter & param)
 //vector<EvaluationResult> Run(vector<Ising2D> * eval_list, const Parameter & param)
@@ -45,9 +77,12 @@ vector<EvaluationResult> Run(vector<T> * eval_list, const Parameter & param)
     size_t list_size      = beta_list_size * h_list_size;
 
     vector<EvaluationResult> result_list;
+    Timing run_clock;
 
     // Main running loop.
     // Combine `beta` and `h` into a 1D vector in order to parallelize.
+    cerr << "Running..." << endl;
+    run_clock.TimingStart();
     ISING_PARALLEL_FOR
     for (auto i = 0; i < list_size; ++i)
     {
@@ -59,7 +94,14 @@ vector<EvaluationResult> Run(vector<T> * eval_list, const Parameter & param)
         auto result = cell.Evaluate(beta, h,
             param.iterations, param.n_ensemble, param.n_delta);
         result_list.push_back({ result, beta, h });
+
+        PrintProgress(list_size, i + 1);
     }
+    run_clock.TimingEnd();
+    cerr << endl
+         << "Finished!" << endl
+         << "Simulation time: " << run_clock.GetRunningTime() << "s." << endl;
+
     return result_list;
 }
 
@@ -68,18 +110,10 @@ int main(int argc, char * argv[])
     GetOption option(argc, argv);
     Parameter parameter(option.Parse('s'));
     parameter.Parse();
+    PrintParameters(parameter);
 
     size_t eval_list_size = parameter.beta_list.size() * parameter.magnetic_h_list.size();
     vector<EvaluationResult> result_list;
-
-    cerr << "******************************" << endl
-         << "Boundary condition: "
-         << (parameter.boundary_condition == kPeriodic ? "periodic" : "free") << endl
-         << "Lattice size:       "
-         << parameter.lattice_size.x << "*" << parameter.lattice_size.y << endl
-         << "Iterations:         "
-         << parameter.iterations << endl
-         << "******************************" << endl;
 
     if (parameter.boundary_condition == kPeriodic)
     {

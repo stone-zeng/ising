@@ -34,7 +34,7 @@ GetOption::GetOption(int argc, char * argv[])
                 val = "";
             else
                 val = *iter;
-            option_.insert({ key,val });
+            option_.insert({ key, val });
         }
         else { ++iter; }
     }
