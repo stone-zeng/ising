@@ -48,18 +48,32 @@ public:
     {
         PRINT_TEST_INFO("Ising lattice initialization (PBC)")
 
-        size_t lattice_size = 10;
+        size_t lattice_size = 8;
         Ising2D_PBC ising(lattice_size, lattice_size);
         ising.Initialize();
+
+        // Expected to be all zero.
+        for (auto i = 0; i != lattice_size; ++i)
+        {
+            auto row = "Line " + to_string(i + 1) + ":\t" + ising.ShowRow(i);
+            Logger::WriteMessage(row.c_str());
+        }
     }
 
     TEST_METHOD(FBCInitialize)
     {
         PRINT_TEST_INFO("Ising lattice initialization (FBC)")
 
-        size_t lattice_size = 10;
+        size_t lattice_size = 8;
         Ising2D_FBC ising(lattice_size, lattice_size);
         ising.Initialize();
+
+        // Expected to be all zero excluding boundary.
+        for (auto i = 0; i != lattice_size + 2; ++i)
+        {
+            auto row = "Line " + to_string(i) + ":\t" + ising.ShowRow(i);
+            Logger::WriteMessage(row.c_str());
+        }
     }
 };
 

@@ -2,6 +2,7 @@
 #define ISING_CORE_ISING_2D_H_
 
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "ising.h"
@@ -17,8 +18,6 @@ public:
     Ising2D(const size_t & size);
     Ising2D(const size_t & x_size, const size_t & y_size);
 
-    //std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
-
     // Initialize all the spins to be +1.
     virtual void Initialize() = 0;
 
@@ -31,10 +30,12 @@ public:
     Quantity Evaluate(const double & beta, const double & magnetic_h, const size_t & steps,
         const size_t & n_ensemble, const size_t & n_delta = 1);
 
-    std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
+    // Reshape the lattice to be a 1D vector.
+    // std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
 
     // Show lattice (including zero padding if existing).
     void Show();
+    std::string ShowRow(const size_t & row);
 
 protected:
     const size_t x_size_;

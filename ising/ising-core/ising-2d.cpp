@@ -1,6 +1,7 @@
 #include "ising-2d.h"
 
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "fast-rand.h"
@@ -45,7 +46,6 @@ void Ising2D::Sweep(const double & beta, const double & magnetic_h)
 Quantity Ising2D::Analysis(const double & magnetic_h) const
 {
     Quantity quantity;
-
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
@@ -53,8 +53,7 @@ Quantity Ising2D::Analysis(const double & magnetic_h) const
             auto spin_sum = NearestSum(i, j);
             quantity.energy -= (spin_sum + magnetic_h) * lattice_[i][j];
         }
-    quantity /= static_cast<double>(x_size_ * y_size_);
-    return quantity;
+    return quantity / static_cast<double>(x_size_ * y_size_);
 }
 
 Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h, const size_t & steps,
@@ -63,9 +62,8 @@ Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h, const
     // Sweep.
     for (auto i = 0; i != steps - n_ensemble; ++i)
         Sweep(beta, magnetic_h);
-
     // Sweep and analysis.
-    // n_delta is used to avoid correlation between successive configurations.
+    // `n_delta` is used to avoid correlation between successive configurations.
     auto count = 0;
     Quantity quantity;
     for (auto i = steps - n_ensemble - 1; i != steps; ++i)
@@ -78,18 +76,13 @@ Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h, const
         }
         count += 1;
     }
-
     // Normalize.
-    quantity /= static_cast<double>(n_ensemble / n_delta);
-    return quantity;
+    return quantity / static_cast<double>(n_ensemble / n_delta);
 }
 
+/*
 vector<int> Ising2D::Renormalize(const size_t & x_scale, const size_t & y_scale)
 {
-    vector<int> v;
-    return v;
-
-    /*
     size_t x_size_renormalized = x_size_ / x_scale;
     size_t y_size_renormalized = y_size_ / y_scale;
 
@@ -118,8 +111,8 @@ vector<int> Ising2D::Renormalize(const size_t & x_scale, const size_t & y_scale)
         }
 
     return result;
-    */
 }
+*/
 
 void Ising2D::Show()
 {
@@ -129,6 +122,14 @@ void Ising2D::Show()
             cout << *j << " ";
         cout << endl;
     }
+}
+
+string Ising2D::ShowRow(const size_t & row)
+{
+    string result;
+    for (auto i : lattice_[row])
+        result += to_string(i) + " ";
+    return result;
 }
 
 Ising2D_PBC::Ising2D_PBC(const size_t & size) : Ising2D_PBC(size, size) {}

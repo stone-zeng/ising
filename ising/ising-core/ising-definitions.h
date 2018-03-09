@@ -40,6 +40,12 @@ struct Quantity
         energy += quantity.energy;
         return *this;
     }
+    Quantity operator/(const double & scale)
+    {
+        Quantity result = *this;
+        result /= scale;
+        return result;
+    }
 };
 
 ISING_NAMESPACE_END
