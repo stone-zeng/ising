@@ -4,11 +4,15 @@
 #include <vector>
 
 #include "ising-core/get-option.h"
-#include "ising-core/win-timing.h"
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"
 #include "ising-core/ising-2d.h"
 #include "ising-core/ising-parameter.h"
+
+// "Windows.h" should be put after "rapidjson/document.h".
+// See https://github.com/Tencent/rapidjson/issues/766
+//     http://blog.csdn.net/u011519892/article/details/16985239
+#include "ising-core/win-timing.h"
 
 using namespace std;
 using namespace ising;
