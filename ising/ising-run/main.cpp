@@ -36,20 +36,27 @@ private:
 
 template<typename T>
 vector<EvaluationResult> Run(vector<T> * eval_list, const Parameter & param)
+//vector<EvaluationResult> Run(vector<Ising2D> * eval_list, const Parameter & param)
 {
     const auto & beta_list = param.beta_list;
     const auto & h_list    = param.magnetic_h_list;
+    size_t beta_list_size = beta_list.size();
+    size_t h_list_size    = h_list.size();
+    size_t list_size      = beta_list_size * h_list_size;
+
     vector<EvaluationResult> result_list;
 
     // Main running loop.
+    // Combine `beta` and `h` into a 1D vector in order to parallelize.
     ISING_PARALLEL_FOR
-    for (auto i = 0; i < beta_list.size() * h_list.size(); ++i)
+    for (auto i = 0; i < list_size; ++i)
     {
-        auto beta = beta_list[i % beta_list.size()];
-        auto h    = h_list[i / beta_list.size()];
+        auto beta = beta_list[i % beta_list_size];
+        auto h    = h_list[i / beta_list_size];
 
-        (*eval_list)[i].Initialize();
-        auto result = (*eval_list)[i].Evaluate(beta, h,
+        auto & cell = (*eval_list)[i];
+        cell.Initialize();
+        auto result = cell.Evaluate(beta, h,
             param.iterations, param.n_ensemble, param.n_delta);
         result_list.push_back({ result, beta, h });
     }
@@ -72,7 +79,7 @@ int main(int argc, char * argv[])
          << parameter.lattice_size.x << "*" << parameter.lattice_size.y << endl
          << "Iterations:         "
          << parameter.iterations << endl
-         << "******************************" << endl << endl;
+         << "******************************" << endl;
 
     if (parameter.boundary_condition == kPeriodic)
     {

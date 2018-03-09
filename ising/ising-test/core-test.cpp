@@ -16,23 +16,23 @@ public:
     {
         PRINT_TEST_INFO("Ising parameters")
 
-        double double_tolerance = 1.0e-6;
+        const double double_tolerance = 1.0e-6;
 
-        string file_path = ISING_SOLUTION_DIRECTORY;
-        string file_name = "ising-parameter-test.json";
+        const string file_path = ISING_SOLUTION_DIRECTORY;
+        const string file_name = "ising-parameter-test.json";
         Parameter param(file_path + file_name);
         param.Parse();
 
         // Expected values.
-        LatticeSize size{ 10, 10 };
-        size_t beta_list_size = 20;
+        const LatticeSize size{ 10, 10 };
+        const size_t beta_list_size = 20;
         vector<double> beta_list(beta_list_size);
         for (auto i = 0; i != beta_list_size; ++i)
             beta_list[i] = 10.0 / static_cast<double>(i + 1);
-        vector<double> magnetic_h_list = { 0.0 };
-        size_t iterations = 200;
-        size_t n_ensemble = 20;
-        size_t n_delta    = 3;
+        const vector<double> magnetic_h_list = { 0.0 };
+        const size_t iterations = 200;
+        const size_t n_ensemble = 20;
+        const size_t n_delta    = 3;
 
         Assert::IsTrue(size == param.lattice_size);
         Assert::IsTrue(kFree == param.boundary_condition);
@@ -45,37 +45,101 @@ public:
         Assert::AreEqual(n_delta,    param.n_delta);
     }
 
-    TEST_METHOD(PBCInitialize)
+    TEST_METHOD(PbcInitialize)
     {
         PRINT_TEST_INFO("Ising lattice initialization (PBC)")
 
-        size_t lattice_size = 8;
-        Ising2D_PBC ising(lattice_size, lattice_size);
-        ising.Initialize();
-
-        // Expected to be all zero.
-        for (auto i = 0; i != lattice_size; ++i)
-        {
-            auto row = "Line " + to_string(i + 1) + ":\t" + ising.ShowRow(i);
-            Logger::WriteMessage(row.c_str());
-        }
+        Ising2D_PBC s(lattice_size_, lattice_size_);
+        s.Initialize();
+        // Expected to be all one.
+        _WriteLatticeMessagePBC(s);
     }
 
-    TEST_METHOD(FBCInitialize)
+    TEST_METHOD(FbcInitialize)
     {
         PRINT_TEST_INFO("Ising lattice initialization (FBC)")
 
-        size_t lattice_size = 8;
-        Ising2D_FBC ising(lattice_size, lattice_size);
-        ising.Initialize();
-
-        // Expected to be all zero excluding boundary.
-        for (auto i = 0; i != lattice_size + 2; ++i)
-        {
-            auto row = "Line " + to_string(i) + ":\t" + ising.ShowRow(i);
-            Logger::WriteMessage(row.c_str());
-        }
+        Ising2D_FBC s(lattice_size_, lattice_size_);
+        s.Initialize();
+        // Expected to be all one excluding boundary.
+        _WriteLatticeMessageFBC(s);
     }
+
+    TEST_METHOD(PbcSweep)
+    {
+        PRINT_TEST_INFO("Ising lattice sweep (PBC)")
+
+        Ising2D_PBC s(lattice_size_, lattice_size_);
+        s.Initialize();
+        s.Sweep(beta_, h_);
+        _WriteLatticeMessagePBC(s);
+    }
+
+    TEST_METHOD(FbcSweep)
+    {
+        PRINT_TEST_INFO("Ising lattice sweep (FBC)")
+
+        Ising2D_FBC s(lattice_size_, lattice_size_);
+        s.Initialize();
+        s.Sweep(beta_, h_);
+        _WriteLatticeMessageFBC(s);
+    }
+
+    TEST_METHOD(PbcEvaluate)
+    {
+        PRINT_TEST_INFO("Ising lattice evaluate (PBC)")
+
+        Ising2D_PBC s(lattice_size_, lattice_size_);
+        s.Initialize();
+        _WriteResultMessage(s.Evaluate(beta_, h_, iterations_, n_ensemble_));
+        _WriteLatticeMessagePBC(s);
+    }
+
+    TEST_METHOD(FbcEvaluate)
+    {
+        PRINT_TEST_INFO("Ising lattice evaluate (FBC)")
+
+        Ising2D_FBC s(lattice_size_, lattice_size_);
+        s.Initialize();
+        _WriteResultMessage(s.Evaluate(beta_, h_, iterations_, n_ensemble_));
+        _WriteLatticeMessageFBC(s);
+    }
+
+private:
+    template<typename T>
+    void _WriteRowMessage(const T & s, const size_t & index)
+    {
+        auto row = "Line " + to_string(index + 1) + ":\t" + s.ShowRow(index);
+        Logger::WriteMessage(row.c_str());
+    }
+
+    void _WriteLatticeMessagePBC(const Ising2D_PBC & s)
+    {
+        for (auto i = 0; i != lattice_size_; ++i)
+            _WriteRowMessage(s, i);
+    }
+
+    void _WriteLatticeMessageFBC(const Ising2D_FBC & s)
+    {
+        for (auto i = 0; i != lattice_size_ + 2; ++i)
+            _WriteRowMessage(s, i);
+    }
+
+    void _WriteResultMessage(const Quantity & result)
+    {
+        auto m_str = "M = " + to_string(result.magnetic_dipole);
+        auto e_str = "E = " + to_string(result.energy);
+        Logger::WriteMessage(m_str.c_str());
+        Logger::WriteMessage(e_str.c_str());
+    }
+
+    // Parameters for `Initialize()`, `Sweep()` and `Evaluation()` test.
+    // Not used for `ParameterParse`.
+    const size_t lattice_size_ = 6;
+    const double beta_         = 0.44;  // Near critical point.
+    const double h_            = 0.1;
+    const size_t iterations_   = 100;
+    const size_t n_ensemble_   = 20;
 };
 
 ISING_TEST_NAMESPACE_END

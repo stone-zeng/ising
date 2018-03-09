@@ -58,17 +58,17 @@ Quantity Ising2D::Analysis(const double & magnetic_h) const
     return quantity / static_cast<double>(x_size_ * y_size_);
 }
 
-Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h, const size_t & steps,
-    const size_t & n_ensemble, const size_t & n_delta)
+Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
+    const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
     // Sweep.
-    for (auto i = 0; i != steps - n_ensemble; ++i)
+    for (auto i = 0; i != iterations - n_ensemble; ++i)
         Sweep(beta, magnetic_h);
     // Sweep and analysis.
     // `n_delta` is used to avoid correlation between successive configurations.
     auto count = 0;
     Quantity quantity;
-    for (auto i = steps - n_ensemble - 1; i != steps; ++i)
+    for (auto i = iterations - n_ensemble - 1; i != iterations; ++i)
     {
         Sweep(beta, magnetic_h);
         if (count == n_delta)
@@ -116,7 +116,7 @@ vector<int> Ising2D::Renormalize(const size_t & x_scale, const size_t & y_scale)
 }
 */
 
-void Ising2D::Show()
+void Ising2D::Show() const
 {
     for (auto i = lattice_.begin(); i != lattice_.end(); ++i)
     {
@@ -126,7 +126,7 @@ void Ising2D::Show()
     }
 }
 
-string Ising2D::ShowRow(const size_t & row)
+string Ising2D::ShowRow(const size_t & row) const
 {
     string result;
     for (auto i : lattice_[row])

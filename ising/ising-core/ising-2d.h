@@ -11,6 +11,7 @@
 ISING_NAMESPACE_BEGIN
 
 // Abstract base class for general 2D Ising model.
+// May not be used directly.
 class Ising2D
 {
 public:
@@ -28,20 +29,23 @@ public:
     // Calculate physical quantities.
     Quantity Analysis(const double & magnetic_h) const;
 
-    Quantity Evaluate(const double & beta, const double & magnetic_h, const size_t & steps,
-        const size_t & n_ensemble, const size_t & n_delta = 1);
+    // A complete evaluation process. Should be initialized before!
+    Quantity Evaluate(const double & beta, const double & magnetic_h,
+        const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta = 1);
 
     // Reshape the lattice to be a 1D vector.
     // std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
 
     // Show lattice (including zero padding if existing).
-    void Show();
-    std::string ShowRow(const size_t & row);
+    void Show() const;
+    std::string ShowRow(const size_t & row) const;
 
 protected:
     const size_t x_size_;
     const size_t y_size_;
 
+    // Used for loops concerning boundary conditions.
+    // They cannot be initialized directly. Use non-const type to be set value afterwards.
     size_t x_begin_index_;
     size_t x_end_index_;
     size_t y_begin_index_;
