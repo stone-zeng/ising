@@ -10,7 +10,7 @@ using namespace std;
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 
-bool _IsOption(string s)
+bool _IsOption(const string & s)
 {
     if (s.empty())
         return false;

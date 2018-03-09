@@ -20,10 +20,10 @@ public:
 
     friend ostream & operator<<(ostream & os, const EvaluationResult & eval_result)
     {
-        const string kSeprator = ",";
-        os << eval_result.beta_                   << kSeprator
-           << eval_result.magnetic_h_             << kSeprator
-           << eval_result.result_.magnetic_dipole << kSeprator
+        const string kSeparator = ",";
+        os << eval_result.beta_                   << kSeparator
+           << eval_result.magnetic_h_             << kSeparator
+           << eval_result.result_.magnetic_dipole << kSeparator
            << eval_result.result_.energy;
         return os;
     }
@@ -35,7 +35,7 @@ private:
 };
 
 template<typename T>
-vector<EvaluationResult> Run(vector<T> & eval_list, const Parameter & param)
+vector<EvaluationResult> Run(vector<T> * eval_list, const Parameter & param)
 {
     const auto & beta_list = param.beta_list;
     const auto & h_list    = param.magnetic_h_list;
@@ -47,8 +47,10 @@ vector<EvaluationResult> Run(vector<T> & eval_list, const Parameter & param)
     {
         auto beta = beta_list[i % beta_list.size()];
         auto h    = h_list[i / beta_list.size()];
-        eval_list[i].Initialize();
-        auto result = eval_list[i].Evaluate(beta, h, param.iterations, param.n_ensemble, param.n_delta);
+
+        (*eval_list)[i].Initialize();
+        auto result = (*eval_list)[i].Evaluate(beta, h,
+            param.iterations, param.n_ensemble, param.n_delta);
         result_list.push_back({ result, beta, h });
     }
     return result_list;
@@ -76,13 +78,13 @@ int main(int argc, char * argv[])
     {
         // Periodic boundary condition.
         vector<Ising2D_PBC> ising_eval_list(eval_list_size, parameter.lattice_size);
-        result_list = Run(ising_eval_list, parameter);
+        result_list = Run(&ising_eval_list, parameter);
     }
     else
     {
         // Free boundary condition.
         vector<Ising2D_FBC> ising_eval_list(eval_list_size, parameter.lattice_size);
-        result_list = Run(ising_eval_list, parameter);
+        result_list = Run(&ising_eval_list, parameter);
     }
 
     for (auto & i : result_list)
