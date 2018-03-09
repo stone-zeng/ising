@@ -15,4 +15,6 @@
 #define ISING_TOOLKIT_NAMESPACE_END } }
 #endif
 
+#define ISING_PARALLEL_FOR // #pragma omp parallel for
+
 #endif

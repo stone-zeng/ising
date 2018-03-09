@@ -1,15 +1,20 @@
+# Folders
 .vs/
 .vscode/
+data/
 ising-sync/
 
+# Binary files
 Debug/
 Release/
 x64/
 
-data/
-
+# Libraries
 ising/ising-core/include/
 
+# Visual Studio profiles
+*.hint
 *.vcxproj.user
 
+# Other files
 *.nb

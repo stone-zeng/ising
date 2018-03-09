@@ -15,6 +15,7 @@ class Ising2D
 {
 public:
     Ising2D() = default;
+    Ising2D(const LatticeSize & size);
     Ising2D(const size_t & size);
     Ising2D(const size_t & x_size, const size_t & y_size);
 
@@ -56,6 +57,7 @@ class Ising2D_PBC : public Ising2D
 {
 public:
     using Ising2D::Ising2D;
+    Ising2D_PBC(const LatticeSize & size);
     Ising2D_PBC(const size_t & size);
     Ising2D_PBC(const size_t & x_size, const size_t & y_size);
 
@@ -79,6 +81,7 @@ class Ising2D_FBC : public Ising2D
 {
 public:
     using Ising2D::Ising2D;
+    Ising2D_FBC(const LatticeSize & size);
     Ising2D_FBC(const size_t & size);
     Ising2D_FBC(const size_t & x_size, const size_t & y_size);
 

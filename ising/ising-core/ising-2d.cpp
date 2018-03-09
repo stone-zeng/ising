@@ -32,6 +32,8 @@ Ising2D::Ising2D(const size_t & size) : Ising2D(size, size) {}
 Ising2D::Ising2D(const size_t & x_size, const size_t & y_size) :
     x_size_(x_size), y_size_(y_size) {}
 
+Ising2D::Ising2D(const LatticeSize & size) : Ising2D(size.x, size.y) {}
+
 void Ising2D::Sweep(const double & beta, const double & magnetic_h)
 {
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
@@ -132,6 +134,7 @@ string Ising2D::ShowRow(const size_t & row)
     return result;
 }
 
+Ising2D_PBC::Ising2D_PBC(const LatticeSize & size) : Ising2D_PBC(size.x, size.y) {}
 Ising2D_PBC::Ising2D_PBC(const size_t & size) : Ising2D_PBC(size, size) {}
 Ising2D_PBC::Ising2D_PBC(const size_t & x_size, const size_t & y_size) :
     Ising2D(x_size, y_size)
@@ -142,6 +145,7 @@ Ising2D_PBC::Ising2D_PBC(const size_t & x_size, const size_t & y_size) :
     y_end_index_ = y_size;
 }
 
+Ising2D_FBC::Ising2D_FBC(const LatticeSize & size) : Ising2D_FBC(size.x, size.y) {}
 Ising2D_FBC::Ising2D_FBC(const size_t & size) : Ising2D_FBC(size, size) {}
 Ising2D_FBC::Ising2D_FBC(const size_t & x_size, const size_t & y_size) :
     Ising2D(x_size, y_size)
