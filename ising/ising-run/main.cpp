@@ -104,7 +104,7 @@ vector<EvaluationResult> Run(vector<T> * eval_list, const Parameter & param)
     run_clock.TimingEnd();
     cerr << endl
          << "Finished!" << endl
-         << "Simulation time: " << run_clock.GetRunningTime() << "s." << endl;
+         << "Running time: " << run_clock.GetRunningTime() << "s." << endl;
 
     return result_list;
 }

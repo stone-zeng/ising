@@ -17,4 +17,6 @@ ising/ising-core/include/
 *.vcxproj.user
 
 # Other files
+*.csv
+*.json
 *.nb

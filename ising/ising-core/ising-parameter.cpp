@@ -99,7 +99,6 @@ vector<double> Parameter::ParseBetaList()
     // Try to find `temperature` first.
     auto span_iter = json_doc_.FindMember("temperature.span");
     auto list_iter = json_doc_.FindMember("temperature.list");
-
     if (span_iter != json_doc_.MemberEnd() || list_iter != json_doc_.MemberEnd())
     {
         vector<double> list;
@@ -119,8 +118,9 @@ vector<double> Parameter::ParseBetaList()
         list_iter = json_doc_.FindMember("beta.list");
         if (list_iter != json_doc_.MemberEnd())
             return _GetVector(list_iter->value);
-        // ELSE: Error
     }
+    // The program should not go here.
+    return vector<double>();
 }
 
 vector<double> Parameter::ParseMagneticFieldList()
@@ -131,7 +131,8 @@ vector<double> Parameter::ParseMagneticFieldList()
     auto list_iter= json_doc_.FindMember("externalMagneticField.list");
     if (list_iter != json_doc_.MemberEnd())
         return _GetVector(list_iter->value);
-    // ELSE: Error
+    // The program should not go here.
+    return vector<double>();
 }
 
 size_t Parameter::ParseIterations()
