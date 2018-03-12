@@ -3,7 +3,7 @@
 .vscode/
 data/
 ising-sync/
-temp/
+temp*/
 __pycache__/
 
 # Binary files

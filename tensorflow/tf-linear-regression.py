@@ -17,13 +17,17 @@ y_train = np.array(\
         98.82, 93.41, 80.03, 96.17, 99.33
     ])
 print("Training data:\n",
-      "  X:", len(x_train), "\tType:", x_train.dtype, "\n",
-      "  Y:", len(y_train), "\tType:", y_train.dtype, "\n",
+      "X:", len(x_train), "\tType:", x_train.dtype, "\n",
+      "Y:", len(y_train), "\tType:", y_train.dtype, "\n",
       "\n")
 
+model_dir        = ".\\temp1"
+model_dir_custom = ".\\temp2"
+
+# Linear regression estimator
 feature_columns = [tf.feature_column.numeric_column("x", shape=[1])]
 estimator = tf.estimator.LinearRegressor(feature_columns=feature_columns,
-                                         model_dir=".\\temp")
+                                         model_dir=model_dir)
 
 input_fn = tf.estimator.inputs.numpy_input_fn(
     {"x": x_train}, y_train, num_epochs=None, shuffle=True)
@@ -34,18 +38,61 @@ train_input_fn = tf.estimator.inputs.numpy_input_fn(
 estimator.train(input_fn=input_fn, steps=100)
 
 # Evaluate the model on the training set
-estimator.evaluate(input_fn=train_input_fn)
+train_metrics = estimator.evaluate(input_fn=train_input_fn)
+print("Train metrics: %r"% train_metrics)
 
 # Show training result
 # The names can be found by `estimator.get_variable_names()`
-weight_train = estimator.get_variable_value('linear/linear_model/x/weights')[0, 0]
-bias_train   = estimator.get_variable_value('linear/linear_model/bias_weights')[0]
+weight_train = estimator.get_variable_value("linear/linear_model/x/weights")[0, 0]
+bias_train   = estimator.get_variable_value("linear/linear_model/bias_weights")[0]
 print("Model parameters:\n",
       "Weight:", weight_train, "\n",
       "Bias:  ", bias_train)
 
+# Custom estimator
+def model_fn(features, labels, mode):
+    W = tf.get_variable("W", [1], dtype=tf.float64)
+    b = tf.get_variable("b", [1], dtype=tf.float64)
+    y = W * features["x"] + b
+    # Loss function
+    loss = tf.reduce_sum(tf.square(y - labels))
+    # Train function
+    learning_rate = 0.00001
+    global_step = tf.train.get_global_step()
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+    train = tf.group(optimizer.minimize(loss),
+    tf.assign_add(global_step, 1))
+    return tf.estimator.EstimatorSpec(
+        mode=mode,
+        predictions=y,
+        loss=loss,
+        train_op=train)
+
+estimator_custom = tf.estimator.Estimator(model_fn=model_fn,
+                                          model_dir=model_dir_custom)
+
+input_fn_custom = tf.estimator.inputs.numpy_input_fn(
+    {"x": x_train}, y_train, batch_size=4, num_epochs=None, shuffle=True)
+train_input_fn_custom = tf.estimator.inputs.numpy_input_fn(
+    {"x": x_train}, y_train, batch_size=4, num_epochs=1000, shuffle=True)
+
+# Train the model
+estimator_custom.train(input_fn=input_fn_custom, steps=100)
+
+train_metrics_custom = estimator.evaluate(input_fn=train_input_fn_custom)
+print("Train metrics: %r"% train_metrics_custom)
+
+weight_train_custom = estimator_custom.get_variable_value("W")[0]
+bias_train_custom   = estimator_custom.get_variable_value("b")[0]
+print("Model parameters:\n",
+      "Weight:", weight_train_custom, "\n",
+      "Bias:  ", bias_train_custom)
+
+# Show data and fit curve
 fit = x_train * weight_train + bias_train
-plt.plot(x_train, y_train, 'ro', label="Original data")
-plt.plot(fit, label='Fit curve')
+fit_custom = x_train * weight_train_custom + bias_train_custom
+plt.plot(x_train, y_train, "ro", label="Original data")
+plt.plot(fit,        "b", label="Fit curve")
+plt.plot(fit_custom, "g", label="Fit curve (custom)")
 plt.legend()
 plt.show()
