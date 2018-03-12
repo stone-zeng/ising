@@ -34,5 +34,7 @@
 
     "analysisEnsembleCount": 10,
 
-    "analysisEnsembleInterval": 1
+    "analysisEnsembleInterval": 1,
+
+    "repetitions": 2
 }

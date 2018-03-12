@@ -68,6 +68,7 @@ void Parameter::Parse()
     iterations         = ParseIterations();
     n_ensemble         = ParseEnsembleCount();
     n_delta            = ParseEnsembleInterval();
+    repetitions        = ParseRepetitions();
 }
 
 BoundaryConditions Parameter::ParseBoundaryCondition()
@@ -149,6 +150,11 @@ size_t Parameter::ParseEnsembleCount()
 size_t Parameter::ParseEnsembleInterval()
 {
     return _GetSizeType(json_doc_, "analysisEnsembleInterval", kDefaultEnsembleInterval);
+}
+
+size_t Parameter::ParseRepetitions()
+{
+    return _GetSizeType(json_doc_, "repetitions", kDefaultRepetitions);
 }
 
 ISING_NAMESPACE_END

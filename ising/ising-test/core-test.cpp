@@ -30,9 +30,10 @@ public:
         for (auto i = 0; i != beta_list_size; ++i)
             beta_list[i] = 10.0 / static_cast<double>(i + 1);
         const vector<double> magnetic_h_list = { 0.0 };
-        const size_t iterations = 200;
-        const size_t n_ensemble = 20;
-        const size_t n_delta    = 3;
+        const size_t iterations  = 200;
+        const size_t n_ensemble  = 20;
+        const size_t n_delta     = 3;
+        const size_t repetitions = 1;
 
         Assert::IsTrue(size == param.lattice_size);
         Assert::IsTrue(kFree == param.boundary_condition);
@@ -40,9 +41,10 @@ public:
             Assert::AreEqual(beta_list[i], param.beta_list[i], double_tolerance);
         for (auto i = 0; i != magnetic_h_list.size(); ++i)
             Assert::AreEqual(magnetic_h_list[i], param.magnetic_h_list[i], double_tolerance);
-        Assert::AreEqual(iterations, param.iterations);
-        Assert::AreEqual(n_ensemble, param.n_ensemble);
-        Assert::AreEqual(n_delta,    param.n_delta);
+        Assert::AreEqual(iterations,  param.iterations);
+        Assert::AreEqual(n_ensemble,  param.n_ensemble);
+        Assert::AreEqual(n_delta,     param.n_delta);
+        Assert::AreEqual(repetitions, param.repetitions);
     }
 
     TEST_METHOD(PbcInitialize)

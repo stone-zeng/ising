@@ -25,11 +25,13 @@ public:
     size_t              iterations;
     size_t              n_ensemble;
     size_t              n_delta;
+    size_t              repetitions;
 
 private:
     const size_t kDefaultIterations              = 1000;
     const size_t kDefaultIterationsEnsembleRatio = 10;
     const size_t kDefaultEnsembleInterval        = 1;
+    const size_t kDefaultRepetitions             = 1;
     const double kDoubleTolerance                = 1.0e-6;
 
     rapidjson::Document json_doc_;
@@ -41,6 +43,7 @@ private:
     size_t              ParseIterations();
     size_t              ParseEnsembleCount();
     size_t              ParseEnsembleInterval();
+    size_t              ParseRepetitions();
 };
 
 ISING_NAMESPACE_END
