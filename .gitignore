@@ -1,10 +1,4 @@
-# Folders
-.vs/
-.vscode/
-data/
-ising-sync/
-temp*/
-__pycache__/
+
 
 # Binary files
 Debug/
@@ -14,11 +8,23 @@ x64/
 # Libraries
 ising/ising-core/include/
 
+# Temporary files
+temp*/
+__pycache__/
+.ipynb_checkpoints/
+.vs/
+.vscode/
+
+# Other folders
+data/
+ising-sync/
+
 # Visual Studio profiles
 *.hint
 *.vcxproj.user
 
 # Other files
 *.csv
+*.ipynb
 *.json
 *.nb

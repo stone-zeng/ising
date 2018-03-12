@@ -16,5 +16,6 @@
 #endif
 
 #define ISING_PARALLEL
+#define ISING_FAST_EXP
 
 #endif

@@ -25,6 +25,7 @@ public:
 
     // Sweep through the lattice once using Metropolis algorithm.
     void Sweep(const double & beta, const double & magnetic_h);
+    void Sweep(const ExpArray & exp_array);
 
     // Calculate physical quantities.
     Quantity Analysis(const double & magnetic_h) const;

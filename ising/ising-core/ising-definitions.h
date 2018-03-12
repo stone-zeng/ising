@@ -1,6 +1,7 @@
 #ifndef ISING_CORE_ISING_DEFINITIONS_H_
 #define ISING_CORE_ISING_DEFINITIONS_H_
 
+#include <array>
 #include <vector>
 
 #include "ising.h"
@@ -8,6 +9,8 @@
 ISING_NAMESPACE_BEGIN
 
 typedef std::vector<std::vector<int>> Lattice2D;
+typedef std::array<double, 10> ExpArray;
+
 enum BoundaryConditions { kPeriodic, kFree };
 
 struct LatticeSize

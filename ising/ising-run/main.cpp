@@ -61,6 +61,12 @@ void PrintParameters(const Parameter & param)
 #else
          << "Off" << endl
 #endif
+         << "Fast exp():         "
+#ifdef ISING_FAST_EXP
+         << "On" << endl
+#else
+         << "Off" << endl
+#endif
          << "******************************" << endl << endl;
 }
 

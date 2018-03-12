@@ -1,5 +1,6 @@
 #include "ising-2d.h"
 
+#include <array>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,13 +14,13 @@ using namespace ising::toolkit;
 
 ISING_NAMESPACE_BEGIN
 
-inline double _MetropolisFunction(const double & energy, const double & beta)
+double _MetropolisFunction(const double & energy, const double & beta)
 {
     auto boltzmann_probability = exp(-beta * energy);
     return boltzmann_probability < 1.0 ? boltzmann_probability : 1.0;
 }
 
-inline bool _IsFlip(const int & spin_sum, const int & spin_value,
+bool _IsFlip(const int & spin_sum, const int & spin_value,
     const double & magnetic_h, const double & beta)
 {
     auto energy_difference = 2 * (spin_sum + magnetic_h) * spin_value;
@@ -45,6 +46,18 @@ void Ising2D::Sweep(const double & beta, const double & magnetic_h)
         }
 }
 
+void Ising2D::Sweep(const ExpArray & exp_array)
+{
+    for (auto i = x_begin_index_; i != x_end_index_; ++i)
+        for (auto j = y_begin_index_; j != y_end_index_; ++j)
+        {
+            auto spin_sum = NearestSum(i, j);
+            auto flip_probability = exp_array[(spin_sum - 5 * lattice_[i][j] + 9) / 2];
+            if (static_cast<double>(FastRand()) / RAND_MAX < flip_probability)
+                lattice_[i][j] *= -1;
+        }
+}
+
 Quantity Ising2D::Analysis(const double & magnetic_h) const
 {
     Quantity quantity;
@@ -61,16 +74,43 @@ Quantity Ising2D::Analysis(const double & magnetic_h) const
 Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
+#ifdef ISING_FAST_EXP
+    ExpArray kExpArray =
+    {
+        exp(-beta * (-4.0 + magnetic_h)),
+        exp(-beta * (-2.0 + magnetic_h)),
+        exp(-beta * ( 0.0 + magnetic_h)),
+        exp(-beta * ( 2.0 + magnetic_h)),
+        exp(-beta * ( 4.0 + magnetic_h)),
+        exp( beta * (-4.0 + magnetic_h)),
+        exp( beta * (-2.0 + magnetic_h)),
+        exp( beta * ( 0.0 + magnetic_h)),
+        exp( beta * ( 2.0 + magnetic_h)),
+        exp( beta * ( 4.0 + magnetic_h))
+    };
+    for (auto & i : kExpArray)
+        i = i < 1.0 ? i : 1.0;
+#endif
+
     // Sweep.
     for (auto i = 0; i != iterations - n_ensemble; ++i)
+#ifdef ISING_FAST_EXP
+        Sweep(kExpArray);
+#else
         Sweep(beta, magnetic_h);
+#endif
+
     // Sweep and analysis.
     // `n_delta` is used to avoid correlation between successive configurations.
     auto count = 0;
     Quantity quantity;
     for (auto i = iterations - n_ensemble - 1; i != iterations; ++i)
     {
+#ifdef ISING_FAST_EXP
+        Sweep(kExpArray);
+#else
         Sweep(beta, magnetic_h);
+#endif
         if (count == n_delta)
         {
             quantity += Analysis(magnetic_h);
