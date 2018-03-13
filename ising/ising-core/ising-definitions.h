@@ -9,7 +9,7 @@
 ISING_NAMESPACE_BEGIN
 
 typedef std::vector<std::vector<int>> Lattice2D;
-typedef std::array<double, 10> ExpArray;
+typedef std::array<double, 18>        ExpArray;
 
 enum BoundaryConditions { kPeriodic, kFree };
 

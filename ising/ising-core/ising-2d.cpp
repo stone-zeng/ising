@@ -40,21 +40,31 @@ void Ising2D::Sweep(const double & beta, const double & magnetic_h)
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
+            auto & spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
-            if (_IsFlip(spin_sum, lattice_[i][j], magnetic_h, beta))
-                lattice_[i][j] *= -1;
+            if (_IsFlip(spin_sum, spin, magnetic_h, beta))
+                spin *= -1;
         }
 }
 
 void Ising2D::Sweep(const ExpArray & exp_array)
 {
+    // For Ising model, the spin and nearest sum can only take a limited number 
+    // of values. So it's unnecessary to evaluate the `exp()` every time. We
+    // evaluate the values before and put them into `exp_array`.
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
+            auto & spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
-            auto flip_probability = exp_array[(spin_sum - 5 * lattice_[i][j] + 9) / 2];
+            // For the map:
+            // spin           spin_sum           ->            index
+            //  +1    -4 -3 -2 -1 0 +1 +2 +3 +4  ->  0  1  2  3  4  5  6  7  8
+            //  -1    -4 -3 -2 -1 0 +1 +2 +3 +4  ->  9 10 11 12 13 14 15 16 17
+            auto exp_array_index = spin_sum + 4 - 9 * (spin - 1) / 2;
+            auto flip_probability = exp_array[exp_array_index];
             if (static_cast<double>(FastRand()) / RAND_MAX < flip_probability)
-                lattice_[i][j] *= -1;
+                spin *= -1;
         }
 }
 
@@ -75,18 +85,29 @@ Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
 #ifdef ISING_FAST_EXP
+    // Pre-evaluate the metropolis function (`exp()`).
     ExpArray kExpArray =
     {
-        exp(-beta * (-4.0 + magnetic_h)),
-        exp(-beta * (-2.0 + magnetic_h)),
-        exp(-beta * ( 0.0 + magnetic_h)),
-        exp(-beta * ( 2.0 + magnetic_h)),
-        exp(-beta * ( 4.0 + magnetic_h)),
-        exp( beta * (-4.0 + magnetic_h)),
-        exp( beta * (-2.0 + magnetic_h)),
-        exp( beta * ( 0.0 + magnetic_h)),
-        exp( beta * ( 2.0 + magnetic_h)),
-        exp( beta * ( 4.0 + magnetic_h))
+        // spin = +1
+        exp(-2 * beta * (-4.0 + magnetic_h)),
+        exp(-2 * beta * (-3.0 + magnetic_h)),
+        exp(-2 * beta * (-2.0 + magnetic_h)),
+        exp(-2 * beta * (-1.0 + magnetic_h)),
+        exp(-2 * beta * ( 0.0 + magnetic_h)),
+        exp(-2 * beta * ( 1.0 + magnetic_h)),
+        exp(-2 * beta * ( 2.0 + magnetic_h)),
+        exp(-2 * beta * ( 3.0 + magnetic_h)),
+        exp(-2 * beta * ( 4.0 + magnetic_h)),
+        // spin = -1
+        exp( 2 * beta * (-4.0 + magnetic_h)),
+        exp( 2 * beta * (-3.0 + magnetic_h)),
+        exp( 2 * beta * (-2.0 + magnetic_h)),
+        exp( 2 * beta * (-1.0 + magnetic_h)),
+        exp( 2 * beta * ( 0.0 + magnetic_h)),
+        exp( 2 * beta * ( 1.0 + magnetic_h)),
+        exp( 2 * beta * ( 2.0 + magnetic_h)),
+        exp( 2 * beta * ( 3.0 + magnetic_h)),
+        exp( 2 * beta * ( 4.0 + magnetic_h))
     };
     for (auto & i : kExpArray)
         i = i < 1.0 ? i : 1.0;
@@ -94,10 +115,10 @@ Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
 
     // Sweep.
     for (auto i = 0; i != iterations - n_ensemble; ++i)
-#ifdef ISING_FAST_EXP
-        Sweep(kExpArray);
-#else
+#ifndef ISING_FAST_EXP
         Sweep(beta, magnetic_h);
+#else
+        Sweep(kExpArray);
 #endif
 
     // Sweep and analysis.
