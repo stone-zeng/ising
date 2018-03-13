@@ -1,0 +1,14 @@
+{
+    "size": 192,
+    "boundary": "free",
+    "temperature.span": {
+        "begin": 1,
+        "end": 4,
+        "step": 0.01
+    },
+    "externalMagneticField.list": [0],
+    "iterations": 160,
+    "analysisEnsembleCount": 40,
+    "analysisEnsembleInterval": 4,
+    "repetitions": 10
+}
