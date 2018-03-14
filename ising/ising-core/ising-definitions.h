@@ -26,23 +26,39 @@ inline bool operator==(const LatticeSize & size_l, const LatticeSize & size_r)
 
 struct Quantity
 {
-    Quantity() : magnetic_dipole(0.0), energy(0.0) {}
+    Quantity() :
+        magnetic_dipole(0.0),
+        energy(0.0),
+        magnetic_dipole_abs(0.0),
+        magnetic_dipole_square(0.0),
+        energy_square(0.0) {}
 
     double magnetic_dipole;
     double energy;
+    double magnetic_dipole_abs;
+    double magnetic_dipole_square;
+    double energy_square;
 
     Quantity & operator/=(const double & scale)
     {
-        magnetic_dipole /= scale;
-        energy /= scale;
+        magnetic_dipole        /= scale;
+        energy                 /= scale;
+        magnetic_dipole_abs    /= scale;
+        magnetic_dipole_square /= scale;
+        energy_square          /= scale;
         return *this;
     }
+
     Quantity & operator+=(const Quantity & quantity)
     {
-        magnetic_dipole += quantity.magnetic_dipole;
-        energy += quantity.energy;
+        magnetic_dipole        += quantity.magnetic_dipole;
+        energy                 += quantity.energy;
+        magnetic_dipole_abs    += quantity.magnetic_dipole_abs;
+        magnetic_dipole_square += quantity.magnetic_dipole_square;
+        energy_square          += quantity.energy_square;
         return *this;
     }
+
     Quantity operator/(const double & scale)
     {
         Quantity result = *this;

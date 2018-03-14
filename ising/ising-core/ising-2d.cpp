@@ -47,11 +47,11 @@ void Ising2D::Sweep(const double & beta, const double & magnetic_h)
         }
 }
 
+// For Ising model, the spin and nearest sum can only take a limited number 
+// of values. So it's unnecessary to evaluate the `exp()` every time. We
+// evaluate the values previously and put them into `exp_array`.
 void Ising2D::Sweep(const ExpArray & exp_array)
 {
-    // For Ising model, the spin and nearest sum can only take a limited number 
-    // of values. So it's unnecessary to evaluate the `exp()` every time. We
-    // evaluate the values before and put them into `exp_array`.
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
@@ -74,11 +74,18 @@ Quantity Ising2D::Analysis(const double & magnetic_h) const
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
-            quantity.magnetic_dipole += lattice_[i][j];
+            auto spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
-            quantity.energy -= (spin_sum + magnetic_h) * lattice_[i][j];
+            quantity.magnetic_dipole += spin;
+            quantity.energy          -= (spin_sum + magnetic_h) * spin;
         }
-    return quantity / static_cast<double>(x_size_ * y_size_);
+    auto scale = static_cast<double>(x_size_ * y_size_);
+    quantity.magnetic_dipole /= scale;
+    quantity.energy          /= scale;
+    quantity.magnetic_dipole_abs    = abs(quantity.magnetic_dipole);
+    quantity.magnetic_dipole_square = pow(quantity.magnetic_dipole, 2);
+    quantity.energy_square          = pow(quantity.energy, 2);
+    return quantity;
 }
 
 Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,

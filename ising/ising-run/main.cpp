@@ -28,11 +28,15 @@ public:
     string Parameters()
     {
         // Use temperature here.
-        return to_string(1 / beta_) + kSeparator +to_string(magnetic_h_);
+        return to_string(1 / beta_) + kSeparator + to_string(magnetic_h_);
     }
     string Result()
     {
-        return to_string(result_.magnetic_dipole) + kSeparator + to_string(result_.energy);
+        return to_string(result_.magnetic_dipole)        + kSeparator
+             + to_string(result_.magnetic_dipole_abs)    + kSeparator
+             + to_string(result_.magnetic_dipole_square) + kSeparator
+             + to_string(result_.energy)                 + kSeparator
+             + to_string(result_.energy_square);
     }
 
 private:
@@ -150,7 +154,7 @@ void PrintResults(ostream & os, const ResultList & result_list)
     // Header.
     os << "T,H";
     for (auto i = 0; i != result_list[0].size(); ++i)
-        os << ",M,E";
+        os << ",M,M.abs,M.sq,E,E.sq";
     os << endl;
 
     // Main body.
