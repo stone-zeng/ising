@@ -76,7 +76,7 @@ void PrintParameters(const Parameter & param)
 
 void PrintProgress(const size_t & total, const size_t & progress)
 {
-    const size_t     kProgressBarWidth = 80;
+    const size_t     kProgressBarWidth = 40;
     const streamsize kPrecision        = 2;
     const streamsize kDefaultPrecision = cerr.precision();
 #ifndef ISING_PARALLEL
