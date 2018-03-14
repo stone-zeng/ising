@@ -24,9 +24,9 @@ inline bool operator==(const LatticeSize & size_l, const LatticeSize & size_r)
     return size_l.x == size_r.x && size_l.y == size_r.y;
 }
 
-struct Quantity
+struct Observable
 {
-    Quantity() :
+    Observable() :
         magnetic_dipole(0.0),
         energy(0.0),
         magnetic_dipole_abs(0.0),
@@ -39,7 +39,7 @@ struct Quantity
     double magnetic_dipole_square;
     double energy_square;
 
-    Quantity & operator/=(const double & scale)
+    Observable & operator/=(const double & scale)
     {
         magnetic_dipole        /= scale;
         energy                 /= scale;
@@ -49,19 +49,19 @@ struct Quantity
         return *this;
     }
 
-    Quantity & operator+=(const Quantity & quantity)
+    Observable & operator+=(const Observable & observable)
     {
-        magnetic_dipole        += quantity.magnetic_dipole;
-        energy                 += quantity.energy;
-        magnetic_dipole_abs    += quantity.magnetic_dipole_abs;
-        magnetic_dipole_square += quantity.magnetic_dipole_square;
-        energy_square          += quantity.energy_square;
+        magnetic_dipole        += observable.magnetic_dipole;
+        energy                 += observable.energy;
+        magnetic_dipole_abs    += observable.magnetic_dipole_abs;
+        magnetic_dipole_square += observable.magnetic_dipole_square;
+        energy_square          += observable.energy_square;
         return *this;
     }
 
-    Quantity operator/(const double & scale)
+    Observable operator/(const double & scale)
     {
-        Quantity result = *this;
+        Observable result = *this;
         result /= scale;
         return result;
     }

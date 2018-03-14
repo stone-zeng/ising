@@ -68,27 +68,27 @@ void Ising2D::Sweep(const ExpArray & exp_array)
         }
 }
 
-Quantity Ising2D::Analysis(const double & magnetic_h) const
+Observable Ising2D::Analysis(const double & magnetic_h) const
 {
-    Quantity quantity;
+    Observable observable;
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
             auto spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
-            quantity.magnetic_dipole += spin;
-            quantity.energy          -= (spin_sum + magnetic_h) * spin;
+            observable.magnetic_dipole += spin;
+            observable.energy          -= (spin_sum + magnetic_h) * spin;
         }
     auto scale = static_cast<double>(x_size_ * y_size_);
-    quantity.magnetic_dipole /= scale;
-    quantity.energy          /= scale;
-    quantity.magnetic_dipole_abs    = abs(quantity.magnetic_dipole);
-    quantity.magnetic_dipole_square = pow(quantity.magnetic_dipole, 2);
-    quantity.energy_square          = pow(quantity.energy, 2);
-    return quantity;
+    observable.magnetic_dipole /= scale;
+    observable.energy          /= scale;
+    observable.magnetic_dipole_abs    = abs(observable.magnetic_dipole);
+    observable.magnetic_dipole_square = pow(observable.magnetic_dipole, 2);
+    observable.energy_square          = pow(observable.energy, 2);
+    return observable;
 }
 
-Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
+Observable Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
 #ifdef ISING_FAST_EXP
@@ -131,7 +131,7 @@ Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     // Sweep and analysis.
     // `n_delta` is used to avoid correlation between successive configurations.
     auto count = 0;
-    Quantity quantity;
+    Observable observable;
     for (auto i = iterations - n_ensemble - 1; i != iterations; ++i)
     {
 #ifdef ISING_FAST_EXP
@@ -141,13 +141,13 @@ Quantity Ising2D::Evaluate(const double & beta, const double & magnetic_h,
 #endif
         if (count == n_delta)
         {
-            quantity += Analysis(magnetic_h);
+            observable += Analysis(magnetic_h);
             count = 0;
         }
         count += 1;
     }
     // Normalize.
-    return quantity / static_cast<double>(n_ensemble / n_delta);
+    return observable / static_cast<double>(n_ensemble / n_delta);
 }
 
 /*

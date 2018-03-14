@@ -127,7 +127,7 @@ private:
             _WriteRowMessage(s, i);
     }
 
-    void _WriteResultMessage(const Quantity & result)
+    void _WriteResultMessage(const Observable & result)
     {
         auto m_str = "M = " + to_string(result.magnetic_dipole);
         auto e_str = "E = " + to_string(result.energy);

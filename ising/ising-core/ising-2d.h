@@ -28,10 +28,10 @@ public:
     void Sweep(const ExpArray & exp_array);
 
     // Calculate physical quantities.
-    Quantity Analysis(const double & magnetic_h) const;
+    Observable Analysis(const double & magnetic_h) const;
 
     // A complete evaluation process. Should be initialized before!
-    Quantity Evaluate(const double & beta, const double & magnetic_h,
+    Observable Evaluate(const double & beta, const double & magnetic_h,
         const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta = 1);
 
     // Reshape the lattice to be a 1D vector.

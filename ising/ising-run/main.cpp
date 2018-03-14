@@ -22,7 +22,7 @@ class EvaluationResult
 {
 public:
     EvaluationResult() = default;
-    EvaluationResult(const Quantity & result, const double & beta, const double & magnetic_h) :
+    EvaluationResult(const Observable & result, const double & beta, const double & magnetic_h) :
         result_(result), beta_(beta), magnetic_h_(magnetic_h) {}
 
     string Parameters()
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    Quantity result_;
+    Observable result_;
     double beta_;
     double magnetic_h_;
 
