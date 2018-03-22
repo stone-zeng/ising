@@ -9,11 +9,15 @@ x64/
 ising/ising-core/include/
 
 # Temporary files
-temp*/
 __pycache__/
 .ipynb_checkpoints/
 .vs/
 .vscode/
+
+# TensorFlow caches
+temp*/
+logs/
+samples/
 
 # Other folders
 data/
