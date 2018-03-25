@@ -32,3 +32,5 @@ ising-sync/
 *.ipynb
 *.json
 *.nb
+
+tensorflow/*.jl

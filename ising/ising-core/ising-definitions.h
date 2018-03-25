@@ -8,8 +8,14 @@
 
 ISING_NAMESPACE_BEGIN
 
+// A 2-dimensional matrix.
+// Though Ising model is binary, I do not use std::vector<bool> due to some technical reasons.
+// See https://stackoverflow.com/q/17794569/8479490.
 typedef std::vector<std::vector<int>> Lattice2D;
-typedef std::array<double, 18>        ExpArray;
+
+// Store pre-evaluated Metropolis function values.
+// 18 = (4 * 2 + 1) * 2 is the number of all the possible values of nearest sum.
+typedef std::array<double, 18> ExpArray;
 
 enum BoundaryConditions { kPeriodic, kFree };
 
@@ -65,6 +71,16 @@ struct Observable
         result /= scale;
         return result;
     }
+};
+
+struct LatticeInfo
+{
+    LatticeInfo() {}
+    LatticeInfo(const Lattice2D & lattice, const std::vector<Observable> & result) :
+        lattice_data(lattice), observables(result) {}
+
+    Lattice2D lattice_data;
+    std::vector<Observable> observables;
 };
 
 ISING_NAMESPACE_END

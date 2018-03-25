@@ -18,35 +18,6 @@ using namespace std;
 using namespace ising;
 using namespace ising::toolkit;
 
-class EvaluationResult
-{
-public:
-    EvaluationResult() = default;
-    EvaluationResult(const Observable & result, const double & beta, const double & magnetic_h) :
-        result_(result), beta_(beta), magnetic_h_(magnetic_h) {}
-
-    string Parameters()
-    {
-        // Use temperature here.
-        return to_string(1 / beta_) + kSeparator + to_string(magnetic_h_);
-    }
-    string Result()
-    {
-        return to_string(result_.magnetic_dipole)        + kSeparator
-             + to_string(result_.magnetic_dipole_abs)    + kSeparator
-             + to_string(result_.magnetic_dipole_square) + kSeparator
-             + to_string(result_.energy)                 + kSeparator
-             + to_string(result_.energy_square);
-    }
-
-private:
-    Observable result_;
-    double beta_;
-    double magnetic_h_;
-
-    const string kSeparator = ",";
-};
-
 void PrintParameters(const Parameter & param)
 {
     cerr << endl
@@ -98,6 +69,35 @@ void PrintProgress(const size_t & total, const size_t & progress)
 #endif
 }
 
+class EvaluationResult
+{
+public:
+    EvaluationResult() = default;
+    EvaluationResult(const Observable & result, const double & beta, const double & magnetic_h) :
+        result_(result), beta_(beta), magnetic_h_(magnetic_h) {}
+
+    string Parameters()
+    {
+        // Use temperature here.
+        return to_string(1 / beta_) + kSeparator + to_string(magnetic_h_);
+    }
+    string Result()
+    {
+        return to_string(result_.magnetic_dipole)        + kSeparator
+             + to_string(result_.magnetic_dipole_abs)    + kSeparator
+             + to_string(result_.magnetic_dipole_square) + kSeparator
+             + to_string(result_.energy)                 + kSeparator
+             + to_string(result_.energy_square);
+    }
+
+private:
+    Observable result_;
+    double beta_;
+    double magnetic_h_;
+
+    const string kSeparator = ",";
+};
+
 // Inner dimension is used for repetition.
 typedef vector<vector<EvaluationResult>> ResultList;
 
@@ -107,9 +107,9 @@ ResultList Run(vector<T> * eval_list, const Parameter & param)
 {
     const auto & beta_list = param.beta_list;
     const auto & h_list    = param.magnetic_h_list;
-    size_t beta_list_size = beta_list.size();
-    size_t h_list_size    = h_list.size();
-    size_t list_size      = beta_list_size * h_list_size;
+    size_t beta_list_size  = beta_list.size();
+    size_t h_list_size     = h_list.size();
+    size_t list_size       = beta_list_size * h_list_size;
 
     ResultList result_list;
     result_list.resize(list_size);

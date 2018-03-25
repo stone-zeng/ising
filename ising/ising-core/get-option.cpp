@@ -20,7 +20,7 @@ bool _IsOption(const string & s)
 
 GetOption::GetOption(int argc, char * argv[])
 {
-    std::vector<std::string> raw_option;
+    vector<string> raw_option;
     for (auto i = 0; i != argc; ++i)
         raw_option.push_back(argv[i]);
     for (auto iter = raw_option.begin(); iter != raw_option.end(); )

@@ -14,13 +14,13 @@ using namespace ising::toolkit;
 
 ISING_NAMESPACE_BEGIN
 
-double _MetropolisFunction(const double & energy, const double & beta)
+inline double _MetropolisFunction(const double & energy, const double & beta)
 {
     auto boltzmann_probability = exp(-beta * energy);
     return boltzmann_probability < 1.0 ? boltzmann_probability : 1.0;
 }
 
-bool _IsFlip(const int & spin_sum, const int & spin_value,
+inline bool _IsFlip(const int & spin_sum, const int & spin_value,
     const double & magnetic_h, const double & beta)
 {
     auto energy_difference = 2 * (spin_sum + magnetic_h) * spin_value;
@@ -47,11 +47,11 @@ void Ising2D::Sweep(const double & beta, const double & magnetic_h)
         }
 }
 
-// For Ising model, the spin and nearest sum can only take a limited number 
-// of values. So it's unnecessary to evaluate the `exp()` every time. We
-// evaluate the values previously and put them into `exp_array`.
 void Ising2D::Sweep(const ExpArray & exp_array)
 {
+    // For Ising model, the spin and nearest sum can only take a limited number 
+    // of values. So it's unnecessary to evaluate the `exp()` every time. We
+    // evaluate the values previously and put them into `exp_array`.
     for (auto i = x_begin_index_; i != x_end_index_; ++i)
         for (auto j = y_begin_index_; j != y_end_index_; ++j)
         {
@@ -92,40 +92,15 @@ Observable Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
 #ifdef ISING_FAST_EXP
-    // Pre-evaluate the metropolis function (`exp()`).
-    ExpArray kExpArray =
-    {
-        // spin = +1
-        exp(-2 * beta * (-4.0 + magnetic_h)),
-        exp(-2 * beta * (-3.0 + magnetic_h)),
-        exp(-2 * beta * (-2.0 + magnetic_h)),
-        exp(-2 * beta * (-1.0 + magnetic_h)),
-        exp(-2 * beta * ( 0.0 + magnetic_h)),
-        exp(-2 * beta * ( 1.0 + magnetic_h)),
-        exp(-2 * beta * ( 2.0 + magnetic_h)),
-        exp(-2 * beta * ( 3.0 + magnetic_h)),
-        exp(-2 * beta * ( 4.0 + magnetic_h)),
-        // spin = -1
-        exp( 2 * beta * (-4.0 + magnetic_h)),
-        exp( 2 * beta * (-3.0 + magnetic_h)),
-        exp( 2 * beta * (-2.0 + magnetic_h)),
-        exp( 2 * beta * (-1.0 + magnetic_h)),
-        exp( 2 * beta * ( 0.0 + magnetic_h)),
-        exp( 2 * beta * ( 1.0 + magnetic_h)),
-        exp( 2 * beta * ( 2.0 + magnetic_h)),
-        exp( 2 * beta * ( 3.0 + magnetic_h)),
-        exp( 2 * beta * ( 4.0 + magnetic_h))
-    };
-    for (auto & i : kExpArray)
-        i = i < 1.0 ? i : 1.0;
+    auto exp_array = InitializeExpArray(beta, magnetic_h);
 #endif
 
     // Sweep.
     for (auto i = 0; i != iterations - n_ensemble; ++i)
-#ifndef ISING_FAST_EXP
-        Sweep(beta, magnetic_h);
+#ifdef ISING_FAST_EXP
+        Sweep(exp_array);
 #else
-        Sweep(kExpArray);
+        Sweep(beta, magnetic_h);
 #endif
 
     // Sweep and analysis.
@@ -135,7 +110,7 @@ Observable Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     for (auto i = iterations - n_ensemble - 1; i != iterations; ++i)
     {
 #ifdef ISING_FAST_EXP
-        Sweep(kExpArray);
+        Sweep(exp_array);
 #else
         Sweep(beta, magnetic_h);
 #endif
@@ -148,6 +123,25 @@ Observable Ising2D::Evaluate(const double & beta, const double & magnetic_h,
     }
     // Normalize.
     return observable / static_cast<double>(n_ensemble / n_delta);
+}
+
+LatticeInfo Ising2D::EvaluateLatticeData(const double & beta, const double & magnetic_h,
+    const size_t & iterations)
+{
+#ifdef ISING_FAST_EXP
+    auto exp_array = InitializeExpArray(beta, magnetic_h);
+#endif
+    vector<Observable> result;
+    for (auto i = 0; i != iterations; ++i)
+    {
+#ifdef ISING_FAST_EXP
+        Sweep(exp_array);
+#else
+        Sweep(beta, magnetic_h);
+#endif
+        result.push_back(Analysis(magnetic_h));
+    }
+    return { lattice_, result };
 }
 
 /*

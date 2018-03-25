@@ -34,6 +34,10 @@ public:
     Observable Evaluate(const double & beta, const double & magnetic_h,
         const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta = 1);
 
+    // For lattice data generating and convergence analysis.
+    LatticeInfo EvaluateLatticeData(const double & beta, const double & magnetic_h,
+        const size_t & iterations);
+
     // Reshape the lattice to be a 1D vector.
     // std::vector<int> Renormalize(const size_t & x_scale, const size_t & y_scale);
 
@@ -54,7 +58,41 @@ protected:
 
     Lattice2D lattice_;
 
+    // Sum over the nearest spins.
+    // It's pure virtual because of the different boundary conditions.
     inline virtual int NearestSum(const size_t & x, const size_t & y) const = 0;
+
+private:
+    // Pre-evaluate the Metropolis function values (`exp()`).
+    inline ExpArray InitializeExpArray(const double & beta, const double & magnetic_h)
+    {
+        ExpArray exp_array =
+        {
+            // spin = +1
+            std::exp(-2 * beta * (-4.0 + magnetic_h)),
+            std::exp(-2 * beta * (-3.0 + magnetic_h)),
+            std::exp(-2 * beta * (-2.0 + magnetic_h)),
+            std::exp(-2 * beta * (-1.0 + magnetic_h)),
+            std::exp(-2 * beta * ( 0.0 + magnetic_h)),
+            std::exp(-2 * beta * ( 1.0 + magnetic_h)),
+            std::exp(-2 * beta * ( 2.0 + magnetic_h)),
+            std::exp(-2 * beta * ( 3.0 + magnetic_h)),
+            std::exp(-2 * beta * ( 4.0 + magnetic_h)),
+            // spin = -1
+            std::exp( 2 * beta * (-4.0 + magnetic_h)),
+            std::exp( 2 * beta * (-3.0 + magnetic_h)),
+            std::exp( 2 * beta * (-2.0 + magnetic_h)),
+            std::exp( 2 * beta * (-1.0 + magnetic_h)),
+            std::exp( 2 * beta * ( 0.0 + magnetic_h)),
+            std::exp( 2 * beta * ( 1.0 + magnetic_h)),
+            std::exp( 2 * beta * ( 2.0 + magnetic_h)),
+            std::exp( 2 * beta * ( 3.0 + magnetic_h)),
+            std::exp( 2 * beta * ( 4.0 + magnetic_h))
+        };
+        for (auto & i : exp_array)
+            i = i < 1.0 ? i : 1.0;
+        return exp_array;
+    }
 };
 
 // 2D Ising model with periodic boundary condition.
