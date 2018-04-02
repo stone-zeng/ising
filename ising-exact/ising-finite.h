@@ -7,8 +7,11 @@
 
 typedef unsigned int size_type;
 
-const double kMathPi = 3.14159265358979323846;
+// Math constants.
+const double kMathPi   = 3.14159265358979323846;
+const double kMathLog2 = 0.69314718055994530942;
 
+// Left-over hyperbolic function.
 ISING_INLINE_FLAG double coth(const double & x) { return 1.0 / std::tanh(x); }
 
 ISING_INLINE_FLAG double Gamma(const size_type & q, const size_type & n, const double & k)
@@ -19,62 +22,66 @@ ISING_INLINE_FLAG double Gamma(const size_type & q, const size_type & n, const d
         return std::acosh(std::cosh(2 * k) * coth(2 * k) - std::cos(kMathPi * q / n));
 }
 
-ISING_INLINE_FLAG double Y1(const size_type & n, const size_type & m, const double & k)
+// Direct calculation of Y1, ..., Y4 may overflow.
+// Use the identity log(Y1 + Y2 + Y3 + Y4) = log(1 + Y2/Y1 + Y3/Y1 + Y4/Y1) + log(Y1).
+
+ISING_INLINE_FLAG double log_Y1(const size_type & n, const size_type & m, const double & k)
 {
     double result = 1.0;
     for (auto q = 0; q != n; ++q)
-        result *= 2 * std::cosh(m * Gamma(2 * q + 1, n, k) / 2);
+        result += kMathLog2 + std::log(std::cosh(m * Gamma(2 * q + 1, n, k) / 2));
     return result;
 }
 
-ISING_INLINE_FLAG double Y2(const size_type & n, const size_type & m, const double & k)
+ISING_INLINE_FLAG double Y2_over_Y1(const size_type & n, const size_type & m, const double & k)
 {
     double result = 1.0;
     for (auto q = 0; q != n; ++q)
-        result *= 2 * std::sinh(m * Gamma(2 * q + 1, n, k) / 2);
+        result *= std::tanh(m * Gamma(2 * q + 1, n, k) / 2);
     return result;
 }
 
-ISING_INLINE_FLAG double Y3(const size_type & n, const size_type & m, const double & k)
+ISING_INLINE_FLAG double Y3_over_Y1(const size_type & n, const size_type & m, const double & k)
 {
     double result = 1.0;
     for (auto q = 0; q != n; ++q)
-        result *= 2 * std::cosh(m * Gamma(2 * q, n, k) / 2);
+        result *= std::cosh(m * Gamma(2 * q, n, k) / 2) / std::cosh(m * Gamma(2 * q + 1, n, k) / 2);
     return result;
 }
 
-ISING_INLINE_FLAG double Y4(const size_type & n, const size_type & m, const double & k)
+ISING_INLINE_FLAG double Y4_over_Y1(const size_type & n, const size_type & m, const double & k)
 {
     double result = 1.0;
     for (auto q = 0; q != n; ++q)
-        result *= 2 * std::sinh(m * Gamma(2 * q, n, k) / 2);
+        result *= std::sinh(m * Gamma(2 * q, n, k) / 2) / std::cosh(m * Gamma(2 * q + 1, n, k) / 2);
     return result;
 }
 
-ISING_INLINE_FLAG double PartitionFunction(const size_type & n, const size_type & m,
-                                           const double & k)
+// `Q` is partition function.
+// Use logarithm of partition function since direct calculation can easily overflow.
+ISING_INLINE_FLAG double log_Q(const size_type & n, const size_type & m, const double & k)
 {
-    return std::pow(2 * std::sinh(2 * k), n * m / 2) / 2
-        * (Y1(n, m, k) + Y2(n, m, k) + Y3(n, m, k) + Y4(n, m, k));
+    return -kMathLog2 + n * m / 2 * std::log(2 * std::sinh(2 * k))
+        + std::log(1 + Y2_over_Y1(n, m, k) + Y3_over_Y1(n, m, k) + Y4_over_Y1(n, m, k))
+        + log_Y1(n, m, k);
 }
 
-ISING_INLINE_FLAG double _SpecificHeatAuxI(const size_type & size, const double & T)
+// `T` is temperature.
+ISING_INLINE_FLAG double T_times_log_Q(const size_type & size, const double & T)
 {
-    // `T` = temperature
-    return T * std::log(PartitionFunction(size, size, 1.0 / T));
+    return T * log_Q(size, size, 1.0 / T);
 }
 
-ISING_INLINE_FLAG double _SpecificHeatAuxII(const size_type & size, const double & T,
-                                            const double & dT)
+ISING_INLINE_FLAG double Q_derivative(const size_type & size, const double & T, const double & dT)
 {
     // Discrete derivative (1st order).
-    return (_SpecificHeatAuxI(size, T + dT) - _SpecificHeatAuxI(size, T - dT)) / (2 * dT);
+    return (T_times_log_Q(size, T + dT) - T_times_log_Q(size, T - dT)) / (2 * dT);
 }
 
 ISING_INLINE_FLAG double SpecificHeat(const size_type & size, const double & T, const double & dT)
 {
     // Discrete derivative (2nd order).
-    return T * (_SpecificHeatAuxII(size, T + dT, dT) - _SpecificHeatAuxII(size, T - dT, dT))
+    return T * (Q_derivative(size, T + dT, dT) - Q_derivative(size, T - dT, dT))
         / (2 * dT * size * size);
 }
 
