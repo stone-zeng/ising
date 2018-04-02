@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include "ising-core/include/rapidjson/document.h"
+#include "ising-core/include/rapidjson/writer.h"
+
 #include "ising-core/get-option.h"
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"
@@ -12,6 +15,7 @@
 #include "ising-core/win-timing.h"
 
 using namespace std;
+using namespace rapidjson;
 using namespace ising;
 using namespace ising::toolkit;
 
@@ -70,7 +74,7 @@ ResultList Run(vector<T> * eval_list, const Parameter & param)
 
         cell.Initialize();
         auto result = cell.EvaluateLatticeData(beta, h, param.iterations);
-        result_list.push_back(result);
+        result_list[i] = result;
     }
     run_clock.TimingEnd();
     cerr << endl
@@ -78,6 +82,56 @@ ResultList Run(vector<T> * eval_list, const Parameter & param)
          << "Running time: " << run_clock.GetRunningTime() << "s." << endl;
 
     return result_list;
+}
+
+void PrintResults(ostream & os, const ResultList & result_list)
+{
+    Document doc;
+    
+    doc.SetArray();
+    auto & doc_allocator = doc.GetAllocator();
+
+    for (auto cell : result_list)
+    {
+        Value cell_val;
+        cell_val.SetObject();
+
+        Value energy_val;
+        Value magnetic_dipole_val;
+        energy_val.SetArray();
+        magnetic_dipole_val.SetArray();
+
+        for (auto i : cell.observables)
+        {
+            energy_val.PushBack(i.energy, doc_allocator);
+            magnetic_dipole_val.PushBack(i.magnetic_dipole, doc_allocator);
+        }
+
+        Value lattice_data_val;
+        lattice_data_val.SetArray();
+
+        for (auto i : cell.lattice_data)
+        {
+            Value lattice_data_row_val;
+            lattice_data_row_val.SetArray();
+            for (auto j : i)
+                lattice_data_row_val.PushBack(j, doc_allocator);
+            lattice_data_val.PushBack(lattice_data_row_val, doc_allocator);
+        }
+
+        cell_val.AddMember("energy", energy_val, doc_allocator);
+        cell_val.AddMember("magneticDipole", magnetic_dipole_val, doc_allocator);
+        cell_val.AddMember("latticeData", lattice_data_val, doc_allocator);
+
+        doc.PushBack(cell_val, doc_allocator);
+    }
+    
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    doc.Accept(writer);
+
+    string json_str(buffer.GetString());
+    os << json_str << endl;
 }
 
 int main(int argc, char * argv[])
@@ -103,6 +157,7 @@ int main(int argc, char * argv[])
         result_list = Run(&ising_eval_list, parameter);
     }
 
+    PrintResults(cout, result_list);
 
     return 0;
 }
