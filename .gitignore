@@ -1,6 +1,7 @@
 .vs/
 .vscode/
 ising/
+ising-exact/
 ising-sync/
 models/
 rbm/
