@@ -8,7 +8,7 @@ Ising model, machine learning and AdS/CFT
 
     C++ code for generating 2D Ising model lattice data and simulating critical behaviors.
 
-    Build with Visual Studio 2017 Community.
+    Build with Visual Studio 2017.
 
     - `ising-core/`
 
@@ -25,6 +25,12 @@ Ising model, machine learning and AdS/CFT
     - `ising-test/`
 
         Unit tests based on Microsoft C++ Unit Test Framework.
+
+- `ising-exact/`
+
+    C++ / Wolfram Language code for exact solution of Ising Model (finite size).
+
+    Build with Visual Studio 2017 (C++).
 
 - `rbm/`
 
