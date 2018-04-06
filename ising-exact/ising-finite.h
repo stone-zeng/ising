@@ -1,9 +1,13 @@
+// Calculate specific heat for finite size 2D Ising model.
+// See R.K.Pathria & Paul D. Beale *Statistical Mechanics (3rd ed)* 13.4.A.
+
 #ifndef ISING_EXACT_ISING_FINITE_H_
 #define ISING_EXACT_ISING_FINITE_H_
 
 #include <cmath>
 
 #define ISING_INLINE_FLAG inline
+#define ISING_PARALLEL_FLAG
 
 typedef unsigned int size_type;
 
