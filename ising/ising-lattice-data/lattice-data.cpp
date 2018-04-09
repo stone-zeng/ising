@@ -1,7 +1,9 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
-#include "ising-core/include/rapidjson/document.h"
-#include "ising-core/include/rapidjson/writer.h"
+#include "include/rapidjson/document.h"
+#include "include/rapidjson/writer.h"
 
 #include "ising-core/get-option.h"
 #include "ising-core/ising.h"

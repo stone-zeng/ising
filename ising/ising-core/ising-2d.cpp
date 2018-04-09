@@ -1,13 +1,13 @@
-#include "ising-2d.h"
+#include "ising-core/ising-2d.h"
 
 #include <array>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "fast-rand.h"
-#include "ising.h"
-#include "ising-definitions.h"
+#include "ising-core/fast-rand.h"
+#include "ising-core/ising.h"
+#include "ising-core/ising-definitions.h"
 
 using namespace std;
 using namespace ising::toolkit;

@@ -6,8 +6,8 @@
 
 #include "include/rapidjson/document.h"
 
-#include "ising.h"
-#include "ising-definitions.h"
+#include "ising-core/ising.h"
+#include "ising-core/ising-definitions.h"
 
 ISING_NAMESPACE_BEGIN
 

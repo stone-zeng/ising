@@ -6,7 +6,7 @@ Release/
 x64/
 
 # Libraries
-ising/ising-core/include/
+ising/include/
 
 # Temporary files
 __pycache__/

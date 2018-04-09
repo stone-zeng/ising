@@ -1,9 +1,9 @@
-#include "fast-rand.h"
+#include "ising-core/fast-rand.h"
 
 #include <Windows.h>
 
-#include "ising.h"
-#include "win-timing.h"
+#include "ising-core/ising.h"
+#include "ising-core/win-timing.h"
 
 using namespace std;
 

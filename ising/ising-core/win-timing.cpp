@@ -1,4 +1,4 @@
-#include "win-timing.h"
+#include "ising-core/win-timing.h"
 
 using namespace std;
 

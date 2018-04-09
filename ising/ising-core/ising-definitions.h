@@ -4,7 +4,7 @@
 #include <array>
 #include <vector>
 
-#include "ising.h"
+#include "ising-core/ising.h"
 
 ISING_NAMESPACE_BEGIN
 

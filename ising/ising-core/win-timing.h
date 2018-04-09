@@ -4,7 +4,7 @@
 #include <string>
 #include <Windows.h>
 
-#include "ising.h"
+#include "ising-core/ising.h"
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 

@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "ising-core/include/rapidjson/document.h"
+#include "include/rapidjson/document.h"
 
 #define PRINT_TEST_INFO(_name)                  \
     std::string info_head(">> Start test: ");   \

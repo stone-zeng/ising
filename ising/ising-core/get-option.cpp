@@ -1,10 +1,10 @@
-#include "get-option.h"
+#include "ising-core/get-option.h"
 
 #include <map>
 #include <string>
 #include <vector>
 
-#include "ising.h"
+#include "ising-core/ising.h"
 
 using namespace std;
 
