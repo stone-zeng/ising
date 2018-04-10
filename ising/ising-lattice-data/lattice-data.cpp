@@ -136,30 +136,43 @@ void PrintResults(ostream & os, const ResultList & result_list)
     os << json_str << endl;
 }
 
+void GenerateLatticeData(const Parameter & param)
+{
+    PrintParameters(param);
+
+    size_t eval_list_size = param.beta_list.size() * param.magnetic_h_list.size();
+    ResultList result_list;
+
+    if (param.boundary_condition == kPeriodic)
+    {
+        // Periodic boundary condition.
+        vector<Ising2D_PBC> ising_eval_list(eval_list_size, param.lattice_size);
+        result_list = Run(&ising_eval_list, param);
+    }
+    else
+    {
+        // Free boundary condition.
+        vector<Ising2D_FBC> ising_eval_list(eval_list_size, param.lattice_size);
+        result_list = Run(&ising_eval_list, param);
+    }
+
+    PrintResults(cout, result_list);
+}
+
+void GenerateDumpedLatticeData(const Parameter & param)
+{
+}
+
 int main(int argc, char * argv[])
 {
     GetOption option(argc, argv);
     Parameter parameter(option.Parse('s'));
     parameter.Parse();
-    PrintParameters(parameter);
 
-    size_t eval_list_size = parameter.beta_list.size() * parameter.magnetic_h_list.size();
-    ResultList result_list;
-
-    if (parameter.boundary_condition == kPeriodic)
-    {
-        // Periodic boundary condition.
-        vector<Ising2D_PBC> ising_eval_list(eval_list_size, parameter.lattice_size);
-        result_list = Run(&ising_eval_list, parameter);
-    }
+    if (option.Parse('d') == "true")
+        GenerateDumpedLatticeData(parameter);
     else
-    {
-        // Free boundary condition.
-        vector<Ising2D_FBC> ising_eval_list(eval_list_size, parameter.lattice_size);
-        result_list = Run(&ising_eval_list, parameter);
-    }
-
-    PrintResults(cout, result_list);
+        GenerateLatticeData(parameter);
 
     return 0;
 }
