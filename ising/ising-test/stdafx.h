@@ -20,8 +20,8 @@
 #include <string>
 #include <vector>
 
-#include "include/rapidjson/document.h"
-#include "include/argagg/argagg.hpp"
+#include <include/rapidjson/document.h>
+#include <include/argagg/argagg.hpp>
 
 #define PRINT_TEST_INFO(_name)                  \
     std::string info_head(">> Start test: ");   \

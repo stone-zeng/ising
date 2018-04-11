@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "include/rapidjson/document.h"
+#include <include/rapidjson/document.h>
 
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"

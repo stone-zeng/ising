@@ -3,7 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "ising-core/get-option.h"
+#include <include/argagg/argagg.hpp>
+
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"
 #include "ising-core/ising-2d.h"
@@ -167,10 +168,16 @@ void PrintResults(ostream & os, const ResultList & result_list)
     }
 }
 
-int main(int argc, char * argv[])
+int main0(int argc, char * argv[])
 {
-    GetOption option(argc, argv);
-    Parameter parameter(option.Parse('s'));
+    argagg::parser arg_parser
+        { {
+            { "settings", { "--settings", "-s" }, "", 1 },
+            { "dumped",   { "--dumped",   "-d" }, "", 0 }
+        } };
+    argagg::parser_results args = arg_parser.parse(argc, argv);
+
+    Parameter parameter(args["settings"].as<string>(""));
     parameter.Parse();
     PrintParameters(parameter);
 
