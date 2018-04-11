@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "ising-finite.h"
+#include "exact.h"
 
 using namespace std;
 

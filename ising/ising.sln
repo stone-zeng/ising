@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ising-lattice-data", "ising
 		{EB87261A-0C9E-487D-801E-767396A25BE3} = {EB87261A-0C9E-487D-801E-767396A25BE3}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exact", "exact\exact.vcxproj", "{04C220CF-DB86-4F62-B95E-6C56F7530FFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -53,6 +55,12 @@ Global
 		{F3EF2653-8B96-4A85-B926-B88BD99ABDD0}.Release|x64.Build.0 = Release|x64
 		{F3EF2653-8B96-4A85-B926-B88BD99ABDD0}.Release|x86.ActiveCfg = Release|Win32
 		{F3EF2653-8B96-4A85-B926-B88BD99ABDD0}.Release|x86.Build.0 = Release|Win32
+		{04C220CF-DB86-4F62-B95E-6C56F7530FFA}.Debug|x64.ActiveCfg = Debug|x64
+		{04C220CF-DB86-4F62-B95E-6C56F7530FFA}.Debug|x64.Build.0 = Debug|x64
+		{04C220CF-DB86-4F62-B95E-6C56F7530FFA}.Debug|x86.ActiveCfg = Debug|x64
+		{04C220CF-DB86-4F62-B95E-6C56F7530FFA}.Release|x64.ActiveCfg = Release|x64
+		{04C220CF-DB86-4F62-B95E-6C56F7530FFA}.Release|x64.Build.0 = Release|x64
+		{04C220CF-DB86-4F62-B95E-6C56F7530FFA}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

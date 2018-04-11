@@ -64,9 +64,9 @@ int PrintHelp(char * exe_name)
 }
 
 // TODO
-int RunExact() {}
-int RunSimulation() {}
-int RunLattice() {}
+int RunExact()      { return EXIT_SUCCESS; }
+int RunSimulation() { return EXIT_SUCCESS; }
+int RunLattice()    { return EXIT_SUCCESS; }
 
 int RunIsing(int argc, char * argv[])
 {

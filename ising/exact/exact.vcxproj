@@ -12,8 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{5029C995-BE1F-4BA5-9F84-0AB887A41E84}</ProjectGuid>
-    <RootNamespace>isingexact</RootNamespace>
+    <ProjectGuid>{04C220CF-DB86-4F62-B95E-6C56F7530FFA}</ProjectGuid>
+    <RootNamespace>exact</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,10 +72,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ising-finite.h" />
+    <ClInclude Include="exact.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ising-finite.cpp" />
+    <ClCompile Include="exact.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
