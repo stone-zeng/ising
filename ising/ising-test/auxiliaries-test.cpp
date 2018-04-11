@@ -1,12 +1,10 @@
 #include "stdafx.h"
 
 #include "ising-core/fast-rand.h"
-#include "ising-core/get-option.h"
 #include "ising-core/win-timing.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace rapidjson;
 using namespace ising::toolkit;
 
 ISING_TEST_NAMESPACE_BEGIN
@@ -66,26 +64,48 @@ public:
         Assert::IsTrue(std_rand_result == fast_rand_result);
     }
 
-    TEST_METHOD(GetOptionTest)
+    TEST_METHOD(ArgTest)
     {
-        PRINT_TEST_INFO("Get option")
+        PRINT_TEST_INFO("Arguments parser (argagg)")
 
         char * arg_exe_name = "test.exe";
-        char * arg_n = "123";
-        char * arg_o = "options";
 
-        char * argv[] = { arg_exe_name, "-n", arg_n, "-o", arg_o };
-        int argc = static_cast<int>(size(argv));
+        const auto arg_number = 123;
+        const auto arg_option = "opt";
 
-        GetOption options(argc, argv);
+        char * argv_1[] = { arg_exe_name, "-n", "123", "-o", "opt", "-d" };
+        char * argv_2[] = { arg_exe_name, "--number=123", "--option=opt", "--dumped" };
+        char * argv_3[] = { arg_exe_name, "-d", "-n", "123", "--option=opt" };
+        char * argv_4[] = { arg_exe_name, "-o", "opt", "--number=123" };
 
-        Assert::AreEqual(atoi(arg_n), stoi(options.Parse('n')));
-        Assert::AreEqual(string(arg_o), options.Parse('o'));
+        auto argc_1 = static_cast<int>(size(argv_1));
+        auto argc_2 = static_cast<int>(size(argv_2));
+        auto argc_3 = static_cast<int>(size(argv_3));
+        auto argc_4 = static_cast<int>(size(argv_4));
+
+        argagg::parser arg_parser
+            { {
+                { "number", { "-n", "--number" }, "HELP MESSAGE FOR `number`", 1 },
+                { "option", { "-o", "--option" }, "HELP MESSAGE FOR `option`", 1 },
+                { "dumped", { "-d", "--dumped" }, "HELP MESSAGE FOR `dumped`", 0 }
+            } };
+        argagg::parser_results args;
+
+#define _ARG_TEST(_argc, _argv, _is_arg_dumped)                             \
+    args = arg_parser.parse((_argc), (_argv));                              \
+    Assert::AreEqual(arg_number, static_cast<int>(args["number"]));         \
+    Assert::AreEqual(arg_option, args["option"].as<string>("").c_str());    \
+    Assert::AreEqual(_is_arg_dumped, static_cast<bool>(args["dumped"]));
+
+        _ARG_TEST(argc_1, argv_1, true);
+        _ARG_TEST(argc_2, argv_2, true);
+        _ARG_TEST(argc_3, argv_3, true);
+        _ARG_TEST(argc_4, argv_4, false);
     }
 
     TEST_METHOD(JsonTest)
     {
-        PRINT_TEST_INFO("Rapid JSON")
+        PRINT_TEST_INFO("JSON parser (rapidjson)")
 
         string json_str =
             R"(
@@ -105,7 +125,7 @@ public:
                 }
             )";
 
-        Document doc;
+        rapidjson::Document doc;
         doc.Parse(json_str.c_str());
 
         // Basic types.
