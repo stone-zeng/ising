@@ -42,6 +42,7 @@ Ising model, machine learning and AdS/CFT
 
 ## Dependencies
 
+- [vietjtnguyen/argagg](https://github.com/vietjtnguyen/argagg)
 - [Tencent/rapidjson](https://github.com/Tencent/rapidjson)
 - [TensorFlow](https://github.com/tensorFlow/tensorFlow)
 

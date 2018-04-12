@@ -1,0 +1,12 @@
+language: c
+
+compiler:
+  - gcc
+
+install:
+  - ./install.sh
+
+script:
+  - make all
+  - ./ising-run --help
+  - ./ising-run --exact
