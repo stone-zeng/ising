@@ -22,7 +22,7 @@ const argagg::parser kIsingArgParser
     {
         "simulation",
         { "--simulation", "-m" }, // `m` for Monte Carlo.
-        "Analyze critical behaviors with Monte Carlo algorithm.",
+        "Analyze critical behavior with Monte Carlo algorithm.",
         0
     },
     {
@@ -71,7 +71,18 @@ int RunLattice()    { return EXIT_SUCCESS; }
 int RunIsing(int argc, char * argv[])
 {
     int exit_code = EXIT_SUCCESS;
-    argagg::parser_results args = kIsingArgParser.parse(argc, argv);
+
+    argagg::parser_results args;
+    try
+    {
+        args = kIsingArgParser.parse(argc, argv);
+    }
+    catch (const exception & e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit_code = EXIT_FAILURE;
+        return exit_code;
+    }
 
     if (args["help"])
     {
@@ -104,6 +115,7 @@ int RunIsing(int argc, char * argv[])
         return exit_code;
     }
 
+    exit_code = PrintHelp(argv[0]);
     return exit_code;
 }
 

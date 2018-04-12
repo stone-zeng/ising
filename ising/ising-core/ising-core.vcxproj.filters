@@ -14,9 +14,6 @@
     <ClInclude Include="ising-2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="win-timing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="fast-rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -32,12 +29,12 @@
     <ClInclude Include="ising-parameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="timing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win-timing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ising-2d.cpp">
@@ -47,6 +44,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ising-parameter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="timing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

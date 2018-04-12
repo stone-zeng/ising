@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "ising-core/fast-rand.h"
-#include "ising-core/win-timing.h"
+#include "ising-core/timing.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -12,6 +12,26 @@ ISING_TEST_NAMESPACE_BEGIN
 TEST_CLASS(AuxiliariesTest)
 {
 public:
+    TEST_METHOD(TimingTest)
+    {
+        PRINT_TEST_INFO("Timing")
+
+        Timing clock;
+        clock.TimingBegin();
+        Sleep(1000); // Sleep for 1000 ms.
+        clock.TimingEnd();
+
+        string message;
+        message = to_string(clock.GetRunningTime()) + " s";
+        Logger::WriteMessage(message.c_str());
+
+        for (auto u : { "ms", "us", "ns", "min" })
+        {
+            message = to_string(clock.GetRunningTime(u)) + " " + u;
+            Logger::WriteMessage(message.c_str());
+        }
+    }
+
     TEST_METHOD(FastRandTest)
     {
         PRINT_TEST_INFO("Fast rand")
@@ -28,7 +48,7 @@ public:
         vector<int> cpp11_rand_result(test_num);
 
 #define _RAND_TEST_RESULT(_f, _result)  \
-    clock.TimingStart();                \
+    clock.TimingBegin();                \
     for (auto & i : (_result))          \
         i = (_f);                       \
     clock.TimingEnd();

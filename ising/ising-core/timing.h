@@ -1,17 +1,21 @@
-#ifndef ISING_CORE_WIN_TIMING_H_
-#define ISING_CORE_WIN_TIMING_H_
+#ifndef ISING_CORE_TIMING_H_
+#define ISING_CORE_TIMING_H_
 
 #include <string>
+#ifdef _MSC_VER
 #include <Windows.h>
+#elif defined __GNUC__
+#include <sys/time.h>
+#endif
 
 #include "ising-core/ising.h"
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 
-// High precision timing using Windows API.
+// High precision timing.
 // Usage:
 //     Timing my_timer;
-//     my_timer.TimingStart();
+//     my_timer.TimingBegin();
 //     /* Some codes here. */
 //     my_timer.TimingEnd();
 //
@@ -24,19 +28,22 @@ class Timing
 public:
     Timing();
 
-    void TimingStart();
+    void TimingBegin();
     void TimingEnd();
 
-    // "Run time" equals the difference of two counters over counter frequency.
-    // run_time = end_time - start_time
-    //          = (`counter_begin_time` - `counter_begin_time`) / `performance_freq`
     double GetRunningTime() const;
     double GetRunningTime(const std::string & unit) const;
 
 private:
+#ifdef _MSC_VER
     LARGE_INTEGER performance_freq_;
     LARGE_INTEGER counter_begin_time_;
     LARGE_INTEGER counter_end_time_;
+#elif defined __GNUC__
+    double  used_time_;
+    timeval begin_time_;
+    timeval end_time_;
+#endif
 };
 
 ISING_TOOLKIT_NAMESPACE_END

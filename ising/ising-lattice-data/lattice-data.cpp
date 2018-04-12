@@ -14,7 +14,7 @@
 // "Windows.h" should be put after "rapidjson/document.h".
 // See https://github.com/Tencent/rapidjson/issues/766
 //     http://blog.csdn.net/u011519892/article/details/16985239
-#include "ising-core/win-timing.h"
+#include "ising-core/timing.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -64,7 +64,7 @@ ResultList Run(vector<T> * eval_list, const Parameter & param)
     Timing run_clock;
 
     cerr << "Running..." << endl;
-    run_clock.TimingStart();
+    run_clock.TimingBegin();
 #ifdef ISING_PARALLEL
 #pragma omp parallel for
 #endif

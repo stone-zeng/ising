@@ -3,7 +3,7 @@
 #include <Windows.h>
 
 #include "ising-core/ising.h"
-#include "ising-core/win-timing.h"
+#include "ising-core/timing.h"
 
 using namespace std;
 
