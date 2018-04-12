@@ -1,6 +1,7 @@
 #include "ising-core/ising-2d.h"
 
 #include <array>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -37,8 +38,8 @@ Ising2D::Ising2D(const LatticeSize & size) : Ising2D(size.x, size.y) {}
 
 void Ising2D::Sweep(const double & beta, const double & magnetic_h)
 {
-    for (auto i = x_begin_index_; i != x_end_index_; ++i)
-        for (auto j = y_begin_index_; j != y_end_index_; ++j)
+    for (size_t i = x_begin_index_; i != x_end_index_; ++i)
+        for (size_t j = y_begin_index_; j != y_end_index_; ++j)
         {
             auto & spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
@@ -52,8 +53,8 @@ void Ising2D::Sweep(const ExpArray & exp_array)
     // For Ising model, the spin and nearest sum can only take a limited number 
     // of values. So it's unnecessary to evaluate the `exp()` every time. We
     // evaluate the values previously and put them into `exp_array`.
-    for (auto i = x_begin_index_; i != x_end_index_; ++i)
-        for (auto j = y_begin_index_; j != y_end_index_; ++j)
+    for (size_t i = x_begin_index_; i != x_end_index_; ++i)
+        for (size_t j = y_begin_index_; j != y_end_index_; ++j)
         {
             auto & spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
@@ -71,8 +72,8 @@ void Ising2D::Sweep(const ExpArray & exp_array)
 Observable Ising2D::Analysis(const double & magnetic_h) const
 {
     Observable observable;
-    for (auto i = x_begin_index_; i != x_end_index_; ++i)
-        for (auto j = y_begin_index_; j != y_end_index_; ++j)
+    for (size_t i = x_begin_index_; i != x_end_index_; ++i)
+        for (size_t j = y_begin_index_; j != y_end_index_; ++j)
         {
             auto spin = lattice_[i][j];
             auto spin_sum = NearestSum(i, j);
@@ -96,7 +97,7 @@ Observable Ising2D::Evaluate(const double & beta, const double & magnetic_h,
 #endif
 
     // Sweep.
-    for (auto i = 0; i != iterations - n_ensemble; ++i)
+    for (size_t i = 0; i != iterations - n_ensemble; ++i)
 #ifdef ISING_FAST_EXP
         Sweep(exp_array);
 #else
@@ -105,9 +106,9 @@ Observable Ising2D::Evaluate(const double & beta, const double & magnetic_h,
 
     // Sweep and analysis.
     // `n_delta` is used to avoid correlation between successive configurations.
-    auto count = 0;
+    size_t count = 0;
     Observable observable;
-    for (auto i = iterations - n_ensemble - 1; i != iterations; ++i)
+    for (size_t i = iterations - n_ensemble - 1; i != iterations; ++i)
     {
 #ifdef ISING_FAST_EXP
         Sweep(exp_array);
@@ -132,7 +133,7 @@ LatticeInfo Ising2D::EvaluateLatticeData(const double & beta, const double & mag
     auto exp_array = InitializeExpArray(beta, magnetic_h);
 #endif
     vector<Observable> result;
-    for (auto i = 0; i != iterations; ++i)
+    for (size_t i = 0; i != iterations; ++i)
     {
 #ifdef ISING_FAST_EXP
         Sweep(exp_array);
@@ -221,10 +222,10 @@ Ising2D_FBC::Ising2D_FBC(const size_t & x_size, const size_t & y_size) :
 void Ising2D_PBC::Initialize()
 {
     lattice_.resize(x_size_);
-    for (int i = 0; i != x_size_; ++i)
+    for (size_t i = 0; i != x_size_; ++i)
     {
         lattice_[i].resize(y_size_);
-        for (int j = 0; j != y_size_; ++j)
+        for (size_t j = 0; j != y_size_; ++j)
             lattice_[i][j] = 1;
     }
 }
@@ -235,8 +236,8 @@ void Ising2D_FBC::Initialize()
     lattice_.resize(x_size_ + 2);
     for (auto i = lattice_.begin(); i != lattice_.end(); ++i)
         i->resize(y_size_ + 2);
-    for (auto i = 1; i != x_size_ + 1; ++i)
-        for (auto j = 1; j != y_size_ + 1; ++j)
+    for (size_t i = 1; i != x_size_ + 1; ++i)
+        for (size_t j = 1; j != y_size_ + 1; ++j)
             lattice_[i][j] = 1;
 }
 

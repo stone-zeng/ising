@@ -1,6 +1,7 @@
 #ifndef ISING_CORE_ISING_2D_H_
 #define ISING_CORE_ISING_2D_H_
 
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -60,7 +61,7 @@ protected:
 
     // Sum over the nearest spins.
     // It's pure virtual because of the different boundary conditions.
-    inline virtual int NearestSum(const size_t & x, const size_t & y) const = 0;
+    virtual int NearestSum(const size_t & x, const size_t & y) const = 0;
 
 private:
     // Pre-evaluate the Metropolis function values (`exp()`).

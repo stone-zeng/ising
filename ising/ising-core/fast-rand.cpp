@@ -1,6 +1,10 @@
 #include "ising-core/fast-rand.h"
 
+#ifdef _MSC_VER
 #include <Windows.h>
+#elif defined __GNUC__
+#include <sys/time.h>
+#endif
 
 #include "ising-core/ising.h"
 #include "ising-core/timing.h"
@@ -18,11 +22,17 @@ unsigned int FastRand()
     return (_fast_rand_seed >> 16) & 0x7fff;
 }
 
-long long int _GetTime()
+time_t _GetTime()
 {
+#ifdef _MSC_VER
     LARGE_INTEGER t;
     QueryPerformanceCounter(&t);
     return t.QuadPart;
+#elif defined __GNUC__
+    timeval t;
+    gettimeofday(&t, NULL);
+    return t.tv_usec;
+#endif
 }
 
 void FastRandInitialize() { _fast_rand_seed = static_cast<unsigned int>(_GetTime()); }
