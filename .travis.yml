@@ -4,7 +4,7 @@ compiler:
   - gcc
 
 install:
-  - ./install.sh
+  - source ./install.sh
 
 script:
   - make all
