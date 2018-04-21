@@ -1,5 +1,7 @@
 # Ising Model: a New Perspective
 
+[![Build Status](https://img.shields.io/travis/Stone-Zeng/ising.svg)](https://travis-ci.org/Stone-Zeng/ising)
+
 Ising model, machine learning and AdS/CFT
 
 ## Structure

@@ -8,6 +8,6 @@ wget https://raw.githubusercontent.com/vietjtnguyen/argagg/master/include/argagg
 mkdir -p $WORKING_DIR/tmp
 cd $WORKING_DIR/tmp
 git clone --depth=1 https://github.com/Tencent/rapidjson.git
-cp -rv ./rapidjson/include/rapidjson $INCLUDE_DIR
+cp -r ./rapidjson/include/rapidjson $INCLUDE_DIR
 
 cd $WORKING_DIR
