@@ -125,6 +125,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="exact.h" />
     <ClInclude Include="get-option.h" />
     <ClInclude Include="ising-2d.h" />
     <ClInclude Include="ising-definitions.h" />
@@ -134,6 +135,7 @@
     <ClInclude Include="fast-rand.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="exact.cpp" />
     <ClCompile Include="fast-rand.cpp" />
     <ClCompile Include="get-option.cpp" />
     <ClCompile Include="ising-2d.cpp" />

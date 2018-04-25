@@ -21,8 +21,8 @@ enum BoundaryConditions { kPeriodic, kFree };
 
 struct LatticeSize
 {
-    size_t x;
-    size_t y;
+    std::size_t x;
+    std::size_t y;
 };
 
 inline bool operator==(const LatticeSize & size_l, const LatticeSize & size_r)

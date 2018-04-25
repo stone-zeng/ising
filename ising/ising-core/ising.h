@@ -6,6 +6,8 @@
 #define ISING_NAMESPACE_END           }
 #define ISING_TOOLKIT_NAMESPACE_BEGIN namespace ising { namespace toolkit {
 #define ISING_TOOLKIT_NAMESPACE_END   } }
+#define ISING_EXACT_NAMESPACE_BEGIN   namespace ising { namespace exact {
+#define ISING_EXACT_NAMESPACE_END     } }
 
 // Use OpenMP for parallel speedup.
 #ifndef _DEBUG

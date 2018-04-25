@@ -6,6 +6,7 @@
 
 #include "ising-core/ising.h"
 #include "ising-core/ising-parameter.h"
+#include "ising-core/exact.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ int PrintHelp(char * exe_name)
 }
 
 // TODO
-int RunExact()      { return EXIT_SUCCESS; }
+//int RunExact()      { return EXIT_SUCCESS; }
 int RunSimulation() { return EXIT_SUCCESS; }
 int RunLattice()    { return EXIT_SUCCESS; }
 

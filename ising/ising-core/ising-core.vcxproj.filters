@@ -32,6 +32,9 @@
     <ClInclude Include="timing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="exact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fast-rand.cpp">
@@ -47,6 +50,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="timing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="exact.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
