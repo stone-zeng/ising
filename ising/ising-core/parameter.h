@@ -7,7 +7,6 @@
 #include <include/rapidjson/document.h>
 
 #include "ising-core/ising.h"
-#include "ising-core/ising-definitions.h"
 
 ISING_NAMESPACE_BEGIN
 
@@ -19,8 +18,6 @@ class Parameter
 {
 public:
     Parameter() = default;
-    // To be deprecated!
-    Parameter(const std::string & file_name);
 
     void ReadFromString(const std::string & settings);
     void ReadFromString(const char * settings);

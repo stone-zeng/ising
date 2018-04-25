@@ -3,10 +3,10 @@ INCLUDE = -I ./ising
 OUTPUT = -o ising-run
 
 SRC = \
-	./ising/ising-run/main.cpp             \
-	./ising/ising-core/fast-rand.cpp       \
-	./ising/ising-core/timing.cpp          \
-	./ising/ising-core/ising-parameter.cpp \
+	./ising/ising-run/main.cpp       \
+	./ising/ising-core/fast-rand.cpp \
+	./ising/ising-core/timing.cpp    \
+	./ising/ising-core/parameter.cpp \
 	./ising/ising-core/ising-2d.cpp
 
 all:

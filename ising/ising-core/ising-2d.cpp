@@ -8,7 +8,6 @@
 
 #include "ising-core/fast-rand.h"
 #include "ising-core/ising.h"
-#include "ising-core/ising-definitions.h"
 
 using namespace std;
 using namespace ising::toolkit;

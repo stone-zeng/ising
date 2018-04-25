@@ -7,8 +7,7 @@
 #include <cmath>
 
 #include "ising-core/ising.h"
-#include "ising-core/ising-definitions.h"
-#include "ising-core/ising-parameter.h"
+#include "ising-core/parameter.h"
 
 ISING_NAMESPACE_BEGIN
 

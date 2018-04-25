@@ -6,9 +6,8 @@
 #include <include/rapidjson/writer.h>
 
 #include "ising-core/ising.h"
-#include "ising-core/ising-definitions.h"
 #include "ising-core/ising-2d.h"
-#include "ising-core/ising-parameter.h"
+#include "ising-core/parameter.h"
 
 // "Windows.h" should be put after "rapidjson/document.h".
 // See https://github.com/Tencent/rapidjson/issues/766

@@ -5,7 +5,7 @@
 #include <include/argagg/argagg.hpp>
 
 #include "ising-core/ising.h"
-#include "ising-core/ising-parameter.h"
+#include "ising-core/parameter.h"
 #include "ising-core/exact.h"
 
 using namespace std;

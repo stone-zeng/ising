@@ -4,8 +4,7 @@
 
 #include "ising-core/ising.h"
 #include "ising-core/exact.h"
-#include "ising-core/ising-definitions.h"
-#include "ising-core/ising-parameter.h"
+#include "ising-core/parameter.h"
 
 using namespace std;
 

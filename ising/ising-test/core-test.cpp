@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#include "ising-core/ising-definitions.h"
-#include "ising-core/ising-parameter.h"
+#include "ising-core/ising.h"
+#include "ising-core/parameter.h"
 #include "ising-core/ising-2d.h"
 
 using namespace std;
@@ -20,7 +20,8 @@ public:
 
         const string file_path = ISING_SOLUTION_DIRECTORY;
         const string file_name = "ising-parameter-test.json";
-        Parameter param(file_path + file_name);
+        Parameter param;
+        param.ReadFromFile(file_path + file_name);
         param.Parse();
 
         // Expected values.

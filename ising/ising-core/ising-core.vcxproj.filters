@@ -17,19 +17,16 @@
     <ClInclude Include="fast-rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ising-definitions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ising.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ising-parameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="timing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="exact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -40,13 +37,13 @@
     <ClCompile Include="ising-2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ising-parameter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="timing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="exact.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parameter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

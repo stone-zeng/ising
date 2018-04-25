@@ -1,4 +1,4 @@
-#include "ising-core/ising-parameter.h"
+#include "ising-core/parameter.h"
 
 #include <cmath>
 #include <fstream>
@@ -9,7 +9,6 @@
 #include <include/rapidjson/document.h>
 
 #include "ising-core/ising.h"
-#include "ising-core/ising-definitions.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -47,16 +46,6 @@ vector<double> _GetVector(const Value & array)
     for (auto & i : array.GetArray())
         v.push_back(i.GetDouble());
     return v;
-}
-
-Parameter::Parameter(const string & file_name)
-{
-    ifstream file(file_name);
-    // Read the whole file. See https://stackoverflow.com/a/116220/8479490.
-    string json_string = static_cast<stringstream const&>(stringstream() << file.rdbuf()).str();
-    // Allow relaxed JSON syntax (comments and trailing commas).
-    json_doc_.Parse<kJsonParseFlag>(json_string.c_str());
-    file.close();
 }
 
 void Parameter::ReadFromString(const string & settings) { ReadFromString(settings.c_str()); }

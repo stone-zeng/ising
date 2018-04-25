@@ -6,9 +6,8 @@
 #include <include/argagg/argagg.hpp>
 
 #include "ising-core/ising.h"
-#include "ising-core/ising-definitions.h"
 #include "ising-core/ising-2d.h"
-#include "ising-core/ising-parameter.h"
+#include "ising-core/parameter.h"
 
 // "Windows.h" should be put after "rapidjson/document.h".
 // See https://github.com/Tencent/rapidjson/issues/766
@@ -177,7 +176,8 @@ int main0(int argc, char * argv[])
         } };
     argagg::parser_results args = arg_parser.parse(argc, argv);
 
-    Parameter parameter(args["settings"].as<string>(""));
+    Parameter parameter;
+    parameter.ReadFromFile(args["settings"].as<string>(""));
     parameter.Parse();
     PrintParameters(parameter);
 
