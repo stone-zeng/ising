@@ -5,7 +5,6 @@
 #include <include/rapidjson/document.h>
 #include <include/rapidjson/writer.h>
 
-#include "ising-core/get-option.h"
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"
 #include "ising-core/ising-2d.h"
@@ -165,14 +164,14 @@ void GenerateDumpedLatticeData(const Parameter & param)
 
 int main(int argc, char * argv[])
 {
-    GetOption option(argc, argv);
-    Parameter parameter(option.Parse('s'));
-    parameter.Parse();
+    // GetOption option(argc, argv);
+    // Parameter parameter(option.Parse('s'));
+    // parameter.Parse();
 
-    if (option.Parse('d') == "true")
-        GenerateDumpedLatticeData(parameter);
-    else
-        GenerateLatticeData(parameter);
+    // if (option.Parse('d') == "true")
+    //     GenerateDumpedLatticeData(parameter);
+    // else
+    //     GenerateLatticeData(parameter);
 
     return 0;
 }

@@ -23,9 +23,6 @@
     <ClInclude Include="ising.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="get-option.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ising-parameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -41,9 +38,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ising-2d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="get-option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ising-parameter.cpp">

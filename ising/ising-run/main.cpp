@@ -85,22 +85,17 @@ int RunIsing(int argc, char * argv[])
         return exit_code;
     }
 
-    if (args["help"])
-    {
-        exit_code = PrintHelp(argv[0]);
-        return exit_code;
-    }
-
+    // TODO
+    Parameter parameter;
     if (args["settings"])
-    {
-        // TODO
-        ising::Parameter parameter(args["settings"].as<string>(""));
-        parameter.Parse();
-    }
+        parameter.ReadFromFile(args["settings"].as<string>(""));
+    else
+        parameter.ReadFromString("");
+    parameter.Parse();
 
     if (args["exact"])
     {
-        exit_code = RunExact();
+        exit_code = RunExact(parameter);
         return exit_code;
     }
 
@@ -113,6 +108,12 @@ int RunIsing(int argc, char * argv[])
     if (args["lattice"])
     {
         exit_code = RunLattice();
+        return exit_code;
+    }
+
+    if (args["help"])
+    {
+        exit_code = PrintHelp(argv[0]);
         return exit_code;
     }
 

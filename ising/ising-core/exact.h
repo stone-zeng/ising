@@ -8,6 +8,7 @@
 
 #include "ising-core/ising.h"
 #include "ising-core/ising-definitions.h"
+#include "ising-core/ising-parameter.h"
 
 ISING_NAMESPACE_BEGIN
 
@@ -101,7 +102,7 @@ private:
     }
 };
 
-int RunExact()
+int RunExact(const Parameter & param)
 {
     return 0;
 }

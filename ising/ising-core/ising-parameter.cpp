@@ -55,7 +55,23 @@ Parameter::Parameter(const string & file_name)
     // Read the whole file. See https://stackoverflow.com/a/116220/8479490.
     string json_string = static_cast<stringstream const&>(stringstream() << file.rdbuf()).str();
     // Allow relaxed JSON syntax (comments and trailing commas).
-    json_doc_.Parse<kParseCommentsFlag + kParseTrailingCommasFlag>(json_string.c_str());
+    json_doc_.Parse<kJsonParseFlag>(json_string.c_str());
+    file.close();
+}
+
+void Parameter::ReadFromString(const string & settings) { ReadFromString(settings.c_str()); }
+void Parameter::ReadFromString(const char * settings)
+{
+    json_doc_.Parse<kJsonParseFlag>(settings);
+}
+
+void Parameter::ReadFromFile(const string & file_name) { ReadFromFile(file_name.c_str()); }
+void Parameter::ReadFromFile(const char * file_name)
+{
+    ifstream file(file_name);
+    // Read the whole file. See https://stackoverflow.com/a/116220/8479490.
+    string json_string = static_cast<stringstream const&>(stringstream() << file.rdbuf()).str();
+    json_doc_.Parse<kJsonParseFlag>(json_string.c_str());
     file.close();
 }
 
@@ -63,6 +79,7 @@ void Parameter::Parse()
 {
     boundary_condition = ParseBoundaryCondition();
     lattice_size       = ParseLatticeSize();
+    temperature_list   = ParseTemperatureList();
     beta_list          = ParseBetaList();
     magnetic_h_list    = ParseMagneticFieldList();
     iterations         = ParseIterations();
@@ -95,33 +112,44 @@ LatticeSize Parameter::ParseLatticeSize()
     }
 }
 
-vector<double> Parameter::ParseBetaList()
+vector<double> Parameter::ParseTemperatureList()
 {
     // Try to find `temperature` first.
     auto span_iter = json_doc_.FindMember("temperature.span");
     auto list_iter = json_doc_.FindMember("temperature.list");
     if (span_iter != json_doc_.MemberEnd() || list_iter != json_doc_.MemberEnd())
     {
-        vector<double> list;
         if (span_iter != json_doc_.MemberEnd())
-            list = _SpanToVector(span_iter->value, kDoubleTolerance);
+            return _SpanToVector(span_iter->value, kDoubleTolerance);
         else
-            list = _GetVector(list_iter->value);
-        for (auto & i : list)
-            i = 1.0 / i;
-        return list;
+            return _GetVector(list_iter->value);
     }
     else
     {
         span_iter = json_doc_.FindMember("beta.span");
-        if (span_iter != json_doc_.MemberEnd())
-            return _SpanToVector(span_iter->value, kDoubleTolerance);
         list_iter = json_doc_.FindMember("beta.list");
-        if (list_iter != json_doc_.MemberEnd())
-            return _GetVector(list_iter->value);
+        if (span_iter != json_doc_.MemberEnd() || list_iter != json_doc_.MemberEnd())
+        {
+            vector<double> list;
+            if (span_iter != json_doc_.MemberEnd())
+                list = _SpanToVector(span_iter->value, kDoubleTolerance);
+            else
+                list = _GetVector(list_iter->value);
+            for (auto & i : list)
+                i = 1.0 / i;
+            return list;
+        }
     }
     // The program should not go here.
     return vector<double>();
+}
+
+vector<double> Parameter::ParseBetaList()
+{
+    auto list = ParseTemperatureList();
+    for (auto & i : list)
+        i = 1.0 / i;
+    return list;
 }
 
 vector<double> Parameter::ParseMagneticFieldList()
