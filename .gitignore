@@ -1,5 +1,3 @@
-
-
 # Binary files
 Debug/
 Release/
@@ -21,6 +19,7 @@ samples/
 
 # Other folders
 data/
+docs/
 ising-sync/
 
 # Visual Studio profiles
