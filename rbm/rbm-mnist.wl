@@ -22,9 +22,7 @@ Remove["Global`*"]
 freeEnergy[rbm_, v_] :=
   - v . rbm["b"] - Total /@ Log[1 + Exp[(rbm["c"] + #) & /@ (v . rbm["W"])]]
 pseudoLikelihood[rbm_, v_, i_] :=
-  (* Binarize the input *)
-  (* TODO: `255` is only for MNIST *)
-  Module[{x = Round[v / 255], n$visible = Length @ rbm["b"]},
+  Module[{n$visible = Length @ rbm["b"]},
     <|
       (*
         Free energy of the i-th element of x   -> fe_xi
@@ -34,14 +32,10 @@ pseudoLikelihood[rbm_, v_, i_] :=
       *)
       "cost" -> Mean[n$visible * Log @ LogisticSigmoid[
         Subtract @@ (Function[$v, freeEnergy[rbm, $v]] /@
-          {ReplacePart[#, i -> 1 - #[[i]]] & /@ x, x})]],
+          {ReplacePart[#, i -> 1 - #[[i]]] & /@ v, v})]],
       "i" -> Mod[i, n$visible] + 1
     |>
   ]
-
-(* Test *)
-freeEnergy[rbm, mnistData[[;;100]]]
-pseudoLikelihood[rbm, mnistData[[;;100]], 1]
 
 
 (*
@@ -140,13 +134,11 @@ learn[rbm_, v_, k_, lr_] :=
   rbm + lr * contrastiveDivergence[rbm, v, k]
 
 
-(*TODO: not used!*)
 (* Returned value shapes: n_visible *)
 sampler[rbm_, v_, steps_] :=
   Nest[
     sampleVisibleGivenHidden[rbm, sampleHiddenGivenVisible[rbm, #]] &,
-    v,
-    steps]
+    v, steps]
 
 
 (*
@@ -184,51 +176,45 @@ nextBatch[data_, batch$data_Association] :=
     rbm: [RBM]
 *)
 train[data_, rbm_, epoches_, batch$size_, k_, lr_] :=
-    Nest[
-      With[
-        {
-          $rbm        = First[#]["RBM_param"],
-          (* Shape: [batch_size * n_visible] *)
-          $batch$data = First[#]["batch_data"]["data"]
-        },
-        With[{$likelihood = pseudoLikelihood[$rbm, $batch$data, #[[2]]]},
-          (* Monitor cost during evaluation *)
-          If[Divisible[Last[#], batch$size],
-            Echo["Epoch: " <> ToString @ Quotient[Last[#], batch$size] <> "\t" <>
-                 "Cost: "  <> ToString @ $likelihood["cost"]]
-          ];
-          (* The following is the function for `Nest` *)
-          {
-            <|
-              "RBM_param"  -> learn[$rbm, $batch$data, k, lr],
-              "batch_data" -> nextBatch[data, First[#]["batch_data"]],
-              "cost_list"  -> Append[First[#]["cost_list"], $likelihood["cost"]]
-            |>,
-            $likelihood["i"],
-            Last[#] + 1
-          }
-        ]
-      ] &,
+  Nest[
+    With[
       {
-        (* Initial values *)
-        <|
-          "RBM_param"  -> rbm,
-          "batch_data" -> dataInitialize[data, batch$size],
-          "cost_list"  -> {}
-        |>,
-        (* This is the index for likelihood *)
-        1,
-        (* This is the index for `Nest` *)
-        1
+        $rbm        = First[#]["RBM_param"],
+        (* Shape: [batch_size * n_visible] *)
+        $batch$data = First[#]["batch_data"]["data"]
       },
-      epoches * batch$size
-    ]
-trained = train[mnistData, rbm, 10, 10, 30, 0.1];
-
-
-ArrayPlot[rbm["W"]\[Transpose]]
-ArrayPlot[(trainedW = trained[[1]]["RBM_param"]["W"])\[Transpose]]
-ArrayPlot[ArrayReshape[#,{28,28}],ImageSize->Tiny]&/@(trainedW\[Transpose])
+      With[{$likelihood = pseudoLikelihood[$rbm, $batch$data, #[[2]]]},
+        (* Monitor cost during evaluation *)
+        If[Divisible[Last[#], batch$size],
+          Echo["\tCost: " <> ToString[$likelihood["cost"], StandardForm],
+            "Epoch " <> ToString @ Quotient[Last[#], batch$size]]
+        ];
+        (* The following is the function for `Nest` *)
+        {
+          <|
+            "RBM_param"  -> learn[$rbm, $batch$data, k, lr],
+            "batch_data" -> nextBatch[data, First[#]["batch_data"]],
+            "cost_list"  -> Append[First[#]["cost_list"], $likelihood["cost"]]
+          |>,
+          $likelihood["i"],
+          Last[#] + 1
+        }
+      ]
+    ] &,
+    {
+      (* Initial values *)
+      <|
+        "RBM_param"  -> rbm,
+        "batch_data" -> dataInitialize[data, batch$size],
+        "cost_list"  -> {}
+      |>,
+      (* This is the index for likelihood *)
+      1,
+      (* This is the index for `Nest` *)
+      1
+    },
+    epoches * batch$size
+  ]
 
 
 (* ::Section:: *)
@@ -238,27 +224,59 @@ ArrayPlot[ArrayReshape[#,{28,28}],ImageSize->Tiny]&/@(trainedW\[Transpose])
 dataPath = "E:\\Files\\Programs\\machine-learning\\data\\mnist\\";
 
 
-imageTrainRaw=Import[dataPath<>"train-images-idx3-ubyte","UnsignedInteger8","HeaderBytes"->16];
-imageTestRaw=Import[dataPath<>"t10k-images-idx3-ubyte","UnsignedInteger8","HeaderBytes"->16];
-Length/@{imageTrainRaw,imageTestRaw}
+importMNIST[name_] :=
+  Import[dataPath <> name, "UnsignedInteger8", "HeaderBytes" -> 16]
+imageTrainRaw = importMNIST["train-images-idx3-ubyte"];
+imageTestRaw  = importMNIST["t10k-images-idx3-ubyte"];
+Dimensions /@ {imageTrainRaw,  imageTestRaw}
 
 
-imageTrain=Partition[imageTrainRaw,784];
-imageTest=Partition[imageTestRaw,784];
-Dimensions/@{imageTrain,imageTest}
+imageTrain = Round[Partition[imageTrainRaw, 784] / 255.0];
+imageTest  = Round[Partition[imageTestRaw,  784] / 255.0];
+Dimensions /@ {imageTrain, imageTest}
 
 
-rand[shape_] := RandomReal[{0, 1}, shape]
+(* Parameters *)
+visibleNum   = 784;
+hiddenNum    = 100;
+epochNum     = 20;
+batchSize    = 500;
+kParameter   = 30;
+learningRate = 0.1;
 
+(* Helper function *)
+plotMNIST[data_] := ArrayPlot[ArrayReshape[data, {28, 28}], ImageSize -> 60, Frame -> False]
 
-mnistData = imageTrain;
-rbm  = <|"W" -> rand[{784, 100}], "b" -> rand[784], "c" -> rand[100]|>;
+(* Initialize features *)
+rbm = AssociationThread[{"W", "b", "c"} ->
+  Evaluate[RandomReal[{0, 1}, #] & /@
+    {{visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
 
+(* Main training loop *)
+trainingTime = First @ AbsoluteTiming[
+  trained = First @ train[imageTrain, rbm, epochNum, batchSize, kParameter, learningRate];];
 
-(*trained = train[mnistData, rbm, 6, 10, 3, 0.01];*)
+(* Training time and cost *)
+Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
+ListLogLogPlot[-trained["cost_list"],
+  PlotRange -> All, Joined -> True, PlotTheme -> "Detailed", PlotLabel -> "Learning curve"]
 
+(* Filters *)
+trainedW = Transpose @ trained["RBM_param"]["W"];
+GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotMNIST, trainedW]
 
-(*trained[[1]]["cost_list"]//ListPlot*)
-
-
-(*trained=learn[rbm, mnistData["batch_data"], 30, 0.1];*)
+(* Generated samples *)
+sample$num   = 20;
+sample$step  = 100;
+sample$index = RandomSample[Range @ Length @ imageTest, sample$num];
+sample = NestList[
+  <|
+    "data"  -> sampler[trained["RBM_param"], #["data"], sample$step],
+    "index" -> #["index"] + 1
+  |> &,
+  <|
+    "data"  -> imageTest[[sample$index]],
+    "index" -> 0
+  |>, 5];
+Echo[Row[plotMNIST /@ #["data"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;
