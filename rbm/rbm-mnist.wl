@@ -5,7 +5,6 @@ Remove["Global`*"]
 
 (*
   Arguments:
-    n$visible: Integer
     rbm:
       <|
         "W": weight [n_visible * n_hidden],
@@ -18,13 +17,14 @@ Remove["Global`*"]
     freeEnergy: [batch_size]
     pseudoLikelihood:
       "cost": Real
-      "i":    Integer
+      "i":    Integer in [1, n_visible]
 *)
 freeEnergy[rbm_, v_] :=
   - v . rbm["b"] - Total /@ Log[1 + Exp[(rbm["c"] + #) & /@ (v . rbm["W"])]]
-pseudoLikelihood[n$visible_, rbm_, v_, i_] :=
+pseudoLikelihood[rbm_, v_, i_] :=
   (* Binarize the input *)
-  Module[{x = Round[v]},
+  (* TODO: `255` is only for MNIST *)
+  Module[{x = Round[v / 255], n$visible = Length @ rbm["b"]},
     <|
       (*
         Free energy of the i-th element of x   -> fe_xi
@@ -32,12 +32,16 @@ pseudoLikelihood[n$visible_, rbm_, v_, i_] :=
         "cost" = mean @ log @ sigmoid (fe_xi_flip - fe_xi)
         `batch_size` dimension will be eliminated via `Mean`
       *)
-      "cost" -> Mean[n$visible * Log @ LogisticSigmoid @ Subtract @@
-          (Function[$v, freeEnergy[rbm, $v]] /@
-            {ReplacePart[#, i -> 1 - #[[i]]] & @ x, x})],
-      "i" -> Mod[i + 1, n$visible]
+      "cost" -> Mean[n$visible * Log @ LogisticSigmoid[
+        Subtract @@ (Function[$v, freeEnergy[rbm, $v]] /@
+          {ReplacePart[#, i -> 1 - #[[i]]] & /@ x, x})]],
+      "i" -> Mod[i, n$visible] + 1
     |>
   ]
+
+(* Test *)
+freeEnergy[rbm, mnistData[[;;100]]]
+pseudoLikelihood[rbm, mnistData[[;;100]], 1]
 
 
 (*
@@ -179,50 +183,52 @@ nextBatch[data_, batch$data_Association] :=
     data: [data_size * n_visible]
     rbm: [RBM]
 *)
-train[data_, rbm_,
-    n$visible_Integer, epoches_Integer, batch$size_Integer, k_Integer, lr_Number] :=
-  Nest[
-    With[
-      {
-        $index      = First[#]["index"],
-        $rbm        = First[#]["RBM_param"],
-        (* Shape: [batch_size * n_visible] *)
-        $batch$data = First[#]["batch_data"]["data"]
-      },
+train[data_, rbm_, epoches_, batch$size_, k_, lr_] :=
+    Nest[
       With[
-        (*TODO*)
-        {$likelihood = pseudoLikelihood[n$visible, $rbm, $batch$data, Last @ #]},
-        (* Print cost during evaluation *)
-        Print[$likelihood["cost"]];
-        (* The following is the function for `Nest` *)
         {
-          <|
-            "index"      -> $index + 1,
-            "RBM_param"  -> learn[$rbm, $batch$data, k, lr],
-            "batch_data" -> nextBatch[data, First[#]["batch_data"]],
-            "cost_list"  -> Join[First[#]["cost_list"], $likelihood["cost"]]
-          |>,
-          (*
-            Note that the index for likelihood ($likelihood["i"], or the
-            2nd term of `Nest`) is different from the batch index (`$index`)
-          *)
-          $likelihood["i"]
-        }
-      ]
-    ] &,
-    {
-      (* Initial values *)
-      <|
-        "index"      -> 1,
-        "RBM_param"  -> rbm,
-        "batch_data" -> dataInitialize[data, batch$size],
-        "cost_list"  -> {}
-      |>,
-      (* This is the index for likelihood *)
-      1
-    },
-    epoches * batch$size
-  ]
+          $rbm        = First[#]["RBM_param"],
+          (* Shape: [batch_size * n_visible] *)
+          $batch$data = First[#]["batch_data"]["data"]
+        },
+        With[{$likelihood = pseudoLikelihood[$rbm, $batch$data, #[[2]]]},
+          (* Monitor cost during evaluation *)
+          If[Divisible[Last[#], batch$size],
+            Echo["Epoch: " <> ToString @ Quotient[Last[#], batch$size] <> "\t" <>
+                 "Cost: "  <> ToString @ $likelihood["cost"]]
+          ];
+          (* The following is the function for `Nest` *)
+          {
+            <|
+              "RBM_param"  -> learn[$rbm, $batch$data, k, lr],
+              "batch_data" -> nextBatch[data, First[#]["batch_data"]],
+              "cost_list"  -> Append[First[#]["cost_list"], $likelihood["cost"]]
+            |>,
+            $likelihood["i"],
+            Last[#] + 1
+          }
+        ]
+      ] &,
+      {
+        (* Initial values *)
+        <|
+          "RBM_param"  -> rbm,
+          "batch_data" -> dataInitialize[data, batch$size],
+          "cost_list"  -> {}
+        |>,
+        (* This is the index for likelihood *)
+        1,
+        (* This is the index for `Nest` *)
+        1
+      },
+      epoches * batch$size
+    ]
+trained = train[mnistData, rbm, 10, 10, 30, 0.1];
+
+
+ArrayPlot[rbm["W"]\[Transpose]]
+ArrayPlot[(trainedW = trained[[1]]["RBM_param"]["W"])\[Transpose]]
+ArrayPlot[ArrayReshape[#,{28,28}],ImageSize->Tiny]&/@(trainedW\[Transpose])
 
 
 (* ::Section:: *)
@@ -242,23 +248,17 @@ imageTest=Partition[imageTestRaw,784];
 Dimensions/@{imageTrain,imageTest}
 
 
-mnistData = dataInitialize[imageTrain[[;;100]], 16];
-
-
 rand[shape_] := RandomReal[{0, 1}, shape]
 
 
-(*trained = train[
-  mnistData,
-  <|"W" -> rand[{100, 784}], "b" -> rand[784], "c" -> rand[100]|>,
-  784, 15, 30, 0.1]*)
+mnistData = imageTrain;
+rbm  = <|"W" -> rand[{784, 100}], "b" -> rand[784], "c" -> rand[100]|>;
 
 
-data = mnistData;
-rbm  = <|"W" -> rand[{100, 784}], "b" -> rand[784], "c" -> rand[100]|>;
+(*trained = train[mnistData, rbm, 6, 10, 3, 0.01];*)
 
 
-trained=learn[rbm, data["batch_data"], 30, 0.1]
+(*trained[[1]]["cost_list"]//ListPlot*)
 
 
-data["batch_data"]//Dimensions
+(*trained=learn[rbm, mnistData["batch_data"], 30, 0.1];*)
