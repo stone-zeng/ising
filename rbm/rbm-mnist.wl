@@ -12,7 +12,7 @@ Remove["Global`*"]
         "c": bias of hidden units  [n_hidden]
       |>
     v: [batch_size * n_visible]
-    i: Integer
+    s = sample numbers: Integer
   Returned values:
     freeEnergy: [batch_size]
     pseudoLogLikelihood:
@@ -21,20 +21,22 @@ Remove["Global`*"]
 *)
 freeEnergy[rbm_, v_] :=
   - v . rbm["b"] - Total /@ Log[1 + Exp[(rbm["c"] + #) & /@ (v . rbm["w"])]]
-pseudoLogLikelihood[rbm_, v_] :=
+pseudoLogLikelihood[rbm_, v_, s_] :=
   Module[{$n$visible = Length @ rbm["b"]},
-    Module[{$index = RandomInteger[{1, $n$visible}]},
+    Module[{$indexes = RandomInteger[{1, $n$visible}, s]},
       (*
         Free energy of the i-th element of x    -> fe_xi
         Flip the i-th element in the 2nd layer  -> fe_xi_flip
         => cost = mean @ log @ sigmoid (fe_xi_flip - fe_xi)
         `batch_size` dimension will be eliminated via `Mean`
       *)
-      $n$visible * Mean @ Log @ LogisticSigmoid @
-        (
-          freeEnergy[rbm, ReplacePart[#, $index -> 1 - #[[$index]]] & /@ v] -
-          freeEnergy[rbm, v]
-        )
+      $n$visible / s * Mean @ Sum[
+        Log @ LogisticSigmoid @
+          (
+            freeEnergy[rbm, ReplacePart[#, i -> 1 - #[[i]]] & /@ v] -
+            freeEnergy[rbm, v]
+          ),
+      {i, $indexes}]
     ]
   ]
 
@@ -83,14 +85,16 @@ sampleVisibleGivenHidden[rbm_, h$sample_] :=
 contrastiveDivergence[rbm_, v_, k_] :=
   Module[
     {$samples = Nest[
-      <|
-        (*
-          "h": hidden samples  [batch_size * n_hidden]
-          "v": visible samples [batch_size * n_visible]
-        *)
-        "h" -> sampleHiddenGivenVisible[rbm, #["v"]],
-        "v" -> sampleVisibleGivenHidden[rbm, #["h"]]
-      |> &,
+      Module[{$v = sampleVisibleGivenHidden[rbm, #["h"]]},
+        <|
+          (*
+            "h": hidden samples  [batch_size * n_hidden]
+            "v": visible samples [batch_size * n_visible]
+          *)
+          "h" -> sampleHiddenGivenVisible[rbm, $v],
+          "v" -> $v
+        |>
+      ] &,
       <|"h" -> sampleHiddenGivenVisible[rbm, v], "v" -> v|>,
       k
     ]},
@@ -201,38 +205,41 @@ nextBatch[data_, batch$data_Association] :=
     init$velocity: ~ RBM
 *)
 train[data_, rbm_, init$velocity_,
-    epoches_, batch$size_, k_, m_, lr_] :=
-  Nest[
-    Module[
-      {
-        $rbm$union  = #["rbm_union"],
-        (* Shape: [batch_size * n_visible] *)
-        $batch$data = #["batch_data"]["data"],
-        $iteration  = #["iteration"]
-      },
-      Module[{$cost = pseudoLogLikelihood[$rbm$union["variable"], $batch$data]},
-        (* Monitor cost during evaluation *)
-        If[Divisible[$iteration, batch$size],
-          Echo["\tCost: " <> ToString[$cost, StandardForm],
-            "Epoch " <> ToString @ Quotient[$iteration, batch$size]]
-        ];
-        (* The following is the function for `Nest` *)
-        <|
-          "rbm_union"  -> learn[$rbm$union, $batch$data, k, m, lr],
-          "batch_data" -> nextBatch[data, #["batch_data"]],
-          "cost_list"  -> Append[#["cost_list"], $cost],
-          "iteration"  -> $iteration + 1
-        |>
-      ]
-    ] &,
-    (* Initial value *)
-    <|
-      "rbm_union"  -> <|"variable" -> rbm, "velocity" -> init$velocity|>,
-      "batch_data" -> dataInitialize[data, batch$size],
-      "cost_list"  -> {},
-      "iteration"  -> 1
-    |>,
-    epoches * batch$size
+    epoches_, batch$size_, k_, s_, m_, lr_] :=
+  Module[{$batch$num = Quotient[Length @ data, batch$size]},
+    Nest[
+      Module[
+        {
+          $rbm$union  = #["rbm_union"],
+          (* Shape: [batch_size * n_visible] *)
+          $batch$data = #["batch_data"]["data"],
+          $iteration  = #["iteration"]
+        },
+        Module[{$cost = pseudoLogLikelihood[
+              $rbm$union["variable"], $batch$data, s]},
+          (* Monitor cost during evaluation *)
+          If[Divisible[$iteration, $batch$num],
+            Echo["\tCost: " <> ToString[$cost, StandardForm],
+              "Epoch " <> ToString @ Quotient[$iteration, $batch$num]]
+          ];
+          (* The following is the function for `Nest` *)
+          <|
+            "rbm_union"  -> learn[$rbm$union, $batch$data, k, m, lr],
+            "batch_data" -> nextBatch[data, #["batch_data"]],
+            "cost_list"  -> Append[#["cost_list"], $cost],
+            "iteration"  -> $iteration + 1
+          |>
+        ]
+      ] &,
+      (* Initial value *)
+      <|
+        "rbm_union"  -> <|"variable" -> rbm, "velocity" -> init$velocity|>,
+        "batch_data" -> dataInitialize[data, batch$size],
+        "cost_list"  -> {},
+        "iteration"  -> 1
+      |>,
+      epoches * $batch$num
+    ]
   ]
 
 
@@ -248,22 +255,23 @@ Dimensions /@ %
 
 
 (* Binarize and reshape *)
-{imageTrain, imageTest} = Round[1 - Partition[#, 784] / 255.0] & /@
-  {imageTrainRaw, imageTestRaw};
+{imageTrain, imageTest} = Round[Partition[#, 784] / 255.0] & /@
+  {imageTrainRaw[[;; 784 * 1000]], imageTestRaw};
 Dimensions /@ %
 
 
 (* Parameters *)
 visibleNum   = 784;
 hiddenNum    = 100;
-epochNum     = 10;
-batchSize    = 50;
-kParameter   = 30;
-momentum     = 0.5;
+epochNum     = 200;
+batchSize    = 20;
+kParameter   = 10;
+sampleNum    = 400;
+momentum     = 0.0;
 learningRate = 0.1;
 
 (* Helper function *)
-plotMNIST[data_] := ArrayPlot[ArrayReshape[data, {28, 28}],
+plotMNIST[data_] := MatrixPlot[ArrayReshape[data, {28, 28}],
   ImageSize -> 60, Frame -> False]
 
 (* Initialize *)
@@ -277,7 +285,7 @@ rbmVelocity = AssociationThread[{"w", "b", "c"} ->
 (* Main training loop *)
 trainingTime = First @ AbsoluteTiming[
   trained = train[imageTrain, rbm, rbmVelocity,
-    epochNum, batchSize, kParameter, momentum, learningRate];];
+    epochNum, batchSize, kParameter, sampleNum, momentum, learningRate];];
 
 (* Training time and cost *)
 Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
