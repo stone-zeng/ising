@@ -7,7 +7,8 @@ SRC = \
 	./ising/ising-core/fast-rand.cpp \
 	./ising/ising-core/timing.cpp    \
 	./ising/ising-core/parameter.cpp \
-	./ising/ising-core/ising-2d.cpp
+	./ising/ising-core/ising-2d.cpp  \
+	./ising/ising-core/exact.cpp
 
 all:
 	$(CXX) $(INCLUDE) $(SRC) $(OUTPUT)

@@ -31,7 +31,7 @@ vector<double> _SpanToVector(const Value & span, const double & tolerance)
     return v;
 }
 
-size_t _GetSizeType(const Document & doc, const char key[], const size_t & default_value)
+size_t _GetSizeType(const Document & doc, const char * key, const size_t & default_value)
 {
     auto iter = doc.FindMember(key);
     if (iter != doc.MemberEnd())
@@ -68,6 +68,7 @@ void Parameter::Parse()
 {
     boundary_condition = ParseBoundaryCondition();
     lattice_size       = ParseLatticeSize();
+    lattice_size_list  = ParseLatticeSizeList();
     temperature_list   = ParseTemperatureList();
     beta_list          = ParseBetaList();
     magnetic_h_list    = ParseMagneticFieldList();
@@ -129,7 +130,7 @@ vector<double> Parameter::ParseTemperatureList()
             return list;
         }
     }
-    // The program should not go here.
+    // The program should never go here.
     return vector<double>();
 }
 

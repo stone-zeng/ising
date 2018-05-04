@@ -5,6 +5,8 @@
 #define ISING_CORE_EXACT_H_
 
 #include <cmath>
+#include <ostream>
+#include <vector>
 
 #include "ising-core/ising.h"
 #include "ising-core/parameter.h"
@@ -101,10 +103,39 @@ private:
     }
 };
 
-int RunExact(const Parameter & param)
+class RunExact
 {
-    return 0;
-}
+public:
+    RunExact() = default;
+    RunExact(const Parameter & param);
+
+    int Run();
+
+private:
+    typedef std::vector<double> Result;
+
+    std::vector<LatticeSize> size_list_;
+    std::vector<double>      temperature_list_;
+    std::vector<Result>      result_;
+
+    inline void PrintFirstRow(std::ostream & os)
+    {
+        for (auto i : size_list_)
+            os << "," << i.x << "*" << i.y;
+        os << std::endl;
+    }
+
+    inline void PrintResult(std::ostream & os)
+    {
+        for (auto i = 0; i != temperature_list_.size(); ++i)
+        {
+            os << temperature_list_[i];
+            for (auto j : result_[i])
+                os << "," << j;
+            os << std::endl;
+        }
+    }
+};
 
 ISING_NAMESPACE_END
 

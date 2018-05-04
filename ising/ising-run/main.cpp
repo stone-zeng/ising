@@ -86,16 +86,17 @@ int RunIsing(int argc, char * argv[])
     }
 
     // TODO
-    Parameter parameter;
+    Parameter param;
     if (args["settings"])
-        parameter.ReadFromFile(args["settings"].as<string>(""));
+        param.ReadFromFile(args["settings"].as<string>(""));
     else
-        parameter.ReadFromString("");
-    parameter.Parse();
+        param.ReadFromString("");
+    param.Parse();
 
     if (args["exact"])
     {
-        exit_code = RunExact(parameter);
+        RunExact eval(param);
+        exit_code = eval.Run();
         return exit_code;
     }
 

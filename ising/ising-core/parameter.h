@@ -14,6 +14,31 @@ ISING_NAMESPACE_BEGIN
 const auto kJsonParseFlag = rapidjson::kParseCommentsFlag
                           + rapidjson::kParseTrailingCommasFlag;
 
+// The settings file (JSON) may have the following keys:
+//   "boundary"                      string ("periodic", "free")
+//   "size.list"                     integer array
+//   "temperature.list"              real-number array
+//   "externalMagneticField.list"    real-number array
+//   "size.span"                     object
+//   "temperature.span"              object
+//   "externalMagneticField.span"    object
+//   "iterations"                    integer
+//   "analysisEnsembleCount"         integer
+//   "analysisEnsembleInterval"      integer
+//   "repetitions"                   integer
+//
+//   [DEPRECATED]
+//     "size"         integer
+//     "xSize"        integer
+//     "ySize"        integer
+//     "beta.list"    real-number array
+//     "beta.span"    object
+//
+// A "span" object may have the following values:
+//   "begin" real-number
+//   "end"   real-number
+//   "step"  real-number
+
 class Parameter
 {
 public:
@@ -23,17 +48,19 @@ public:
     void ReadFromString(const char * settings);
     void ReadFromFile(const std::string & file_name);
     void ReadFromFile(const char * file_name);
+
     void Parse();
 
-    BoundaryConditions  boundary_condition;
-    LatticeSize         lattice_size;
-    std::vector<double> temperature_list;
-    std::vector<double> beta_list;
-    std::vector<double> magnetic_h_list;
-    size_t              iterations;
-    size_t              n_ensemble;
-    size_t              n_delta;
-    size_t              repetitions;
+    BoundaryConditions       boundary_condition;
+    LatticeSize              lattice_size;      // TODO: to be deprecated
+    std::vector<LatticeSize> lattice_size_list;
+    std::vector<double>      temperature_list;
+    std::vector<double>      beta_list;         // TODO: to be deprecated
+    std::vector<double>      magnetic_h_list;
+    size_t                   iterations;
+    size_t                   n_ensemble;
+    size_t                   n_delta;
+    size_t                   repetitions;
 
 private:
     const size_t kDefaultIterations              = 1000;
@@ -45,15 +72,16 @@ private:
 
     rapidjson::Document json_doc_;
 
-    BoundaryConditions  ParseBoundaryCondition();
-    LatticeSize         ParseLatticeSize();
-    std::vector<double> ParseTemperatureList();
-    std::vector<double> ParseBetaList();
-    std::vector<double> ParseMagneticFieldList();
-    size_t              ParseIterations();
-    size_t              ParseEnsembleCount();
-    size_t              ParseEnsembleInterval();
-    size_t              ParseRepetitions();
+    BoundaryConditions       ParseBoundaryCondition();
+    LatticeSize              ParseLatticeSize();
+    std::vector<LatticeSize> ParseLatticeSizeList();
+    std::vector<double>      ParseTemperatureList();
+    std::vector<double>      ParseBetaList();
+    std::vector<double>      ParseMagneticFieldList();
+    size_t                   ParseIterations();
+    size_t                   ParseEnsembleCount();
+    size_t                   ParseEnsembleInterval();
+    size_t                   ParseRepetitions();
 };
 
 ISING_NAMESPACE_END
