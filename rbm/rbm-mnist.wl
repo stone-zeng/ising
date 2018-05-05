@@ -313,3 +313,9 @@ sample = NestList[
   |>, 5];
 Echo[Row[plotMNIST /@ #["data"]],
   "Sample steps: " <> ToString[#["index"] * sample$step]] & /@ sample;
+
+
+SetDirectory[NotebookDirectory[]];
+Export["data\\mnist-trained.json",
+  KeyTake[trained, {"rbm_union", "cost_list"}],
+  "Compact" -> True]
