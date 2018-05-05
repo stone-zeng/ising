@@ -48,7 +48,6 @@ typedef vector<LatticeInfo> ResultList;
 
 template<typename T>
 ResultList Run(vector<T> * eval_list, const Parameter & param)
-//ResultList Run(vector<Ising2D> * eval_list, const Parameter & param)
 {
     const auto & t_list = param.temperature_list;
     const auto & h_list = param.magnetic_h_list;

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 #include <include/rapidjson/document.h>
