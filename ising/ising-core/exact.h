@@ -114,14 +114,14 @@ public:
 private:
     typedef std::vector<double> Result;
 
-    std::vector<LatticeSize> size_list_;
-    std::vector<double>      temperature_list_;
-    std::vector<Result>      result_;
+    std::vector<size_t> size_list_;
+    std::vector<double> temperature_list_;
+    std::vector<Result> result_;
 
     inline void PrintFirstRow(std::ostream & os)
     {
         for (auto i : size_list_)
-            os << "," << i.x << "*" << i.y;
+            os << "," << i;
         os << std::endl;
     }
 

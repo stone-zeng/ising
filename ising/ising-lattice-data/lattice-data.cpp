@@ -26,7 +26,7 @@ void PrintParameters(const Parameter & param)
          << "Boundary condition: "
          << (param.boundary_condition == kPeriodic ? "Periodic" : "Free") << endl
          << "Lattice size:       "
-         << param.lattice_size.x << "*" << param.lattice_size.y << endl
+         << param.lattice_size << endl
          << "Iterations:         "
          << param.iterations << endl
          << "Parallelization:    "
@@ -50,11 +50,11 @@ template<typename T>
 ResultList Run(vector<T> * eval_list, const Parameter & param)
 //ResultList Run(vector<Ising2D> * eval_list, const Parameter & param)
 {
-    const auto & beta_list = param.beta_list;
-    const auto & h_list    = param.magnetic_h_list;
-    size_t beta_list_size  = beta_list.size();
-    size_t h_list_size     = h_list.size();
-    size_t list_size       = beta_list_size * h_list_size;
+    const auto & t_list = param.temperature_list;
+    const auto & h_list = param.magnetic_h_list;
+    size_t t_list_size  = t_list.size();
+    size_t h_list_size  = h_list.size();
+    size_t list_size    = t_list_size * h_list_size;
 
     ResultList result_list;
     result_list.resize(list_size);
@@ -68,12 +68,12 @@ ResultList Run(vector<T> * eval_list, const Parameter & param)
 #endif
     for (auto i = 0; i < list_size; ++i)
     {
-        auto beta = beta_list[i % beta_list_size];
-        auto h = h_list[i / beta_list_size];
+        auto temperature = t_list[i % t_list_size];
+        auto h = h_list[i / t_list_size];
         auto & cell = (*eval_list)[i];
 
         cell.Initialize();
-        auto result = cell.EvaluateLatticeData(beta, h, param.iterations);
+        auto result = cell.EvaluateLatticeData(1.0 / temperature, h, param.iterations);
         result_list[i] = result;
     }
     run_clock.TimingEnd();
@@ -138,7 +138,7 @@ void GenerateLatticeData(const Parameter & param)
 {
     PrintParameters(param);
 
-    size_t eval_list_size = param.beta_list.size() * param.magnetic_h_list.size();
+    size_t eval_list_size = param.temperature_list.size() * param.magnetic_h_list.size();
     ResultList result_list;
 
     if (param.boundary_condition == kPeriodic)

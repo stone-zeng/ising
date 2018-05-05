@@ -25,11 +25,11 @@ public:
         param.Parse();
 
         // Expected values.
-        const LatticeSize size{ 10, 10 };
-        const size_t beta_list_size = 20;
-        vector<double> beta_list(beta_list_size);
-        for (auto i = 0; i != beta_list_size; ++i)
-            beta_list[i] = 10.0 / static_cast<double>(i + 1);
+        const size_t size = 10;
+        const size_t t_list_size = 20;
+        vector<double> beta_list(t_list_size);
+        for (auto i = 0; i != t_list_size; ++i)
+            beta_list[i] = static_cast<double>(i + 1) / 10;
         const vector<double> magnetic_h_list = { 0.0 };
         const size_t iterations  = 200;
         const size_t n_ensemble  = 20;
@@ -39,7 +39,7 @@ public:
         Assert::IsTrue(size == param.lattice_size);
         Assert::IsTrue(kFree == param.boundary_condition);
         for(auto i = 0; i != beta_list.size(); ++i)
-            Assert::AreEqual(beta_list[i], param.beta_list[i], double_tolerance);
+            Assert::AreEqual(beta_list[i], param.temperature_list[i], double_tolerance);
         for (auto i = 0; i != magnetic_h_list.size(); ++i)
             Assert::AreEqual(magnetic_h_list[i], param.magnetic_h_list[i], double_tolerance);
         Assert::AreEqual(iterations,  param.iterations);

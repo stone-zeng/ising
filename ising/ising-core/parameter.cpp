@@ -11,42 +11,8 @@
 #include "ising-core/ising.h"
 
 using namespace std;
-using namespace rapidjson;
 
 ISING_NAMESPACE_BEGIN
-
-bool _LessEqual(const double & a, const double & b, const double & tolerance)
-{
-    return a - b <= fabs(tolerance);
-}
-
-vector<double> _SpanToVector(const Value & span, const double & tolerance)
-{
-    vector<double> v;
-    auto v_begin = span["begin"].GetDouble();
-    auto v_end   = span["end"].GetDouble();
-    auto v_step  = span["step"].GetDouble();
-    for (double i = v_begin; _LessEqual(i, v_end, tolerance); i += v_step)
-        v.push_back(i);
-    return v;
-}
-
-size_t _GetSizeType(const Document & doc, const char * key, const size_t & default_value)
-{
-    auto iter = doc.FindMember(key);
-    if (iter != doc.MemberEnd())
-        return static_cast<size_t>(iter->value.GetInt());
-    else
-        return default_value;
-}
-
-vector<double> _GetVector(const Value & array)
-{
-    vector<double> v;
-    for (auto & i : array.GetArray())
-        v.push_back(i.GetDouble());
-    return v;
-}
 
 void Parameter::ReadFromString(const string & settings) { ReadFromString(settings.c_str()); }
 void Parameter::ReadFromString(const char * settings)
@@ -66,113 +32,123 @@ void Parameter::ReadFromFile(const char * file_name)
 
 void Parameter::Parse()
 {
-    boundary_condition = ParseBoundaryCondition();
-    lattice_size       = ParseLatticeSize();
-    lattice_size_list  = ParseLatticeSizeList();
-    temperature_list   = ParseTemperatureList();
-    beta_list          = ParseBetaList();
-    magnetic_h_list    = ParseMagneticFieldList();
-    iterations         = ParseIterations();
-    n_ensemble         = ParseEnsembleCount();
-    n_delta            = ParseEnsembleInterval();
-    repetitions        = ParseRepetitions();
+    ParseBoundaryCondition();
+    ParseLatticeSizeList();
+    ParseTemperatureList();
+    ParseMagneticFieldList();
+    ParseIterations();
+    ParseEnsembleCount();
+    ParseEnsembleInterval();
+    ParseRepetitions();
 }
 
-BoundaryConditions Parameter::ParseBoundaryCondition()
+void Parameter::ParseBoundaryCondition()
 {
     if (json_doc_.HasMember("boundary") && strcmp(json_doc_["boundary"].GetString(), "free") == 0)
-        return kFree;
+        boundary_condition = kFree;
     else
-        return kPeriodic;
+        boundary_condition = kPeriodic;
 }
 
-LatticeSize Parameter::ParseLatticeSize()
+template <typename T>
+bool _LessEqual(const T & a, const T & b, const double & tolerance)
 {
-    auto iter = json_doc_.FindMember("size");
-    if (iter != json_doc_.MemberEnd())
-    {
-        size_t size = static_cast<size_t>(iter->value.GetInt());
-        return LatticeSize{ size, size };
-    }
+    if(typeid(T) == typeid(double))
+        return a - b <= fabs(tolerance);
     else
-    {
-        size_t x_size = static_cast<size_t>(json_doc_["xSize"].GetInt());
-        size_t y_size = static_cast<size_t>(json_doc_["ySize"].GetInt());
-        return LatticeSize{ x_size, y_size };
-    }
+        return a <= b;
 }
 
-vector<double> Parameter::ParseTemperatureList()
+template <typename T>
+vector<T> _SpanToVector(const rapidjson::Value & span, const double & tolerance)
 {
-    // Try to find `temperature` first.
-    auto span_iter = json_doc_.FindMember("temperature.span");
-    auto list_iter = json_doc_.FindMember("temperature.list");
-    if (span_iter != json_doc_.MemberEnd() || list_iter != json_doc_.MemberEnd())
-    {
-        if (span_iter != json_doc_.MemberEnd())
-            return _SpanToVector(span_iter->value, kDoubleTolerance);
-        else
-            return _GetVector(list_iter->value);
-    }
-    else
-    {
-        span_iter = json_doc_.FindMember("beta.span");
-        list_iter = json_doc_.FindMember("beta.list");
-        if (span_iter != json_doc_.MemberEnd() || list_iter != json_doc_.MemberEnd())
-        {
-            vector<double> list;
-            if (span_iter != json_doc_.MemberEnd())
-                list = _SpanToVector(span_iter->value, kDoubleTolerance);
-            else
-                list = _GetVector(list_iter->value);
-            for (auto & i : list)
-                i = 1.0 / i;
-            return list;
-        }
-    }
+    vector<T> v;
+    auto v_begin = span["begin"].Get<T>();
+    auto v_end   = span["end"].Get<T>();
+    auto v_step  = span["step"].Get<T>();
+    for (auto i = v_begin; _LessEqual(i, v_end, tolerance); i += v_step)
+        v.push_back(i);
+    return v;
+}
+
+template <typename T>
+vector<T> _GetVector(const rapidjson::Value & array)
+{
+    vector<T> v;
+    for (auto & i : array.GetArray())
+        v.push_back(i.Get<T>());
+    return v;
+}
+
+// Helper function for getting a list.
+// The value can be specified via either a "span" or a "list".
+// If both "span" and "list" are given, "span" will be used.
+// `tolerance` will be ignored except for `double`.
+template <typename T>
+vector<T> _ParseList(const rapidjson::Document & doc, const string & key, const double & tolerance)
+{
+    auto span_iter = doc.FindMember((key + ".span").c_str());
+    if (span_iter != doc.MemberEnd())
+        return _SpanToVector<T>(span_iter->value, tolerance);
+    auto list_iter = doc.FindMember((key + ".list").c_str());
+    if (list_iter != doc.MemberEnd())
+        return _GetVector<T>(list_iter->value);
     // The program should never go here.
-    return vector<double>();
+    return vector<T>();
 }
 
-vector<double> Parameter::ParseBetaList()
+template <typename T>
+vector<T> _ParseList(const rapidjson::Document & doc, const string & key)
 {
-    auto list = ParseTemperatureList();
-    for (auto & i : list)
-        i = 1.0 / i;
-    return list;
+    return _ParseList<T>(doc, key, 0.0);
 }
 
-vector<double> Parameter::ParseMagneticFieldList()
+void Parameter::ParseLatticeSizeList()
 {
-    auto span_iter = json_doc_.FindMember("externalMagneticField.span");
-    if (span_iter != json_doc_.MemberEnd())
-        return _SpanToVector(span_iter->value, kDoubleTolerance);
-    auto list_iter= json_doc_.FindMember("externalMagneticField.list");
-    if (list_iter != json_doc_.MemberEnd())
-        return _GetVector(list_iter->value);
-    // The program should not go here.
-    return vector<double>();
+    lattice_size_list = _ParseList<size_t>(json_doc_, "size");
+    if (lattice_size_list.empty() == false)
+        lattice_size = lattice_size_list[0];
 }
 
-size_t Parameter::ParseIterations()
+void Parameter::ParseTemperatureList()
 {
-    return _GetSizeType(json_doc_, "iterations", kDefaultIterations);
+    temperature_list = _ParseList<double>(json_doc_, "temperature", kDoubleTolerance);
 }
 
-size_t Parameter::ParseEnsembleCount()
+void Parameter::ParseMagneticFieldList()
 {
-    return _GetSizeType(json_doc_, "analysisEnsembleCount",
+    magnetic_h_list = _ParseList<double>(json_doc_, "externalMagneticField", kDoubleTolerance);
+}
+
+// Helper function for getting a `size_t` value.
+size_t _ParseSizeT(const rapidjson::Document & doc, const char * key, const size_t & default_value)
+{
+    auto iter = doc.FindMember(key);
+    if (iter != doc.MemberEnd())
+        return static_cast<size_t>(iter->value.GetInt());
+    else
+        return default_value;
+}
+
+void Parameter::ParseIterations()
+{
+    iterations = _ParseSizeT(json_doc_, "iterations", kDefaultIterations);
+}
+
+void Parameter::ParseEnsembleCount()
+{
+    n_ensemble = _ParseSizeT(json_doc_, "analysisEnsembleCount",
         iterations / kDefaultIterationsEnsembleRatio);
 }
 
-size_t Parameter::ParseEnsembleInterval()
+void Parameter::ParseEnsembleInterval()
 {
-    return _GetSizeType(json_doc_, "analysisEnsembleInterval", kDefaultEnsembleInterval);
+    n_delta = _ParseSizeT(json_doc_, "analysisEnsembleInterval", kDefaultEnsembleInterval);
 }
 
-size_t Parameter::ParseRepetitions()
+void Parameter::ParseRepetitions()
 {
-    return _GetSizeType(json_doc_, "repetitions", kDefaultRepetitions);
+    repetitions = _ParseSizeT(json_doc_, "repetitions", kDefaultRepetitions);
 }
 
 ISING_NAMESPACE_END

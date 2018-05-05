@@ -1,13 +1,13 @@
 {
     "boundary": "free",
-    "size": 10,
+    "size.list": [10],
     "temperature.span": {
         "begin": 0.1,
         "end": 2,
         "step": 0.1
     },
     // Comments for testing.
-    // "beta": {
+    // "temperature.span": {
     //     "begin": 0.1,
     //     "end": 2,
     //     "step": 0.1

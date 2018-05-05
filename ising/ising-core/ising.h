@@ -28,10 +28,14 @@ typedef std::vector<std::vector<int>> Lattice2D;
 // 18 = (4 * 2 + 1) * 2 is the number of all the possible values of nearest sum.
 typedef std::array<double, 18> ExpArray;
 
-enum BoundaryConditions { kPeriodic, kFree };
+enum BoundaryCondition { kPeriodic, kFree };
 
 struct LatticeSize
 {
+    LatticeSize() = default;
+    LatticeSize(const std::size_t & size) : LatticeSize(size, size) {}
+    LatticeSize(const std::size_t & x_size, const std::size_t & y_size) : x(x_size), y(y_size) {}
+
     std::size_t x;
     std::size_t y;
 };
