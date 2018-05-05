@@ -69,7 +69,7 @@ int PrintHelp(char * exe_name)
 int RunSimulation() { return EXIT_SUCCESS; }
 int RunLattice()    { return EXIT_SUCCESS; }
 
-int RunIsing(int argc, char * argv[])
+int Run(int argc, char * argv[])
 {
     int exit_code = EXIT_SUCCESS;
 
@@ -85,12 +85,11 @@ int RunIsing(int argc, char * argv[])
         return exit_code;
     }
 
-    // TODO
     Parameter param;
     if (args["settings"])
         param.ReadFromFile(args["settings"].as<string>(""));
     else
-        param.ReadFromString("");
+        param.ReadFromString(kDefaultSettingsString);
     param.Parse();
 
     if (args["exact"])
@@ -126,6 +125,6 @@ ISING_NAMESPACE_END
 
 int main(int argc, char * argv[])
 {
-    int exit_code = ising::RunIsing(argc, argv);
+    int exit_code = ising::Run(argc, argv);
     return exit_code;
 }

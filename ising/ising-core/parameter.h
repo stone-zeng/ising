@@ -10,22 +10,20 @@
 
 ISING_NAMESPACE_BEGIN
 
-// Allow relaxed JSON syntax (comments and trailing commas).
-const auto kJsonParseFlag = rapidjson::kParseCommentsFlag
-                          + rapidjson::kParseTrailingCommasFlag;
-
 // The settings file (JSON) may have the following keys:
-//   "boundary"                      string ("periodic", "free")
-//   "size.list"                     integer array
-//   "temperature.list"              real-number array
-//   "externalMagneticField.list"    real-number array
-//   "size.span"                     object
-//   "temperature.span"              object
-//   "externalMagneticField.span"    object
-//   "iterations"                    integer
-//   "analysisEnsembleCount"         integer
-//   "analysisEnsembleInterval"      integer
-//   "repetitions"                   integer
+//   "boundary"                    *  string ("periodic", "free")
+//   "size.list"                      integer array
+//   "temperature.list"               real-number array
+//   "externalMagneticField.list"     real-number array
+//   "size.span"                      object
+//   "temperature.span"               object
+//   "externalMagneticField.span"     object
+//   "iterations"                  *  integer
+//   "analysisEnsembleCount"       *  integer
+//   "analysisEnsembleInterval"    *  integer
+//   "repetitions"                 *  integer
+//
+// Keys with * have default values.
 //
 // A "span" object may have the following values:
 //   "begin"    real-number / integer
@@ -73,6 +71,17 @@ private:
     void ParseEnsembleInterval();
     void ParseRepetitions();
 };
+
+const std::string kDefaultSettingsString =
+R"({
+    "size.list": [4],
+    "temperature.list": [1.0],
+    "externalMagneticField.list": [0.0]
+})";
+
+// Allow relaxed JSON syntax (comments and trailing commas).
+const auto kJsonParseFlag = rapidjson::kParseCommentsFlag
+                          + rapidjson::kParseTrailingCommasFlag;
 
 ISING_NAMESPACE_END
 
