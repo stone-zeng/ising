@@ -1,5 +1,6 @@
 .vs/
 .vscode/
+docs/
 ising/
 ising-exact/
 ising-sync/
@@ -9,3 +10,4 @@ tensorflow/
 
 *.nb
 *.wl
+cloc.bat
