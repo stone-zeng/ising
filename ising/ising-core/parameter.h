@@ -11,17 +11,17 @@
 ISING_NAMESPACE_BEGIN
 
 // The settings file (JSON) may have the following keys:
-//   "boundary"                    *  string ("periodic", "free")
-//   "size.list"                      integer array
-//   "temperature.list"               real-number array
-//   "externalMagneticField.list"     real-number array
-//   "size.span"                      object
-//   "temperature.span"               object
-//   "externalMagneticField.span"     object
-//   "iterations"                  *  integer
-//   "analysisEnsembleCount"       *  integer
-//   "analysisEnsembleInterval"    *  integer
-//   "repetitions"                 *  integer
+//   * "boundary"                       string ("periodic", "free")
+//     "size.list"                      integer array
+//     "temperature.list"               real-number array
+//     "externalMagneticField.list"     real-number array
+//     "size.span"                      object
+//     "temperature.span"               object
+//     "externalMagneticField.span"     object
+//   * "iterations"                     integer
+//   * "analysisEnsembleCount"          integer
+//   * "analysisEnsembleInterval"       integer
+//   * "repetitions"                    integer
 //
 // Keys with * have default values.
 //

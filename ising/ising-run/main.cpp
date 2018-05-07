@@ -65,7 +65,6 @@ int PrintHelp(char * exe_name)
 }
 
 // TODO
-//int RunExact()      { return EXIT_SUCCESS; }
 int RunSimulation() { return EXIT_SUCCESS; }
 int RunLattice()    { return EXIT_SUCCESS; }
 
@@ -94,8 +93,7 @@ int Run(int argc, char * argv[])
 
     if (args["exact"])
     {
-        RunExact eval(param);
-        exit_code = eval.Run();
+        exit_code = RunExact(param);
         return exit_code;
     }
 

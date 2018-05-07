@@ -22,6 +22,7 @@ public:
     IsingExact2D(const LatticeSize & size, const double & T);
     IsingExact2D(const LatticeSize & size, const double & T, const double & dT);
 
+    double Energy(const double & T);
     double SpecificHeat();
 
 private:
@@ -103,11 +104,11 @@ private:
     }
 };
 
-class RunExact
+class Exact
 {
 public:
-    RunExact() = default;
-    RunExact(const Parameter & param);
+    Exact() = default;
+    Exact(const Parameter & param);
 
     int Run();
 
@@ -118,24 +119,13 @@ private:
     std::vector<double> temperature_list_;
     std::vector<Result> result_;
 
-    inline void PrintFirstRow(std::ostream & os)
-    {
-        for (auto i : size_list_)
-            os << "," << i;
-        os << std::endl;
-    }
-
-    inline void PrintResult(std::ostream & os)
-    {
-        for (auto i = 0; i != temperature_list_.size(); ++i)
-        {
-            os << temperature_list_[i];
-            for (auto j : result_[i])
-                os << "," << j;
-            os << std::endl;
-        }
-    }
+    void PrintParameter(std::ostream & os);
+    void PrintFirstRow(std::ostream & os);
+    void PrintResult(std::ostream & os);
 };
+
+// Interface.
+int RunExact(const Parameter & param);
 
 ISING_NAMESPACE_END
 
