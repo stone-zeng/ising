@@ -1,10 +1,10 @@
 {
     "boundary": "free",
-    "size.list": [10],
+    "size.list": [2,4,8,16,32,64,128,256],
     "temperature.span": {
-        "begin": 0.1,
-        "end": 2,
-        "step": 0.1
+        "begin": 1,
+        "end": 4,
+        "step": 0.001
     },
     // Comments for testing.
     // "temperature.span": {
