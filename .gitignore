@@ -4,6 +4,10 @@
 *.log
 *.out
 *.pdf
+*.synctex.gz
+*.synctex(busy)
 *.thm
 *.toc
 *.xdv
+
+.vscode/
