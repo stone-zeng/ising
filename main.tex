@@ -2,20 +2,31 @@
 \usepackage{amsmath,unicode-math,physics,siunitx,hyperref}
 
 \setmainfont{XITS}
-\setmathfont{XITS Math}
+\setmathfont{XITS Math}[math-style=ISO, bold-style=ISO]
 
 \hypersetup{colorlinks=true}
 
+% Constants
 \def\ee{{\symrm{e}}}
 \def\ii{{\symrm{i}}}
 \def\pp{{\symrm{\pi}}}
 \def\kB{k_{\symrm{B}}}
 \def\Tc{T_{\symrm{c}}}
 
-\def\const{\text{const}}
+% Operators
+\def\trans{{\symrm{T}}}
+\def\O{{\symscr{O}}} % Big O notation
 
+% Set
+\def\R{{\symbb{R}}}
+
+% Fonts
+\def\bm#1{{\symbf{#1}}}
 \def\nearest#1{\langle#1\rangle}
 \def\q#1{{\{#1\}}}
+
+% Text
+\def\const{\text{const}}
 
 \title{机器学习与 \AdSCFT{}}
 \author{曾祥东}
@@ -27,7 +38,7 @@
 %\maketitle
 
 \include{chapters/ising}
-\include{chapters/machine-learning}
-\include{chapters/machine-learning-rg}
+%\include{chapters/machine-learning}
+%\include{chapters/machine-learning-rg}
 
 \end{document}

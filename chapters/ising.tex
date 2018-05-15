@@ -23,7 +23,7 @@ Boltzmann 分布给出：
 \begin{equation}
   P(\q{\sigma_i}) = \frac{\ee^{-\beta H(\q{\sigma_i})}}{Z_N}.
 \end{equation}
-其中的 $\beta=1/\kB T$。而 $Z$ 称为配分函数，它使得概率 $P$ 满足归一化条件
+其中的 $\beta=1/\kB T$。而 $Z_N$ 称为配分函数，它使得概率 $P$ 满足归一化条件
 \begin{equation}
   \sum_\q{\sigma_i} P(\q{\sigma_i}) = 1
   \implies Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})}.
@@ -62,6 +62,7 @@ Boltzmann 分布给出：
 \end{equation}
 进而可以求得热容：
 \begin{align}
+  \label{eq:ising-specific-heat}
   \frac{C}{N}
   & \simeq -\frac{2}{\pp} \ln^2 \qty(1+\sqrt{2}) \ln\abs{1-\frac{T}{\Tc}} + \const \notag \\
   & \simeq \num{-0.4945} \ln\abs{1-\frac{T}{\Tc}} + \const.
@@ -70,6 +71,7 @@ Boltzmann 分布给出：
 
 磁化强度的计算结果由杨振宁首次给出：
 \begin{equation}
+  \label{eq:ising-magnetization}
   \frac{\bar{M}}{N\mu} =
   \begin{cases}
     \qty(1 - \sinh^{-4} 2\beta J)^{1/8}, & T<\Tc; \\
@@ -77,7 +79,131 @@ Boltzmann 分布给出：
   \end{cases}
 \end{equation}
 
-\section{临界指数}
+\section{临界指数与标度变换}
+
+一般而言，在接近临界点处，热力学量 $f$ 可按约化温度 $t=T/\Tc-1$ 展开：
+\begin{equation}
+  f(t) = A t^\lambda \qty\big(1 + B t^y + \cdots),
+\end{equation}
+式中 $y>0$。定义临界指数 $\lambda$ 为
+\begin{equation}
+  \lambda = \lim_{t \to 0} \frac{\ln f(t)}{\ln t}.
+\end{equation}
+它刻画了热力学量 $f$ 的临界行为：
+\begin{equation}
+  \lim_{t \to 0} f(t) =
+  \begin{cases}
+    0,      & t > 0; \\
+    \const, & t = 0; \\
+    \infty, & t < 0.
+  \end{cases}
+\end{equation}
+注意当 $f(t) \sim \ln t$ 时，同样有
+\begin{equation}
+  \lambda =    \lim_{t \to 0} \frac{\ln f(t)}{\ln t}
+          \sim \lim_{t \to 0} \frac{\ln \ln t}{\ln t} = 0.
+\end{equation}
+
+取 $f$ 为热容 $C$，则定义了临界指数 $\alpha$。因此对于 Ising 模型，根据
+式~\eqref{eq:ising-specific-heat}，可有
+\begin{equation}
+  \alpha = 0.
+\end{equation}
+取 $f$ 为序参量，即磁化强度 $\bar{M}$，则定义了临界指数 $\beta$。根据
+式~\eqref{eq:ising-magnetization}，有
+\begin{equation}
+  \beta = \frac{1}{8}.
+\end{equation}
+
+临界指数的存在具有普适性。对于不同的系统，如铁磁系统、van der Waals 气液相变、超导体系等，均可以
+得到完全相同的临界指数。这种普适性的根源是关联长度 $\xi$ 在临界点处的发散性为。在临界点处，
+$\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇异性仅依赖于 $\xi$ 的奇异性，而与体系的
+具体特征无关。
+
+以铁磁系统为例，设单位自旋的自由能 $f$ 是约化温度、约化磁场
+\begin{equation}
+  t = \frac{T}{\Tc} - 1 \qc
+  b = \frac{\mu B}{\kB\Tc}
+\end{equation}
+的函数。将其分解为奇异部分 $f_{\symup{s}}$ 和非奇异部分 $f_{\symup{r}}$：
+\begin{equation}
+  f(t,\,b) = f_{\symup{s}}(t,\,b) + f_{\symup{r}}(t,\,b).
+\end{equation}
+在临界点附近，只有奇异部分 $f_{\symup{s}}$ 需要考虑。
+
+标度变换可以视为对晶格的某种“缩放”。经过一次标度变换后，设体系的晶格常数由 $a$ 变成了 $a'=La$。
+相应地，有
+\begin{equation}
+  \label{eq:transform-relation-t-b}
+  t' = L^x t \qc b' = L^y b.
+\end{equation}
+体系总的自由能（配分函数）在标度变换下保持不变，但自旋数目发生了变化：$N \to N'=L^{-d} N$，$d$
+为体系的维度。因而有
+\begin{equation}
+  N f_{\symup{s}} (t,\,b) = N' f_{\symup{s}} (t',\,b'),
+\end{equation}
+即
+\begin{equation}
+  f_{\symup{s}} (t,\,b) = L^{-d} f_{\symup{s}} (L^x t, \, L^y b).
+\end{equation}
+取 $L^x t=1$，则有
+\begin{equation}
+  f_{\symup{s}} (t,\,b) = t^{d/x} f_{\symup{s}} (1, \, L^y b).
+\end{equation}
+考虑到热容 $C$ 正比于自由能对温度的二阶导数，可得
+\begin{equation}
+  C \sim \pdv[2]{f_{\symup{s}}}{t} \sim t^{d/x-2},
+\end{equation}
+即临界指数
+\begin{equation}
+  \alpha = 2 - \frac{d}{x}.
+\end{equation}
+类似地，可以计算出其他临界指数满足的条件：
+\begin{equation}
+  \beta  = \frac{d-y}{x}  \qc
+  \gamma = \frac{2y-d}{x} \qc
+  \delta = \frac{y}{d-y}.
+\end{equation}
+消去 $x$ 、$y$，即得到标度律
+\begin{equation}
+  \label{eq:scaling-relation-i-ii}
+  \alpha + 2\beta + \gamma = 2 \qc
+  \gamma = \beta (\delta - 1).
+\end{equation}
+
+另一方面，关联长度满足变换关系 $\xi\to\xi'=L^{-1}\xi$。代入式~\eqref{eq:transform-relation-t-b}，得
+\begin{equation}
+  \frac{\xi'}{\xi} = \qty(\frac{t'}{t})^{-\nu} = L^{x\nu} = L^{-1}
+  \implies \nu = \frac{1}{x}.
+\end{equation}
+因此得到另一条标度律
+\begin{equation}
+  \label{eq:scaling-relation-iii}
+  \nu d = 2 - \alpha.
+\end{equation}
+
+如果定义关联函数
+\begin{equation}
+  g(\bm{r}_{ij}) = \ev{(\sigma_i-\bar{\sigma_i})(\sigma_j-\bar{\sigma_j})},
+\end{equation}
+则有另一个临界指数 $\eta$ 与之关联：
+\begin{equation}
+  g(\bm{r}) \sim r^{2-d-\eta}.
+\end{equation}
+并同样有标度律
+\begin{equation}
+  \label{eq:scaling-relation-iv}
+  \eta = 2 + d - 2y \implies \gamma = (2-\eta) \nu.
+\end{equation}
+
+这样，利用四条标度律 \eqref{eq:scaling-relation-i-ii}、\eqref{eq:scaling-relation-iii} 和
+\eqref{eq:scaling-relation-iv}~式，就可以计算得到 Ising 模型的其他几个临界指数：
+\begin{equation}
+  \gamma = \frac{7}{4} \qc
+  \delta = 15          \qc
+  \nu    = 1           \qc
+  \eta   = \frac{1}{4}.
+\end{equation}
 
 \section{重整化群}
 \section{Ising 模型与 \AdSCFT{}}

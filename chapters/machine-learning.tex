@@ -1,4 +1,42 @@
 \chapter{机器学习简介}
 
 \section{机器学习有关思想方法}
+
+机器学习是当今计算机科学的重要分支。它可以利用计算机的强大计算能力，从大量数据中提取特征，并构建相应的模型。生成的模型还可以用来进行预测。
+
+考虑最简单的回归模型。假设我们给定了一些数据点 $(\bm{x}^{(i)}, \, y^{(i)})$，其中 $\bm{x}^{(i)}$ 称为特征（feature），$y^{(i)}\in\R$ 称为标签（label）。训练样本的数量为 $m$，即 $i=1,\,2,\,\ldots,\,m$。特征的数量为 $n$，但按照惯例，取 $x_0=0$，故有 $\bm{x}^{(i)}\in\R^{n+1}$。一般而言，特征反映了样本的各种性质（如图片中的像素点），而标签则是需要需要预测的内容（如图片对应的物体类别）。为了学习样本数据，我们需要给出一个目标函数 $h_\bm{\theta}: \R^{n+1}\to\R$，使得 $h_\bm{\theta}(\hat{\bm{x}})=\hat{y}$。这里的 $\bm{\theta}$ 称为参数（parameter），它包含了模型的全部训练信息。
+
+显然，如果要求学习的效果越好，就要求预测值 $\hat{y}$ 与真实值 $y$ 的差距越小。因此我们需要定义损失函数（loss function） $L$，并使 $L$ 关于参数 $\bm{\theta}$ 取最小值。如果数据规模较小、模型比较简单，$L$ 的最小值可以解析求得。例如线性回归模型，即
+\begin{equation}
+  h_\bm{\theta} (\bm{x})
+  = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \cdots + \theta_n x_n
+  = \sum_{j=0}^n \theta_j x_j,
+\end{equation}
+我们取损失函数为
+\begin{equation}
+  L(\bm{\theta})
+  = \frac{1}{2} \sum_{i=1}^m \qty\Big[y^{(i)} - h_\bm{\theta}\qty\big(\bm{x}^{(i)})]^2
+  = \frac{1}{2} \norm{\bm{y} - \bm{X}\bm{\theta}}^2 \in \R.
+\end{equation}
+式中 $\bm{X}\in\R^{m\times(n+1)}$，且有 $X_{ij} = x^{(i)}_j$。利用最小二乘估计，可以求得最优解
+\begin{equation}
+  \hat{\bm{\theta}} = \qty\big(\bm{X}^\trans\bm{X})^{-1} \bm{X}^\trans \bm{y}.
+\end{equation}
+
+然而，当数据规模很大时，可以发现矩阵 $\bm{X}^\trans\bm{X}$ 的阶数也会很大，导致求其逆阵的开销无法接受。因此可以改换思路，利用梯度下降法逼近损失函数的最小值。对于一般的多元函数，梯度给出了其在某一点处变化率最大的方向。因而沿着梯度方向不断改变 $\bm{\theta}$ 的值，就可以逐步趋近最小值。我们可以令
+\begin{equation}
+  \bm{\theta} \coloneq \bm{\theta} - \alpha\nabla\bm{\theta},
+\end{equation}
+并不断循环，直至收敛。式中 $\alpha$ 称为学习率，用来调节每次下降的“步幅”。
+
+一般来说，机器学习的思路可以概括如下：
+
+\begin{enumerate}
+  \item 根据数据的具体类型、特性构建相应的模型；
+  \item 给出模型的损失函数；
+  \item 在数据集上进行训练，找出能使损失函数取最小值的参数；
+  \item 验证模型及参数的有效性，进行参数微调。
+  \item 在新的数据集上测试训练好的模型。
+\end{enumerate}
+
 \section{对 Ising 模型相变的研究}
