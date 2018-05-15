@@ -7,6 +7,7 @@
 #include "ising-core/ising.h"
 #include "ising-core/parameter.h"
 #include "ising-core/exact.h"
+#include "ising-core/simulation.h"
 
 using namespace std;
 
@@ -65,7 +66,6 @@ int PrintHelp(char * exe_name)
 }
 
 // TODO
-int RunSimulation() { return EXIT_SUCCESS; }
 int RunLattice()    { return EXIT_SUCCESS; }
 
 int Run(int argc, char * argv[])
@@ -99,7 +99,7 @@ int Run(int argc, char * argv[])
 
     if (args["simulation"])
     {
-        exit_code = RunSimulation();
+        exit_code = RunSimulation(param);
         return exit_code;
     }
 
