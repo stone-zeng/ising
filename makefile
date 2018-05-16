@@ -1,6 +1,6 @@
 CXX = g++ -std=c++11 -Wall
 INCLUDE = -I ./ising
-OUTPUT = -o ising
+OUTPUT = -o ./bin/ising
 
 SRC = \
 	./ising/core/exact.cpp        \

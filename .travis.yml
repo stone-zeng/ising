@@ -8,6 +8,6 @@ install:
 
 script:
   - make all
-  - ./ising --help
-  - ./ising --exact
-  - ./ising --simulation
+  - ./bin/ising --help
+  - ./bin/ising --exact
+  - ./bin/ising --simulation
