@@ -25,23 +25,22 @@ public:
         param.Parse();
 
         // Expected values.
-        const size_t size = 10;
-        const size_t t_list_size = 20;
-        vector<double> beta_list(t_list_size);
-        for (auto i = 0; i != t_list_size; ++i)
-            beta_list[i] = static_cast<double>(i + 1) / 10;
-        const vector<double> magnetic_h_list = { 0.0 };
+        vector<size_t> size_list = { 2, 4, 8, 16, 32, 64, 128, 256 };
+        vector<double> t_list;
+        for (auto i = 0; i != (4 - 1) * 1000 + 1; ++i)
+            t_list.push_back(i / 1000.0 + 1.0);
+        vector<double> h_list = { 0.0 };
         const size_t iterations  = 200;
-        const size_t n_ensemble  = 20;
+        const size_t n_ensemble  = 20; // = 200 / kDefaultIterationsEnsembleRatio
         const size_t n_delta     = 3;
         const size_t repetitions = 1;
 
-        Assert::IsTrue(size == param.lattice_size);
         Assert::IsTrue(kFree == param.boundary_condition);
-        for(auto i = 0; i != beta_list.size(); ++i)
-            Assert::AreEqual(beta_list[i], param.temperature_list[i], double_tolerance);
-        for (auto i = 0; i != magnetic_h_list.size(); ++i)
-            Assert::AreEqual(magnetic_h_list[i], param.magnetic_h_list[i], double_tolerance);
+        Assert::IsTrue(size_list == param.lattice_size_list);
+        for(auto i = 0; i != t_list.size(); ++i)
+            Assert::AreEqual(t_list[i], param.temperature_list[i], double_tolerance);
+        for (auto i = 0; i != h_list.size(); ++i)
+            Assert::AreEqual(h_list[i], param.magnetic_h_list[i], double_tolerance);
         Assert::AreEqual(iterations,  param.iterations);
         Assert::AreEqual(n_ensemble,  param.n_ensemble);
         Assert::AreEqual(n_delta,     param.n_delta);

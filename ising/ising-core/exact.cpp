@@ -67,7 +67,7 @@ void Exact::Evaluate()
     for (size_t i = 0; i < temperature_list_.size(); ++i)
     {
         auto T = temperature_list_[i];
-        for (auto j = 0; j < size_list_.size(); ++j)
+        for (size_t j = 0; j < size_list_.size(); ++j)
         {
             IsingExact2D e(size_list_[j], T);
             result_[i][j] = e.SpecificHeat();

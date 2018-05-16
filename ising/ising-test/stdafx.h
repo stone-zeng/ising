@@ -20,6 +20,11 @@
 #include <string>
 #include <vector>
 
+// Do not define the macro `max` and `min`.
+// See https://stackoverflow.com/q/6884093/8479490.
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
 
 #include <include/rapidjson/document.h>

@@ -24,9 +24,9 @@ string InformationSeparator()
 void PrintProgress(const size_t & total, const size_t & progress)
 {
     const size_t     kProgressBarWidth = 40;
+#ifndef ISING_PARALLEL
     const streamsize kPrecision        = 2;
     const streamsize kDefaultPrecision = cerr.precision();
-#ifndef ISING_PARALLEL
     size_t width = kProgressBarWidth * progress / total;
     // Progress bar.
     cerr << "[" << string(width, '=') << ">" << string(kProgressBarWidth - width, ' ') << "]";
