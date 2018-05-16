@@ -1,4 +1,4 @@
-#include "ising-core/timing.h"
+#include "core/timing.h"
 
 using namespace std;
 

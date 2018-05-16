@@ -8,7 +8,7 @@
 #include <sys/time.h>
 #endif
 
-#include "ising-core/ising.h"
+#include "core/ising.h"
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 

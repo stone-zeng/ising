@@ -1,4 +1,4 @@
-#include "ising-core/simulation.h"
+#include "core/simulation.h"
 
 #include <iostream>
 #include <string>
@@ -6,15 +6,15 @@
 #include <include/rapidjson/document.h>
 #include <include/rapidjson/writer.h>
 
-#include "ising-core/info.h"
-#include "ising-core/ising.h"
-#include "ising-core/ising-2d.h"
-#include "ising-core/parameter.h"
+#include "core/info.h"
+#include "core/ising.h"
+#include "core/ising-2d.h"
+#include "core/parameter.h"
 
 // "Windows.h" should be put after "rapidjson/document.h".
 // See https://github.com/Tencent/rapidjson/issues/766
 //     http://blog.csdn.net/u011519892/article/details/16985239
-#include "ising-core/timing.h"
+#include "core/timing.h"
 
 using namespace std;
 using namespace ising::toolkit;

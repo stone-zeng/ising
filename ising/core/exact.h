@@ -8,8 +8,8 @@
 #include <ostream>
 #include <vector>
 
-#include "ising-core/ising.h"
-#include "ising-core/parameter.h"
+#include "core/ising.h"
+#include "core/parameter.h"
 
 ISING_NAMESPACE_BEGIN
 

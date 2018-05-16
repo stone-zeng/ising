@@ -1,4 +1,4 @@
-#include "ising-core/ising-2d.h"
+#include "core/ising-2d.h"
 
 #include <array>
 #include <cmath>
@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "ising-core/fast-rand.h"
-#include "ising-core/ising.h"
+#include "core/fast-rand.h"
+#include "core/ising.h"
 
 using namespace std;
 using namespace ising::toolkit;

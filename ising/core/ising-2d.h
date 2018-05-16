@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "ising-core/ising.h"
+#include "core/ising.h"
 
 ISING_NAMESPACE_BEGIN
 

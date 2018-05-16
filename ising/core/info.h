@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "ising-core/ising.h"
+#include "core/ising.h"
 
 ISING_TOOLKIT_NAMESPACE_BEGIN
 

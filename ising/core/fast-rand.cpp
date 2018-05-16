@@ -1,4 +1,4 @@
-#include "ising-core/fast-rand.h"
+#include "core/fast-rand.h"
 
 #ifdef _MSC_VER
 #include <Windows.h>
@@ -6,8 +6,8 @@
 #include <sys/time.h>
 #endif
 
-#include "ising-core/ising.h"
-#include "ising-core/timing.h"
+#include "core/ising.h"
+#include "core/timing.h"
 
 using namespace std;
 

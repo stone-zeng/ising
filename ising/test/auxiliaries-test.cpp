@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#include "ising-core/fast-rand.h"
-#include "ising-core/timing.h"
+#include "core/fast-rand.h"
+#include "core/timing.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

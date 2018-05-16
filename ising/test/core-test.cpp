@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
-#include "ising-core/ising.h"
-#include "ising-core/parameter.h"
-#include "ising-core/ising-2d.h"
+#include "core/ising.h"
+#include "core/parameter.h"
+#include "core/ising-2d.h"
 
 using namespace std;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

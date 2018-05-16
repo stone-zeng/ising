@@ -2,12 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "ising-core/exact.h"
+#include "core/exact.h"
 
-#include "ising-core/info.h"
-#include "ising-core/ising.h"
-#include "ising-core/parameter.h"
-#include "ising-core/timing.h"
+#include "core/info.h"
+#include "core/ising.h"
+#include "core/parameter.h"
+#include "core/timing.h"
 
 using namespace std;
 using namespace ising::toolkit;

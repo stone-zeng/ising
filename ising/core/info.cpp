@@ -1,10 +1,10 @@
-#include "ising-core/info.h"
+#include "core/info.h"
 
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include "ising-core/ising.h"
+#include "core/ising.h"
 
 using namespace std;
 

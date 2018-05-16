@@ -12,19 +12,19 @@ Ising model, machine learning and AdS/CFT
 
     Build with Visual Studio 2017.
 
-    - `ising-core/`
+    - `core/`
 
         Core classes and functions for 2D Ising model.
 
-    - `ising-lattice-data/`
+    - `lattice-data/`
 
         Lattice data generating and convergence analysis.
 
-    - `ising-run/`
+    - `run/`
 
         Analysis critical behaviors.
 
-    - `ising-test/`
+    - `test/`
 
         Unit tests based on Microsoft C++ Unit Test Framework.
 

@@ -3,10 +3,10 @@
 #include <string>
 #include <include/argagg/argagg.hpp>
 
-#include "ising-core/exact.h"
-#include "ising-core/ising.h"
-#include "ising-core/parameter.h"
-#include "ising-core/simulation.h"
+#include "core/exact.h"
+#include "core/ising.h"
+#include "core/parameter.h"
+#include "core/simulation.h"
 
 using namespace std;
 

@@ -5,7 +5,7 @@
 #include <vector>
 #include <include/rapidjson/document.h>
 
-#include "ising-core/ising.h"
+#include "core/ising.h"
 
 ISING_NAMESPACE_BEGIN
 

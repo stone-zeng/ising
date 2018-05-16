@@ -1,4 +1,4 @@
-#include "ising-core/parameter.h"
+#include "core/parameter.h"
 
 #include <cmath>
 #include <fstream>
@@ -8,7 +8,7 @@
 #include <vector>
 #include <include/rapidjson/document.h>
 
-#include "ising-core/ising.h"
+#include "core/ising.h"
 
 using namespace std;
 
