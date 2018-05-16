@@ -79,7 +79,8 @@ void Simulation::Simulate()
 #ifdef ISING_PARALLEL
 #pragma omp parallel for
 #endif
-        for (size_t j = 0; j < eval_cell_num_; ++j)
+        // OpenMP for need signed integer.
+        for (int j = 0; j < eval_cell_num_; ++j)
         {
             auto & eval = eval_list_[i][j];
             auto t = temperature_list_[j % kTemperatureListSize];
@@ -147,15 +148,13 @@ void Simulation::PrintResults(ostream & os)
 {
     const auto kTemperatureListSize = temperature_list_.size();
 
-    rapidjson::Document doc;
-    doc.SetArray();
+    rapidjson::Document doc(rapidjson::Type::kArrayType);
     auto & doc_allocator = doc.GetAllocator();
 
     for (size_t i = 0; i != size_list_size_; ++i)
         for (size_t j = 0; j != eval_cell_num_; ++j)
         {
-            rapidjson::Value cell_val;
-            cell_val.SetObject();
+            rapidjson::Value cell_val(rapidjson::Type::kObjectType);
 
             // Parameters.
             cell_val.AddMember("size", size_list_[i], doc_allocator);
@@ -165,17 +164,11 @@ void Simulation::PrintResults(ostream & os)
                 magnetic_h_list_[j / kTemperatureListSize], doc_allocator);
 
             // Simulation results (observables)
-            rapidjson::Value magnetic_dipole;
-            rapidjson::Value magnetic_dipole_abs;
-            rapidjson::Value magnetic_dipole_square;
-            rapidjson::Value energy;
-            rapidjson::Value energy_square;
-
-            magnetic_dipole.SetArray();
-            magnetic_dipole_abs.SetArray();
-            magnetic_dipole_square.SetArray();
-            energy.SetArray();
-            energy_square.SetArray();
+            rapidjson::Value magnetic_dipole(rapidjson::Type::kArrayType);
+            rapidjson::Value magnetic_dipole_abs(rapidjson::Type::kArrayType);
+            rapidjson::Value magnetic_dipole_square(rapidjson::Type::kArrayType);
+            rapidjson::Value energy(rapidjson::Type::kArrayType);
+            rapidjson::Value energy_square(rapidjson::Type::kArrayType);
 
             for (auto result : result_list_[i][j])
             {

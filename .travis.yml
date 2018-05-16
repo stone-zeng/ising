@@ -11,3 +11,4 @@ script:
   - ./bin/ising --help
   - ./bin/ising --exact
   - ./bin/ising --simulation
+  - ./bin/ising --lattice
