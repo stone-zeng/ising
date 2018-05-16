@@ -1,8 +1,5 @@
-#ifndef ISING_CORE_SIMULATION_H_
-#define ISING_CORE_SIMULATION_H_
-
-#include <iostream>
-#include <vector>
+#ifndef ISING_CORE_LATTICE_DATA_H_
+#define ISING_CORE_LATTICE_DATA_H_
 
 #include "core/ising.h"
 #include "core/ising-2d.h"
@@ -15,28 +12,28 @@
 
 ISING_NAMESPACE_BEGIN
 
-// Each cell will be initialized with the same parameters (size, T, H).
-// Repeat the evaluation for `repetitions` times for calculating deviation etc.
-class SimulationUnit
+class LatticeDataUnit
 {
 public:
-    SimulationUnit() = default;
-    SimulationUnit(const size_t & repetitions, const size_t & lattice_size);
-    
+    LatticeDataUnit() = default;
+    LatticeDataUnit(const size_t & repetitions, const size_t & lattice_size);
+
     void Run(const double & temperature, const double & magnetic_h,
-        const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta);
-    inline std::vector<Observable> Result() { return result_list_; }
+        const size_t & iterations);
+    inline std::vector<Lattice2D> Result() { return result_list_; }
 
 private:
     std::vector<Ising2D_PBC> eval_list_;
-    std::vector<Observable>  result_list_;
+    std::vector<Lattice2D>   result_list_;
 };
 
-class Simulation
+// TODO: This class almost has the same structure as `Simulation`.
+//       Consider to use inheritance.
+class LatticeData
 {
 public:
-    Simulation() = default;
-    Simulation(const Parameter & param);
+    LatticeData() = default;
+    LatticeData(const Parameter & param);
 
     int Run();
 
@@ -46,8 +43,6 @@ private:
     const std::vector<double> temperature_list_;
     const std::vector<double> magnetic_h_list_;
     const size_t              iterations_;
-    const size_t              n_ensemble_;
-    const size_t              n_delta_;
     const size_t              repetitions_;
 
     // The size (length) of `size_list_`
@@ -58,12 +53,12 @@ private:
     // 1st dimension: size
     // 2nd dimension: T * B
     // 3rd dimension (in `SimulationUnit`): repetition
-    std::vector<std::vector<SimulationUnit>> eval_list_;
+    std::vector<std::vector<LatticeDataUnit>> eval_list_;
 
     // 1st dimension: size
     // 2nd dimension: T * B
     // 3rd dimension: repetition
-    std::vector<std::vector<std::vector<Observable>>> result_list_;
+    std::vector<std::vector<std::vector<Lattice2D>>> result_list_;
     
     void Simulate();
     void PrintParameters(std::ostream & os);
@@ -71,7 +66,7 @@ private:
 };
 
 // Interface.
-int RunSimulation(const Parameter & param);
+int RunLatticeData(const Parameter & param);
 
 ISING_NAMESPACE_END
 

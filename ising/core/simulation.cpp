@@ -21,17 +21,18 @@ using namespace ising::toolkit;
 
 ISING_NAMESPACE_BEGIN
 
-EvalCell::EvalCell(const size_t & repetitions, const size_t & lattice_size) :
+SimulationUnit::SimulationUnit(const size_t & repetitions, const size_t & lattice_size) :
     eval_list_(repetitions, lattice_size) {}
 
-void EvalCell::Run(const double & temperature, const double & magnetic_h,
+void SimulationUnit::Run(const double & temperature, const double & magnetic_h,
     const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
+    Observable result;
     for (auto & cell : eval_list_)
     {
         cell.Initialize();
-        result_list_.push_back(
-            cell.Evaluate(1.0 / temperature, magnetic_h, iterations, n_ensemble, n_delta));
+        result = cell.Evaluate(1.0 / temperature, magnetic_h, iterations, n_ensemble, n_delta);
+        result_list_.push_back(result);
     }
 }
 
@@ -46,14 +47,14 @@ Simulation::Simulation(const Parameter & param) :
     size_list_size_(size_list_.size()),
     eval_cell_num_(temperature_list_.size() * magnetic_h_list_.size()),
     // Initialize `eval_list_` and `result_list_` with correct dimensions.
-    eval_list_(size_list_size_, vector<EvalCell>(eval_cell_num_)),
+    eval_list_(size_list_size_, vector<SimulationUnit>(eval_cell_num_)),
     result_list_(size_list_size_,
         vector<vector<Observable>>(eval_cell_num_, vector<Observable>(repetitions_)))
 {
     // Initialize `eval_list_` with correct `size` parameter.
     for (size_t i = 0; i != size_list_size_; ++i)
         for (size_t j = 0; j != eval_cell_num_; ++j)
-            eval_list_[i][j] = EvalCell(repetitions_, size_list_[i]);
+            eval_list_[i][j] = SimulationUnit(repetitions_, size_list_[i]);
 }
 
 int Simulation::Run()

@@ -133,6 +133,7 @@
     <ClInclude Include="exact.h" />
     <ClInclude Include="info.h" />
     <ClInclude Include="ising-2d.h" />
+    <ClInclude Include="lattice-data.h" />
     <ClInclude Include="parameter.h" />
     <ClInclude Include="ising.h" />
     <ClInclude Include="simulation.h" />
@@ -144,6 +145,7 @@
     <ClCompile Include="fast-rand.cpp" />
     <ClCompile Include="info.cpp" />
     <ClCompile Include="ising-2d.cpp" />
+    <ClCompile Include="lattice-data.cpp" />
     <ClCompile Include="parameter.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="timing.cpp" />

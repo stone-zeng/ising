@@ -5,6 +5,7 @@
 
 #include "core/exact.h"
 #include "core/ising.h"
+#include "core/lattice-data.h"
 #include "core/parameter.h"
 #include "core/simulation.h"
 
@@ -64,9 +65,6 @@ int PrintHelp(char * exe_name)
     return EXIT_SUCCESS;
 }
 
-// TODO: RunLattice()
-int RunLattice()    { return EXIT_SUCCESS; }
-
 int Run(int argc, char * argv[])
 {
     int exit_code = EXIT_SUCCESS;
@@ -104,7 +102,7 @@ int Run(int argc, char * argv[])
 
     if (args["lattice"])
     {
-        exit_code = RunLattice();
+        exit_code = RunLatticeData(param);
         return exit_code;
     }
 
