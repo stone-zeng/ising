@@ -2,6 +2,7 @@
 Debug/
 Release/
 x64/
+bin/
 
 # Libraries
 ising/include/
@@ -20,6 +21,7 @@ samples/
 # Other folders
 data/
 docs/
+ising-exact/
 ising-sync/
 
 # Visual Studio profiles

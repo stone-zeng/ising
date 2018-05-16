@@ -101,7 +101,7 @@ void LatticeData::PrintParameters(std::ostream & os)
 {
     os << endl << InformationSeparator() << endl;
 
-    os << "* Analyze critical behavior with Monte Carlo algorithm" << endl
+    os << "* Generate lattice data with Monte Carlo algorithm" << endl
        << "*" << endl
        << "* Parameters:" << endl;
 
