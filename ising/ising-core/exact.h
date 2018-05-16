@@ -119,6 +119,7 @@ private:
     std::vector<double> temperature_list_;
     std::vector<Result> result_;
 
+    void Evaluate();
     void PrintParameter(std::ostream & os);
     void PrintFirstRow(std::ostream & os);
     void PrintResult(std::ostream & os);

@@ -46,7 +46,15 @@ Exact::Exact(const Parameter & param) :
 int Exact::Run()
 {
     PrintParameter(cerr);
+    Evaluate();
+    PrintFirstRow(cout);
+    PrintResult(cout);
 
+    return 0;
+}
+
+void Exact::Evaluate()
+{
 #ifdef ISING_PARALLEL_FLAG
 #pragma omp parallel for
 #endif
@@ -59,11 +67,6 @@ int Exact::Run()
             result_[i][j] = e.SpecificHeat();
         }
     }
-
-    PrintFirstRow(cout);
-    PrintResult(cout);
-
-    return 0;
 }
 
 void Exact::PrintParameter(ostream & os)

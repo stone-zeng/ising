@@ -20,17 +20,17 @@ using namespace std;
 
 ISING_NAMESPACE_BEGIN
 
-EvalCell::EvalCell(const vector<size_t> & size_list) :
-    eval_list_(size_list.begin(), size_list.end()) {}
+EvalCell::EvalCell(const size_t & repetitions, const size_t & lattice_size) :
+    eval_list_(repetitions, lattice_size) {}
 
-int EvalCell::Run(const double & temperature, const double & magnetic_h,
+void EvalCell::Run(const double & temperature, const double & magnetic_h,
     const size_t & iterations, const size_t & n_ensemble, const size_t & n_delta)
 {
     for (auto & cell : eval_list_)
     {
         cell.Initialize();
-        auto result = cell.Evaluate(1.0 / temperature, magnetic_h, iterations, n_ensemble, n_delta);
-        result_list_.push_back(result);
+        result_list_.push_back(
+            cell.Evaluate(1.0 / temperature, magnetic_h, iterations, n_ensemble, n_delta));
     }
 }
 
@@ -43,10 +43,74 @@ Simulation::Simulation(const Parameter & param) :
     n_delta_(param.n_delta),
     repetitions_(param.repetitions),
     eval_cell_num_(temperature_list_.size() * magnetic_h_list_.size()),
-    eval_list_(size_list_.size(), vector<EvalCell>(eval_cell_num_, size_list_)) {}
+    // Initialize `eval_list_` with correct dimension.
+    eval_list_(size_list_.size(), vector<EvalCell>(eval_cell_num_))
+{
+    // Initialize `eval_list_` with correct `size` parameter.
+    for (size_t i = 0; i != size_list_.size(); ++i)
+        for (size_t j = 0; j != temperature_list_.size() * magnetic_h_list_.size(); ++j)
+            eval_list_[i][j] = EvalCell(repetitions_, size_list_[i]);
+}
 
 int Simulation::Run()
 {
+    PrintParameters(cerr);
+    //Simulate();
+    PrintResults(cerr);
+
+    return 0;
+}
+
+//template<typename T>
+//ResultList Run(vector<T> * eval_list, const Parameter & param)
+//{
+//    const auto & t_list = param.temperature_list;
+//    const auto & h_list = param.magnetic_h_list;
+//    size_t t_list_size  = t_list.size();
+//    size_t h_list_size  = h_list.size();
+//    size_t list_size    = t_list_size * h_list_size;
+//
+//    ResultList result_list;
+//    result_list.resize(list_size);
+//
+//    Timing run_clock;
+//
+//    // Main running loop.
+//    // Combine `beta` and `h` into a 1D vector in order to parallelize.
+//    cerr << "Running..." << endl;
+//    run_clock.TimingBegin();
+//#ifdef ISING_PARALLEL
+//#pragma omp parallel for
+//#endif
+//    for (auto i = 0; i < list_size; ++i)
+//    {
+//        auto temperature = t_list[i % t_list_size];
+//        auto h = h_list[i / t_list_size];
+//        auto & cell = (*eval_list)[i];
+//
+//        // Repeat on a single parameter set.
+//        for (auto j = 0; j < param.repetitions; ++j)
+//        {
+//            cell.Initialize();
+//            auto result = cell.Evaluate(1.0 / temperature, h,
+//                param.iterations, param.n_ensemble, param.n_delta);
+//            result_list[i].push_back({ result, 1.0 / temperature, h });
+//        }
+//
+//        PrintProgress(list_size, i + 1);
+//    }
+//    run_clock.TimingEnd();
+//    cerr << endl
+//         << "Finished!" << endl
+//         << "Running time: " << run_clock.GetRunningTime() << "s." << endl;
+//
+//    return result_list;
+//}
+
+void Simulation::Simulate()
+{
+    const auto t_list_size = temperature_list_.size();
+
     for (auto v : eval_list_)
     {
 #ifdef ISING_PARALLEL
@@ -54,76 +118,51 @@ int Simulation::Run()
 #endif
         for (size_t i = 0; i < eval_cell_num_; ++i)
         {
-            v[i];
+            auto t = temperature_list_[i % t_list_size];
+            auto h = magnetic_h_list_[i / t_list_size];
+            v[i].Run(t, h, iterations_, n_ensemble_, n_delta_);
         }
     }
 }
 
-template<typename T>
-ResultList Run(vector<T> * eval_list, const Parameter & param)
-{
-    const auto & t_list = param.temperature_list;
-    const auto & h_list = param.magnetic_h_list;
-    size_t t_list_size  = t_list.size();
-    size_t h_list_size  = h_list.size();
-    size_t list_size    = t_list_size * h_list_size;
-
-    ResultList result_list;
-    result_list.resize(list_size);
-
-    Timing run_clock;
-
-    // Main running loop.
-    // Combine `beta` and `h` into a 1D vector in order to parallelize.
-    cerr << "Running..." << endl;
-    run_clock.TimingBegin();
-#ifdef ISING_PARALLEL
-#pragma omp parallel for
-#endif
-    for (auto i = 0; i < list_size; ++i)
-    {
-        auto temperature = t_list[i % t_list_size];
-        auto h = h_list[i / t_list_size];
-        auto & cell = (*eval_list)[i];
-
-        // Repeat on a single parameter set.
-        for (auto j = 0; j < param.repetitions; ++j)
-        {
-            cell.Initialize();
-            auto result = cell.Evaluate(1.0 / temperature, h,
-                param.iterations, param.n_ensemble, param.n_delta);
-            result_list[i].push_back({ result, 1.0 / temperature, h });
-        }
-
-        PrintProgress(list_size, i + 1);
-    }
-    run_clock.TimingEnd();
-    cerr << endl
-         << "Finished!" << endl
-         << "Running time: " << run_clock.GetRunningTime() << "s." << endl;
-
-    return result_list;
-}
-
-void Simulation::PrintParameters(std::ostream & os, const Parameter & param)
+void Simulation::PrintParameters(std::ostream & os)
 {
     os << endl << InformationSeparator() << endl;
 
-    os << "Boundary condition: "
-       << (param.boundary_condition == kPeriodic ? "Periodic" : "Free") << endl
-       << "Lattice size:       "
-       << param.lattice_size << endl
-       << "Iterations:         "
-       << param.iterations << endl
-       << "Repetitions:        "
-       << param.repetitions << endl
-       << "Parallelization:    "
+    os << "* Analyze critical behavior with Monte Carlo algorithm" << endl
+       << "*" << endl
+       << "* Parameters:" << endl;
+
+    os << "*   Boundary condition: "
+       // TODO: use only Periodic boundary condition now.
+       // << (param.boundary_condition == kPeriodic ? "Periodic" : "Free") << endl
+       << "Periodic" << endl;
+
+    os << "*   Size list:" << endl
+       << "*     ";
+    for (auto i : size_list_)
+        os << i << " ";
+    os << endl;
+
+    os << "*   Temperature range:" << endl
+       << "*     "
+       << temperature_list_.front() << " -- " << temperature_list_.back() << endl;
+
+    os << "*   External magnetic field range:" << endl
+       << "*     "
+       << magnetic_h_list_.front() << " -- " << magnetic_h_list_.back() << endl;
+
+    os << "*   Iterations:         "
+       << iterations_ << endl
+       << "*   Repetitions:        "
+       << repetitions_ << endl
+       << "*   Parallelization:    "
 #ifdef ISING_PARALLEL
        << "On" << endl
 #else
        << "Off" << endl
 #endif
-       << "Fast exp():         "
+       << "*   Fast exp():         "
 #ifdef ISING_FAST_EXP
        << "On" << endl
 #else
@@ -132,11 +171,10 @@ void Simulation::PrintParameters(std::ostream & os, const Parameter & param)
        << InformationSeparator() << endl << endl;
 }
 
-//void Simulation::PrintResults(ostream & os, const ResultList & result_list)
-//{
-//}
+void Simulation::PrintResults(ostream & os)
+{}
 
-// The results are in CSV format.
+//// The results are in CSV format.
 //void Simulation::PrintResults(ostream & os, const Simulation::ResultList & result_list)
 //{
 //    // Header.
@@ -192,7 +230,7 @@ ISING_NAMESPACE_END
 
 
 
-
+/*
 
 class EvaluationResult
 {
@@ -303,3 +341,5 @@ int main0(int argc, char * argv[])
 
     return 0;
 }
+
+*/
