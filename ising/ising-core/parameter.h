@@ -74,8 +74,8 @@ private:
 
 const std::string kDefaultSettingsString =
 R"({
-    "size.list": [4],
-    "temperature.list": [1.0],
+    "size.list": [4, 8],
+    "temperature.list": [0.5, 1.0, 1.5, 2.0],
     "externalMagneticField.list": [0.0]
 })";
 
