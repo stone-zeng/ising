@@ -4,10 +4,13 @@
 
 #include "ising-core/exact.h"
 
+#include "ising-core/info.h"
 #include "ising-core/ising.h"
 #include "ising-core/parameter.h"
+#include "ising-core/timing.h"
 
 using namespace std;
+using namespace ising::toolkit;
 
 ISING_NAMESPACE_BEGIN
 
@@ -55,6 +58,9 @@ int Exact::Run()
 
 void Exact::Evaluate()
 {
+    Timing run_clock;
+    cerr << "Running..." << endl;
+    run_clock.TimingBegin();
 #ifdef ISING_PARALLEL_FLAG
 #pragma omp parallel for
 #endif
@@ -66,7 +72,12 @@ void Exact::Evaluate()
             IsingExact2D e(size_list_[j], T);
             result_[i][j] = e.SpecificHeat();
         }
+        PrintProgress(temperature_list_.size(), i + 1);
     }
+    run_clock.TimingEnd();
+    cerr << endl
+         << "Finished!" << endl
+         << "Running time: " << run_clock.GetRunningTime() << "s." << endl;
 }
 
 void Exact::PrintParameter(ostream & os)

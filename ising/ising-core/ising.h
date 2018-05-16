@@ -99,17 +99,6 @@ struct LatticeInfo
     std::vector<Observable> observables;
 };
 
-const int  kInformationSeparatorLength = 60;
-const char kInformationSeparatorSymbol = '*';
-
-inline std::string InformationSeparator()
-{
-    std::string s;
-    for (int i = 0; i != kInformationSeparatorLength; ++i)
-        s += kInformationSeparatorSymbol;
-    return s;
-}
-
 ISING_NAMESPACE_END
 
 #endif

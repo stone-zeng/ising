@@ -1,12 +1,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-
 #include <include/argagg/argagg.hpp>
 
+#include "ising-core/exact.h"
 #include "ising-core/ising.h"
 #include "ising-core/parameter.h"
-#include "ising-core/exact.h"
 #include "ising-core/simulation.h"
 
 using namespace std;
@@ -65,7 +64,7 @@ int PrintHelp(char * exe_name)
     return EXIT_SUCCESS;
 }
 
-// TODO
+// TODO: RunLattice()
 int RunLattice()    { return EXIT_SUCCESS; }
 
 int Run(int argc, char * argv[])

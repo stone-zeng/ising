@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-
 #include <include/rapidjson/document.h>
 
 #include "ising-core/ising.h"

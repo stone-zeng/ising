@@ -5,7 +5,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include <include/argagg/argagg.hpp>
 
 #include "ising-core/ising.h"
@@ -59,26 +58,24 @@ private:
     const size_t              n_delta_;
     const size_t              repetitions_;
 
+    // The size (length) of `size_list_`
+    const size_t size_list_size_;
     // The dimension of T * B
     const size_t eval_cell_num_;
-
-    // // Inner dimension is used for repetition.
-    // //typedef std::vector<Ising2D> EvalCell;
-    // typedef std::vector<EvaluationResult> ResultList;
 
     // 1st dimension: size
     // 2nd dimension: T * B
     // 3rd dimension (in `EvalCell`): repetition
     std::vector<std::vector<EvalCell>> eval_list_;
 
-    // 1st dimension: size * T * B
-    // 2nd dimension: repetition
-    std::vector<std::vector<Observable>> result_list_;
+    // 1st dimension: size
+    // 2nd dimension: T * B
+    // 3rd dimension: repetition
+    std::vector<std::vector<std::vector<Observable>>> result_list_;
     
     void Simulate();
     void PrintParameters(std::ostream & os);
     void PrintResults(std::ostream & os);
-    void PrintProgress(const size_t & total, const size_t & progress);
 };
 
 // Interface.
