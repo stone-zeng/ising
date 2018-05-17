@@ -28,10 +28,14 @@ ising-sync/
 *.hint
 *.vcxproj.user
 
-# Other files
+# Data
 *.csv
-*.ipynb
+*.dat
 *.json
+
+# Other files
+*.ipynb
 *.nb
+*.pdf
 cloc.bat
 tensorflow/*.jl
