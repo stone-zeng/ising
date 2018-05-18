@@ -1,13 +1,18 @@
 *.aux
+*.bcf
 *.fdb_latexmk
 *.fls
 *.log
 *.out
 *.pdf
+*.run.xml
 *.synctex.gz
 *.synctex(busy)
 *.thm
 *.toc
 *.xdv
 
+fduthesis*
+
 .vscode/
+plot.temp/

@@ -21,9 +21,10 @@ $\sigma_i$ 的正负是对称的，方便起见不妨认为 $B \geqslant 0$。�
 我们可以为某一特定的自旋构型引入概率。温度 $T$ 时，构型 $\q{\sigma_i}$ 在平衡态中出现的概率由
 Boltzmann 分布给出：
 \begin{equation}
+  \label{eq:ising-probability}
   P(\q{\sigma_i}) = \frac{\ee^{-\beta H(\q{\sigma_i})}}{Z_N}.
 \end{equation}
-其中的 $\beta=1/\kB T$。而 $Z_N$ 称为配分函数，它使得概率 $P$ 满足归一化条件
+其中的 $\beta=1/T$。而 $Z_N$ 称为配分函数，它使得概率 $P$ 满足归一化条件
 \begin{equation}
   \sum_\q{\sigma_i} P(\q{\sigma_i}) = 1
   \implies Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})}.
@@ -123,7 +124,7 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
 以铁磁系统为例，设单位自旋的自由能 $f$ 是约化温度、约化磁场
 \begin{equation}
   t = \frac{T}{\Tc} - 1 \qc
-  b = \frac{\mu B}{\kB\Tc}
+  b = \frac{\mu B}{\Tc}
 \end{equation}
 的函数。将其分解为奇异部分 $f_{\symup{s}}$ 和非奇异部分 $f_{\symup{r}}$：
 \begin{equation}
@@ -184,7 +185,7 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
 
 如果定义关联函数
 \begin{equation}
-  g(\bm{r}_{ij}) = \ev{(\sigma_i-\bar{\sigma_i})(\sigma_j-\bar{\sigma_j})},
+  g(\bm{r}_{ij}) = \overline{(\sigma_i-\bar{\sigma_i})(\sigma_j-\bar{\sigma_j})},
 \end{equation}
 则有另一个临界指数 $\eta$ 与之关联：
 \begin{equation}
