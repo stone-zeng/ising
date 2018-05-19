@@ -6,7 +6,7 @@
 
 \documentclass[UTF8]{ctexbook}
 \usepackage{amsmath,unicode-math,physics,siunitx,
-  caption,subcaption,hyperref}
+  geometry,caption,subcaption,hyperref}
 
 \ifdefined\DRAFT
   \def\tikzinput#1{}
@@ -16,9 +16,10 @@
   \def\tikzinput#1{\input{figures/#1}}
 \fi
 
+\geometry{vmargin=2.54cm,hmargin=3.17cm}
 \setmainfont{XITS}
-\setmathfont{XITS Math}[math-style=ISO, bold-style=ISO]
-
+\setmathfont{XITS Math}[math-style=ISO, bold-style=ISO, StylisticSet=1]
+\allowdisplaybreaks
 \hypersetup{colorlinks=true}
 
 % Constants
@@ -31,9 +32,11 @@
 % Operators
 \def\trans{{\symrm{T}}}
 \def\O{{\symscr{O}}} % Big O notation
+\def\likeL{{\symcal{L}}}
 
 % Set
 \def\R{{\symbb{R}}}
+\def\domD{{\symcal{D}}}
 
 % Decorations
 \def\bm#1{{\symbf{#1}}}
@@ -42,6 +45,8 @@
 
 % Text
 \def\const{\text{const}}
+
+\def\CDk{CD-$k$}
 
 \title{机器学习与 \AdSCFT{}}
 \author{曾祥东}
@@ -52,8 +57,8 @@
 
 %\maketitle
 
-\include{chapters/ising}
-\include{chapters/machine-learning}
+%\include{chapters/ising}
+%\include{chapters/machine-learning}
 \include{chapters/machine-learning-rg}
 
 \end{document}

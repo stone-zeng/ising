@@ -2,19 +2,17 @@
 
 \section{限制 Boltzmann 机（RBM）}
 
-\subsection{模型构建}
-
 限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络
-（generative stochastic artificial neural network），它可以学习到输入数据的概率分布情况。
-
-Boltzmann 机是一种基于能量的模型（energy-based model）。对于这种模型，我们可以赋予它一个能量函数。
+（gen\-er\-a\-tive stochastic artificial neural network），它可以学习到输入数据的概率分布情况。
+顾名思义，RBM 是 Boltzmann 机（Boltzmann machine）加上一定限制所得到的网络。一般的 Boltzmann 机
+是一种基于能量的模型（energy-based model）。对于这种模型，我们可以赋予它一个能量函数。
 与物理学中类似，体系的稳定状态将在能量最低时达到，这一稳定状态即对应最优参数。
 
 Boltzmann 机的结构如图~\ref{fig:boltzmann-machine} 所示。它共有两层，与数据直接相连的称为可见层
 （visible layer），另一层称为隐藏层（hidden layer）。可见层用于处理输入输出，隐藏层则反应了数据的
 内在结构。无论是可见层还是隐藏层，其中的所有单元均全部连接在一起。Boltzmann 机的能量函数由下式给出：
 \begin{equation}
-  E(\bm{s}) = E(\q{s_i}) = -\sum_{i<j} W_{ij} s_i s_j - \sum_i \theta_i s_i.
+  E(\bm{s}) = E(\q{s_i}) = - \sum_{i<j} W_{ij} s_i s_j - \sum_i \theta_i s_i.
 \end{equation}
 式中，$s_i$ 取为布尔型，即 $s_i\in\q{0,\,1}$。$W_{ij}$ 是单元 $s_i$ 与 $s_j$ 之间的连接权重，
 $\theta_i$ 则表示单元 $s_i$ 处的偏差。
@@ -31,7 +29,7 @@ $\theta_i$ 则表示单元 $s_i$ 处的偏差。
     \centering
     \tikzinput{rbm}
     \vspace{0.4cm}
-    \caption{限制 Boltzmann 机}
+    \caption{限制 Boltzmann 机（RBM）}
     \label{fig:rbm}
   \end{subfigure}
   \caption{Boltzmann 机和限制 Boltzmann 机的结构示意图。其中红色圆圈表示可见层，蓝色方块表示隐藏层。
@@ -53,31 +51,119 @@ Boltzmann 机的训练过程就是最大化训练样本所对应的概率。
 
 由于 Boltzmann 机是全连接的，它的训练效率并不高。我们可以引入限制条件，仅保留可见层与隐藏层之间的
 连接。由此便得到了限制 Boltzmann 机（如图~\ref{fig:rbm}），它的能量函数为
-\begin{align}
+\begin{equation}
+  \label{eq:rbm-energy}
   E(\bm{v},\,\bm{h})
-  &= - \bm{v}^\trans \bm{W} \bm{h} - \bm{b}^\trans \bm{v} - \bm{c}^\trans \bm{h} \notag \\
-  &= - \sum_{i,\,j} W_{ij} v_i h_j - \sum_i b_i v_i - \sum_j c_j h_j.
-\end{align}
+  = - \bm{v}^\trans \bm{W} \bm{h} - \bm{b}^\trans \bm{v} - \bm{c}^\trans \bm{h}
+  = - \sum_{i,\,j} W_{ij} v_i h_j - \sum_i b_i v_i - \sum_j c_j h_j.
+\end{equation}
 式中，$v_i$ 和 $h_j$ 分别代表可见层与隐藏层中的单元，$W_{ij}$ 为两层之间的连接权重，$b_i$ 和 $c_j$
 分别是可见层与隐藏层中单元对应的偏差。
 
-限制 Boltzmann 机中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以视为两个随机变量，因而
+RBM 中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以视为两个随机变量，因而
 式~\eqref{eq:boltzmann-machine-probability} 即成为 $\bm{v}$ 与 $\bm{h}$ 的联合概率分布：
 \begin{equation}
   P(\bm{v},\,\bm{h})
   = \frac{\ee^{-E(\bm{v},\,\bm{h})}}{Z}
   = \frac{\ee^{-E(\bm{v},\,\bm{h})}}{\sum_{\bm{v},\,\bm{h}}\ee^{-E(\bm{v},\,\bm{h})}}.
 \end{equation}
-对所有的 $\bm{h}$ 进行求和，我们就得到了某一可见层分布 $\bm{v}$ 对应的概率：
+对所有的 $\bm{h}$ 进行求和，我们就得到了某一可见层 $\bm{v}$ 对应的边缘概率分布：
 \begin{equation}
+  \label{eq:rbm-probability}
   P(\bm{v}) = \frac{1}{Z} \sum_{\bm{h}} P(\bm{v},\,\bm{h})
             = \frac{1}{Z} \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
 \end{equation}
 
-\subsection{训练算法}
+\section{CD-\textit{k} 训练算法}
 
+RBM 常采用对比散度算法（contrastive divergence, \CDk）进行训练，它是一种计算极大似然梯度值的
+近似方法。
+
+\subsection{损失函数}
+
+对于一般的基于能量模型，其损失函数由下式给出：
+\begin{equation}
+  L(\bm{\theta})
+  = - \likeL(\bm{\theta},\,\domD)
+  = - \frac{1}{N} \sum_{\bm{x}^{(i)}\in\domD} \ln P(\bm{x}^{(i)}).
+\end{equation}
+式中的 $\domD$ 表示数据集，$N$ 是数据集的大小；$\likeL$ 称为对数似然（log-likelihood）。
+根据梯度下降法的精神，我们需要求出损失函数关于参数的导数（即梯度）：
+\begin{equation}
+  \pdv{L(\bm{\theta})}{\bm{\theta}}
+  = \frac{1}{N} \sum_{\bm{x}^{(i)}\in\domD} - \pdv{\bm{\theta}} \ln P(\bm{x}^{(i)}).
+\end{equation}
+实际上只需计算求和号里面的内容 $-\partial{\ln P(\bm{x}^{(i)})}\,/\,\partial{\bm{\theta}}$。
+
+RBM 所采用的训练数据集只包含了可见层的内容，即
+\begin{equation}
+  - \pdv{\bm{\theta}} \ln P(\bm{x}^{(i)}) \equiv
+  - \pdv{\bm{\theta}} \ln P(\bm{v}^{(i)}).
+\end{equation}
+仿照统计物理的处理方法，引入自由能
+\footnote{在统计物理中，自由能 $F=-T\ln Z$，而配分函数需要对所有可能的状态求和。但在限制
+  Boltzmann 机中，只对隐藏层求和，所以 $F$ 是 $\bm{v}$ 的函数。}
+\begin{equation}
+  F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
+\end{equation}
+代入式~\eqref{eq:rbm-probability}，可有
+\begin{equation}
+  \ln P(\bm{v}^{(i)}) = \frac{\ee^{-F(\bm{v}^{(i)})}}{Z} \qc
+  Z = \sum_{\bm{v}} \ee^{-F(\bm{v})}.
+\end{equation}
+于是梯度可以表示为
+\begin{align}
+  \label{eq:rmb-gradient}
+     - \pdv{\bm{\theta}} \ln P(\bm{v}^{(i)})
+  &= - \pdv{\bm{\theta}} \qty\Big[-F(\bm{v}^{(i)}) - \ln Z]
+     \vphantom{\sum_x} \notag \\
+  &= \pdv{F(\bm{v}^{(i)})}{\bm{\theta}} + \frac{1}{Z} \pdv{Z}{\bm{\theta}}
+   = \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+     - \frac{1}{Z} \sum_{\bm{v}} \ee^{-F(\bm{v})} \pdv{F(\bm{v})}{\bm{\theta}} \notag \\
+  &= \pdv{F(\bm{v}^{(i)})}{\bm{\theta}} - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}.
+\end{align}
+其中的参数 $\bm{\theta}$ 包含连接权重 $\bm{W}$、可见层偏差 $\bm{b}$ 与隐藏层偏差 $\bm{c}$。
+
+式~\eqref{eq:rmb-gradient} 共包含两项，分别称为正相（positive phase）和负相（negative phase）。
+显然，负相的计算比较困难，这也是 \CDk{} 算法着力需要解决的问题。
+
+\subsection{正相的计算}
+
+代入 Boltzmann 机的能量函数 \eqref{eq:rbm-energy}~式，可以把自由能写成
+\begin{align}
+  F(\bm{v})
+  &= - \ln \sum_{\q{h_i}}
+       \exp\qty\Big(\sum_{i,\,j} W_{ij} v_i h_j + \sum_i b_i v_i + \sum_j c_j h_j) \notag \\
+  &= - \sum_i b_i v_i
+     - \ln \sum_{\q{h_i}} \exp\qty\bigg[\sum_j h_j \qty\Big(c_j + \sum_i W_{ij} v_i)] \notag \\
+  &= - \sum_i b_i v_i
+     - \ln \prod_j \sum_{h_j} \exp\qty\bigg[h_j \qty\Big(c_j + \sum_i W_{ij} v_i)] \notag \\
+  &= - \sum_i b_i v_i
+     - \sum_j \ln \sum_{h_j} \ee^{h_j \qty\big(c_j + \sum_i W_{ij} v_i)}.
+\end{align}
+考虑到 $h_j$ 只能取 0 或 1，可以将上式化简：
+\begin{align}
+  F(\bm{v})
+  &= - \sum_i b_i v_i - \sum_j \ln
+       \qty\bigg[  \ee^{0 \cdot \qty\big(c_j + \sum_i W_{ij} v_i)}
+                 + \ee^{1 \cdot \qty\big(c_j + \sum_i W_{ij} v_i)}] \notag \\
+  &= - \sum_i b_i v_i - \sum_j \ln \qty\Big(1 + \ee^{c_j + \sum_i W_{ij} v_i}).
+\end{align}
+此时可以计算出自由能关于各参量的偏导数：
+\begin{align}
+  %TODO: subequation
+  \pdv{F(\bm{v})}{W_{ij}} &= - \pdv{W_{ij}} \ln \qty\Big(1+\ee^{c_j+W_{ij}v_i})
+                           = - v_i \cdot \frac{\ee^{c_j+W_{ij}v_i}}{1+\ee^{c_j+W_{ij}v_i}}
+                           = - v_i \cdot \sigma\qty\big(c_j+W_{ij}v_i); \\
+  \pdv{F(\bm{v})}{b_i}    &= - v_i; \\
+  \pdv{F(\bm{v})}{c_j}    &= - \pdv{c_j} \ln \qty\Big(1+\ee^{c_j+\sum_iW_{ij}v_i})
+                           = - \frac{\ee^{c_j+\sum_iW_{ij}v_i}}{1+\ee^{c_j+\sum_iW_{ij}v_i}}
+                           = - \sigma\qty\Big(\ee^{c_j+\sum_iW_{ij}v_i}).
+\end{align}
+此即式~\eqref{eq:rmb-gradient} 中的正相部分。
 
 \section{RBM 与重整化群的对应关系}
+
 \section{利用 RBM 研究 Ising 模型}
 \section{卷积限制 Boltzmann 机（CRBM）}
 \section{卷积层、小波变换与 \AdSCFT{}}
