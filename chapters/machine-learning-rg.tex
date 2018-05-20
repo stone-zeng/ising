@@ -2,8 +2,8 @@
 
 \section{限制 Boltzmann 机（RBM）}
 
-限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络（gen\-er\-a\-tive
-stochastic artificial neural network），它可以学习到输入数据的概率分布情况。顾名思义，RBM 是
+限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络（ generative
+stochastic artificial neural network ），它可以学习到输入数据的概率分布情况。顾名思义，RBM 是
 Boltzmann 机加上一定限制所得到的网络。一般的 Boltzmann 机是一种基于能量的模型（energy-based
 model）。对于这种模型，我们可以赋予它一个能量函数。与物理学中类似，体系的稳定状态将在能量最低时
 达到，这一稳定状态即对应最优参数。
@@ -140,7 +140,9 @@ Carlo 方法：
 \end{equation}
 式中的 $\domN$ 表示一组依照概率 $P$ 进行的采样。
 
-由于可见层、隐藏层的层内均没有连接，因此可以在层之间来回“跳转”，并将其视作一条 Markov 链，如图所示。“跳转”的具体操作可以借由条件概率获得：设给定可见层分布 $\bm{v}$，则隐藏层分布为
+由于可见层、隐藏层的层内均没有连接，因此可以在层之间来回“跳转”，并将其视作一条 Markov 链，
+如图~\ref{fig:gibbs-sampling} 所示。“跳转”的具体操作可以借由条件概率获得：设给定可见层分布
+$\bm{v}$，则隐藏层分布为
 \begin{equation}
   \label{eq:hidden-layer-dist}
   \bm{h} \sim P\qty\big(\bm{h}\big|\bm{v});
@@ -152,6 +154,13 @@ Carlo 方法：
 \end{equation}
 式中，符号 $\bm{x}\sim P$ 表示按照概率 $P$ 生成 $\bm{x}$。考虑到 $\bm{v}$ 与 $\bm{h}$ 均为布尔型，
 我们可以近似用概率直接代替 $\bm{v}$ 和 $\bm{h}$。
+
+\begin{figure}[htb]
+  \centering
+  \tikzinput{gibbs-sampling}
+  \caption{Gibbs 采样的示意图。上标代表进行的采样次数}
+  \label{fig:gibbs-sampling}
+\end{figure}
 
 以上步骤可以持续进行，这称为 Gibbs 采样（Gibbs sampling），采样次数即为 \CDk{} 算法中的 $k$。
 当 $k\to\infty$ 时，可认为 $\bm{v}^{(k)}$、$\bm{h}^{(k+1)}$
@@ -269,6 +278,7 @@ $\bm{h}'$，因此
   \end{aligned}
   \right.
 \end{equation}
+式中的 $\alpha$ 为学习率。
 
 \section{RBM 与重整化群的对应关系}
 
