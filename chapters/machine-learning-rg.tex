@@ -2,11 +2,11 @@
 
 \section{限制 Boltzmann 机（RBM）}
 
-限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络
-（gen\-er\-a\-tive stochastic artificial neural network），它可以学习到输入数据的概率分布情况。
-顾名思义，RBM 是 Boltzmann 机（Boltzmann machine）加上一定限制所得到的网络。一般的 Boltzmann 机
-是一种基于能量的模型（energy-based model）。对于这种模型，我们可以赋予它一个能量函数。
-与物理学中类似，体系的稳定状态将在能量最低时达到，这一稳定状态即对应最优参数。
+限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络（gen\-er\-a\-tive
+stochastic artificial neural network），它可以学习到输入数据的概率分布情况。顾名思义，RBM 是
+Boltzmann 机加上一定限制所得到的网络。一般的 Boltzmann 机是一种基于能量的模型（energy-based
+model）。对于这种模型，我们可以赋予它一个能量函数。与物理学中类似，体系的稳定状态将在能量最低时
+达到，这一稳定状态即对应最优参数。
 
 Boltzmann 机的结构如图~\ref{fig:boltzmann-machine} 所示。它共有两层，与数据直接相连的称为可见层
 （visible layer），另一层称为隐藏层（hidden layer）。可见层用于处理输入输出，隐藏层则反应了数据的
@@ -71,7 +71,7 @@ RBM 中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以�
 \begin{equation}
   \label{eq:rbm-probability}
   P(\bm{v}) = \frac{1}{Z} \sum_{\bm{h}} P(\bm{v},\,\bm{h})
-            = \frac{1}{Z} \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
+            = \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
 \end{equation}
 
 \section{CD-\textit{k} 训练算法}
@@ -85,20 +85,21 @@ RBM 常采用对比散度算法（contrastive divergence, \CDk）进行训练，
 \begin{equation}
   L(\bm{\theta})
   = - \likeL(\bm{\theta},\,\domD)
-  = - \frac{1}{N} \sum_{\bm{x}^{(i)}\in\domD} \ln P(\bm{x}^{(i)}).
+  = - \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD} \ln P\qty\big(\bm{x}^{(i)}).
 \end{equation}
-式中的 $\domD$ 表示数据集，$N$ 是数据集的大小；$\likeL$ 称为对数似然（log-likelihood）。
-根据梯度下降法的精神，我们需要求出损失函数关于参数的导数（即梯度）：
+式中的 $\domD$ 表示数据集，$\likeL$ 称为对数似然（log-likelihood）。根据梯度下降法的精神，我们需要
+求出损失函数关于参数的导数（即梯度）：
 \begin{equation}
   \pdv{L(\bm{\theta})}{\bm{\theta}}
-  = \frac{1}{N} \sum_{\bm{x}^{(i)}\in\domD} - \pdv{\bm{\theta}} \ln P(\bm{x}^{(i)}).
+  = \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD}
+    - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)}).
 \end{equation}
-实际上只需计算求和号里面的内容 $-\partial{\ln P(\bm{x}^{(i)})}\,/\,\partial{\bm{\theta}}$。
+实际上只需计算求和号里面的内容 $-\partial{\ln P\qty\big(\bm{x}^{(i)})}\,/\,\partial{\bm{\theta}}$。
 
 RBM 所采用的训练数据集只包含了可见层的内容，即
 \begin{equation}
-  - \pdv{\bm{\theta}} \ln P(\bm{x}^{(i)}) \equiv
-  - \pdv{\bm{\theta}} \ln P(\bm{v}^{(i)}).
+  - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)}) \equiv
+  - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)}).
 \end{equation}
 仿照统计物理的处理方法，引入自由能
 \footnote{在统计物理中，自由能 $F=-T\ln Z$，而配分函数需要对所有可能的状态求和。但在限制
@@ -108,28 +109,110 @@ RBM 所采用的训练数据集只包含了可见层的内容，即
 \end{equation}
 代入式~\eqref{eq:rbm-probability}，可有
 \begin{equation}
-  \ln P(\bm{v}^{(i)}) = \frac{\ee^{-F(\bm{v}^{(i)})}}{Z} \qc
+  \ln P\qty\big(\bm{v}^{(i)}) = \frac{\ee^{-F(\bm{v}^{(i)})}}{Z} \qc
   Z = \sum_{\bm{v}} \ee^{-F(\bm{v})}.
 \end{equation}
 于是梯度可以表示为
 \begin{align}
   \label{eq:rmb-gradient}
-     - \pdv{\bm{\theta}} \ln P(\bm{v}^{(i)})
-  &= - \pdv{\bm{\theta}} \qty\Big[-F(\bm{v}^{(i)}) - \ln Z]
+     - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+  &= - \pdv{\bm{\theta}} \qty\Big[-F\qty\big(\bm{v}^{(i)}) - \ln Z]
      \vphantom{\sum_x} \notag \\
-  &= \pdv{F(\bm{v}^{(i)})}{\bm{\theta}} + \frac{1}{Z} \pdv{Z}{\bm{\theta}}
-   = \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+  &= \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}} + \frac{1}{Z} \pdv{Z}{\bm{\theta}}
+   = \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
      - \frac{1}{Z} \sum_{\bm{v}} \ee^{-F(\bm{v})} \pdv{F(\bm{v})}{\bm{\theta}} \notag \\
-  &= \pdv{F(\bm{v}^{(i)})}{\bm{\theta}} - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}.
+  &= \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
+     - \sum_{\bm{v}} P\qty\big(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}.
 \end{align}
 其中的参数 $\bm{\theta}$ 包含连接权重 $\bm{W}$、可见层偏差 $\bm{b}$ 与隐藏层偏差 $\bm{c}$。
 
 式~\eqref{eq:rmb-gradient} 共包含两项，分别称为正相（positive phase）和负相（negative phase）。
 显然，负相的计算比较困难，这也是 \CDk{} 算法着力需要解决的问题。
 
-\subsection{正相的计算}
+\subsection{Gibbs 采样}
 
-代入 Boltzmann 机的能量函数 \eqref{eq:rbm-energy}~式，可以把自由能写成
+计算负相的困难之处在于需要对所有可能的可见层 $\bm{v}$ 分布进行求和，而这一分布对应的状态数量极其
+巨大。与我们在处理 Ising 模型的解决方法类似，这里同样可以用一组样本的分布代替整体分布，即 Monte
+Carlo 方法：
+\begin{equation}
+  \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+  \approx \frac{1}{\abs{\domN}} \sum_{\bm{v}\in\domN} \pdv{F(\bm{v})}{\bm{\theta}}.
+\end{equation}
+式中的 $\domN$ 表示一组依照概率 $P$ 进行的采样。
+
+由于可见层、隐藏层的层内均没有连接，因此可以在层之间来回“跳转”，并将其视作一条 Markov 链，如图所示。“跳转”的具体操作可以借由条件概率获得：设给定可见层分布 $\bm{v}$，则隐藏层分布为
+\begin{equation}
+  \label{eq:hidden-layer-dist}
+  \bm{h} \sim P\qty\big(\bm{h}\big|\bm{v});
+\end{equation}
+由此可计算下一组可见层分布
+\begin{equation}
+  \label{eq:visible-layer-dist}
+  \bm{v}' \sim P\qty\big(\bm{v}\big|\bm{h}).
+\end{equation}
+式中，符号 $\bm{x}\sim P$ 表示按照概率 $P$ 生成 $\bm{x}$。考虑到 $\bm{v}$ 与 $\bm{h}$ 均为布尔型，
+我们可以近似用概率直接代替 $\bm{v}$ 和 $\bm{h}$。
+
+以上步骤可以持续进行，这称为 Gibbs 采样（Gibbs sampling），采样次数即为 \CDk{} 算法中的 $k$。
+当 $k\to\infty$ 时，可认为 $\bm{v}^{(k)}$、$\bm{h}^{(k+1)}$
+\footnote{这里的上标 $(k)$ 和 $(k+1)$ 是采样次数，而样本指标 $(i)$ 不同。}
+已经服从所要求的分布 $P(\bm{v})$。显然，$k\to\infty$ 在计算上是不可取的。实践中，往往选择 $k<15$
+以提高计算速度。甚至在大多数情况下，取 $k=1$ 即可满足要求。此时，\eqref{eq:rmb-gradient}~式中的
+梯度近似可以表示为
+\begin{equation}
+  \label{eq:rmb-gradient-approx}
+  - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+  \approx \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
+        - \pdv{F\qty\big({\bm{v}'}^{(i)})}{\bm{\theta}}.
+\end{equation}
+其中的 ${\bm{v}'}^{(i)}$ 表示经过 Gibbs 采样生成的可见层单元。
+
+\subsection{梯度的计算}
+
+首先来计算式~\eqref{eq:hidden-layer-dist}、\eqref{eq:visible-layer-dist} 中出现的条件概率
+$P(\bm{h}|\bm{v})$。利用乘法公式，有
+\begin{align}
+  P(\bm{h}|\bm{v})
+  &= \frac{P(\bm{v},\,\bm{h})}{P(\bm{v})}
+   = \frac{\ee^{-E(\bm{v},\,\bm{h})}}%
+          {\sum_{\tilde{\bm{h}}} \ee^{-E(\bm{v},\,\tilde{\bm{h}})}} \notag \\
+  &= \frac{\exp\qty\big(\bm{v}^\trans\bm{W}\bm{h} + \bm{b}^\trans\bm{v} + \bm{c}^\trans\bm{h})}%
+          {\sum_{\tilde{\bm{h}}} \exp\qty\big(\bm{v}^\trans\bm{W}\tilde{\bm{h}}
+           + \bm{b}^\trans\bm{v} + \bm{c}^\trans\tilde{\bm{h}})}
+   = \frac{\exp\qty\big[\qty\big(\bm{v}^\trans\bm{W} + \bm{c}^\trans)\bm{h}\,]}%
+          {\sum_{\tilde{\bm{h}}} \exp\qty\big[\qty\big(\bm{v}^\trans\bm{W} + \bm{c}^\trans)
+                                              \tilde{\bm{h}}\,]} \notag \\
+  &= \frac{\exp\qty\big[\,\sum_j h_j \qty\big(c_j + \sum_i W_{ij}v_i)]}%
+          {\sum_{\q{\tilde{h}_i}} \exp\qty\big[\,\sum_j \tilde{h}_j
+                                               \qty\big(c_j + \sum_i W_{ij}v_i)]} \notag \\
+  &= \prod_j \frac{\exp\qty\big[h_j \qty\big(c_j + \sum_i W_{ij}v_i)]}%
+                  {\sum_{\q{\tilde{h}_i}} \exp\qty\big[\tilde{h}_j
+                                               \qty\big(c_j + \sum_i W_{ij}v_i)]}
+   = \prod_j P(h_j|\bm{v}).
+\end{align}
+考虑到 $h_j$ 只能取 0 或 1，又有
+\begin{align}
+  P(h_j|\bm{v})
+   = P(h_j=1|\bm{v})
+  &= \frac{\exp 1 \cdot \qty\big(c_j + \sum_i W_{ij}v_i)}%
+          {\exp 0 \cdot \qty\big(c_j + \sum_i W_{ij}v_i)
+           + 1 \cdot \qty\big(c_j + \sum_i W_{ij}v_i)} \notag \\
+  &= \frac{\exp\qty\big(c_j + \sum_i W_{ij}v_i)}{1 + \exp\qty\big(c_j + \sum_i W_{ij}v_i)}
+   = \sigma\qty\big(c_j + \sum_i W_{ij}v_i).
+\end{align}
+同理，
+\begin{equation}
+  P(\bm{v}|\bm{h}) = \prod_i P(v_i=1|\bm{h}) = \prod_i \sigma\qty\big(b_i + \sum_j W_{ij}h_j).
+\end{equation}
+利用概率近似代替生成的 $\bm{h}$ 和 $\bm{v}'$，我们有
+\begin{equation}
+  \label{eq:h-v-approx}
+  h_j  \approx \sigma\qty\big(c_j + \sum_i W_{ij}v_i) \qc
+  v'_i \approx \sigma\qty\big(b_i + \sum_j W_{ij}h_j).
+\end{equation}
+
+接下来计算式~\eqref{eq:rmb-gradient-approx} 中自由能的偏导数。代入 Boltzmann 机的能量函数
+\eqref{eq:rbm-energy}~式，可以把自由能写成
 \begin{align}
   F(\bm{v})
   &= - \ln \sum_{\q{h_i}}
@@ -141,7 +224,7 @@ RBM 所采用的训练数据集只包含了可见层的内容，即
   &= - \sum_i b_i v_i
      - \sum_j \ln \sum_{h_j} \ee^{h_j \qty\big(c_j + \sum_i W_{ij} v_i)}.
 \end{align}
-考虑到 $h_j$ 只能取 0 或 1，可以将上式化简：
+利用 $h_j$ 的布尔特性，可以将上式化简：
 \begin{align}
   F(\bm{v})
   &= - \sum_i b_i v_i - \sum_j \ln
@@ -152,15 +235,40 @@ RBM 所采用的训练数据集只包含了可见层的内容，即
 此时可以计算出自由能关于各参量的偏导数：
 \begin{align}
   %TODO: subequation
-  \pdv{F(\bm{v})}{W_{ij}} &= - \pdv{W_{ij}} \ln \qty\Big(1+\ee^{c_j+W_{ij}v_i})
+  \pdv{F(\bm{v})}{W_{ij}} &= - \pdv{W_{ij}} \ln \qty\Big(1+\ee^{c_j+\sum_iW_{ij}v_i})
                            = - v_i \cdot \frac{\ee^{c_j+W_{ij}v_i}}{1+\ee^{c_j+W_{ij}v_i}}
-                           = - v_i \cdot \sigma\qty\big(c_j+W_{ij}v_i); \\
+                           = - v_i \cdot \sigma\qty\Big(c_j+\sum_iW_{ij}v_i); \\
   \pdv{F(\bm{v})}{b_i}    &= - v_i; \\
   \pdv{F(\bm{v})}{c_j}    &= - \pdv{c_j} \ln \qty\Big(1+\ee^{c_j+\sum_iW_{ij}v_i})
                            = - \frac{\ee^{c_j+\sum_iW_{ij}v_i}}{1+\ee^{c_j+\sum_iW_{ij}v_i}}
-                           = - \sigma\qty\Big(\ee^{c_j+\sum_iW_{ij}v_i}).
+                           = - \sigma\qty\Big(c_j+\sum_iW_{ij}v_i).
 \end{align}
-此即式~\eqref{eq:rmb-gradient} 中的正相部分。
+代入式~\eqref{eq:h-v-approx}，并改写成矩阵形式：
+\begin{equation}
+  \pdv{F(\bm{v})}{\bm{W}} = - \bm{v} \bm{h}^\trans \qc
+  \pdv{F(\bm{v})}{\bm{b}} = - \bm{v} \qc
+  \pdv{F(\bm{v})}{\bm{c}} = - \bm{h}.
+\end{equation}
+此即式~\eqref{eq:rmb-gradient-approx} 中的正相部分。
+
+通过 Gibbs 采样，负相部分的形式与正相部分完全一致，只需把 $\bm{v}$、$\bm{h}$ 换成 $\bm{v}'$、
+$\bm{h}'$，因此
+\begin{equation}
+  \pdv{F(\bm{v}')}{\bm{W}} = - \bm{v}' {\bm{h}'}^\trans \qc
+  \pdv{F(\bm{v}')}{\bm{b}} = - \bm{v}' \qc
+  \pdv{F(\bm{v}')}{\bm{c}} = - \bm{h}'.
+\end{equation}
+至此，我们便得到了梯度下降法所需要的参数更新公式：
+\begin{equation}
+  \left\{
+  \begin{aligned}
+    \bm{W} \! &\gets \bm{W} \! - \alpha \qty\big(\bm{v} \bm{h}^\trans
+                                                 - \bm{v}' {\bm{h}'}^\trans) \qc \\
+    \bm{b} \, &\gets \, \bm{b} - \alpha \qty\big(\bm{v} - \bm{v}') \qc \\
+    \bm{c} \, &\gets \, \bm{c} - \alpha \qty\big(\bm{h} - \bm{h}').
+  \end{aligned}
+  \right.
+\end{equation}
 
 \section{RBM 与重整化群的对应关系}
 
