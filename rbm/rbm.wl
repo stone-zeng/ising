@@ -14,30 +14,26 @@ BeginPackage["RBM`"]
     v: [batch_size * n_visible]
     s = sample numbers: Integer
   Returned values:
-    freeEnergy: [batch_size]
-    pseudoLogLikelihood:
-      "cost": Real
-      "i":    Integer in [1, n_visible]
+    freeEnergy:          [batch_size]
+    pseudoLogLikelihood: Real
 *)
 freeEnergy[rbm_, v_] :=
   - v . rbm["b"] - Total /@ Log[1 + Exp[(rbm["c"] + #) & /@ (v . rbm["w"])]]
 pseudoLogLikelihood[rbm_, v_, s_] :=
   Module[{$n$visible = Length @ rbm["b"]},
-    Module[{$indexes = RandomInteger[{1, $n$visible}, s]},
-      (*
-        Free energy of the i-th element of x    -> fe_xi
-        Flip the i-th element in the 2nd layer  -> fe_xi_flip
-        => cost = mean @ log @ sigmoid (fe_xi_flip - fe_xi)
-        `batch_size` dimension will be eliminated via `Mean`
-      *)
-      $n$visible / s * Mean @ Sum[
-        Log @ LogisticSigmoid @
-          (
-            freeEnergy[rbm, ReplacePart[#, i -> 1 - #[[i]]] & /@ v] -
-            freeEnergy[rbm, v]
-          ),
-      {i, $indexes}]
-    ]
+    (*
+      Free energy of the i-th element of x    -> fe_xi
+      Flip the i-th element in the 2nd layer  -> fe_xi_flip
+      => cost = mean @ log @ sigmoid (fe_xi_flip - fe_xi)
+      `batch_size` dimension will be eliminated via `Mean`
+    *)
+    $n$visible / s * Mean @ Sum[
+      Log @ LogisticSigmoid @
+        (
+          freeEnergy[rbm, ReplacePart[#, i -> 1 - #[[i]]] & /@ v] -
+          freeEnergy[rbm, v]
+        ),
+    {i, RandomSample[Range[$n$visible], s]}]
   ]
 
 
@@ -188,7 +184,7 @@ nextBatch[data_, batch$data_Association] :=
   Module[
     {
       $data$size  = Length @ data,
-      $batch$size = Length @ batch$data["batch_data"],
+      $batch$size = Length @ batch$data["data"],
       $index      = batch$data["index"]
     },
     <|

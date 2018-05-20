@@ -1,91 +1,68 @@
 (* ::Package:: *)
 
-(* ::Section:: *)
-(*Load Ising data*)
-
-
 Remove["Global`*"]
+SetDirectory[NotebookDirectory[]]
 
 
-SetDirectory[NotebookDirectory[] <> "\\data\\lattice-data"]
+isingExe          = "x64\\Release\\ising.exe";
 
 
-ising$Tc   = N[2 / Log[Sqrt[2] + 1]]
-T$list     = Range[1.0, 3.5, 0.1];
-phase$list = Boole /@ GreaterThan[ising$Tc] /@ T$list;
-size$list  = {4, 8, 16, 32, 64, 128};
+timeString        = DateString[Riffle[{"ISODate", "Hour", "Minute", "Second"}, "-"]];
+isingSettingsFile = "lattice-settings-" <> timeString <> ".json"
+isingResultFile   = "lattice-result-"   <> timeString <> ".json"
 
 
-data$train$size = 50;
-data$test$size  = 10;
-
-
-importData[type_String, size_, index_] :=
-  Import[type <> "-" <> "size" <> ToString[size]
-              <> "-" <> ToString[index] <> ".json", "RawJSON"]
-
-
-(*
-  Format:
-    {1D lattice data} -> 0 or 1,
-    {1D lattice data} -> 0 or 1,
-    ...
-  Size: equal to (number of training data) * (number of temperatures)
-*)
-importDataTrain[size_] :=
-  RandomSample @ Flatten @ Map[
-    Function[index,
-      (#1 -> #2) & @@@ Transpose[{Flatten /@ (#["latticeData"] & /@
-        importData["train", size, index]), phase$list}]],
-    Range @ data$train$size];
-(*
-  Format:
-    {1D lattice data},
-    {1D lattice data},
-    ...
-  Size: equal to (number of test data) * (number of temperatures)
-*)
-importDataTest[size_] :=
-  Function[index, Flatten /@ (#["latticeData"] & /@
-    importData["train", size, index])] /@
-  Range @ data$test$size;
-
-
-data$train = importDataTrain /@ size$list;
-data$test  = importDataTest  /@ size$list;
-Echo[Quantity[N @ #, "Megabytes"], "Train data size:"] & @
-  (ByteCount[data$train] / 2^20);
-Echo[Quantity[N @ #, "Megabytes"], "Test data size:"] & @
-  (ByteCount[data$test] / 2^20);
+isingTc = N[2 / Log[Sqrt[2] + 1]]
 
 
 (* ::Section:: *)
-(*Train*)
+(*Write settings*)
 
 
-trained = ParallelMap[
-  NetTrain[NetChain[{LinearLayer[], LogisticSigmoid}], #, All, TimeGoal -> 40] &,
-  data$train,
-  Method -> "FinestGrained"]
+settings =
+  {
+    "size.list" -> {8, 12, 16, 24, 32, 48, 64},
+    "boundary" -> "periodic",
+    "temperature.list" -> Range[1.0, 3.6, 0.05],
+    "externalMagneticField.list" -> {0.0},
+    "iterations" -> 1000,
+    "repetitions" -> 100
+  };
+Export[isingSettingsFile, settings, "JSON", "Compact" -> True];
 
 
 (* ::Section:: *)
-(*Plot*)
+(*Run ising.exe*)
 
 
-result = AssociationThread[T$list -> #] & /@ Mean /@
-  MapThread[Function[{t, d}, t["TrainedNet"][#, None] & /@ d],
-    {trained, data$test}];
-ListPlot[result, PlotRange -> All,
-  PlotTheme -> "Scientific", GridLines -> {{ising$Tc}, None},
-  PlotLegends -> size$list]
+AbsoluteTiming[Run[isingExe
+  <> " --lattice"
+  <> " --settings=" <> isingSettingsFile
+  <> " >" <> isingResultFile];]
+data = Association /@ Import[isingResultFile, "RawJSON"];
+Dimensions[data]
+(*DeleteFile[{isingSettingsFile, isingResultFile}];*)
 
 
-T$scale[T_, size_] := (T - ising$Tc) * size
+(* ::Section:: *)
+(*Flatten data*)
 
 
-result$scale = MapThread[Function[{ass, size}, KeyMap[T$scale[#, size] &, ass]],
-  {result, size$list}];
-ListPlot[result$scale, PlotRange -> All(*{{-20, 20}, All}*),
-  PlotTheme -> "Scientific", GridLines -> {{ising$Tc}, None},
-  PlotLegends -> size$list]
+#["latticeData"] & /@ data;
+(% + 1) / 2;
+Dimensions[%]
+flattenedData = Flatten[%%, {{1},{2},{3,4}}];
+Dimensions[flattenedData]
+
+
+export[type_, span_Span, index_] :=
+  Export["lattice-data-" <> type <> "-t" <> ToString[index] <> ".dat",
+    flattenedData[[index, span]],
+    "Table", "FieldSeparators" -> None]
+
+
+ParallelMap[export["train", ;;5000, #] &, Range[4]];
+ParallelMap[export["test", -1000;;-1, #] &, Range[4]];
+
+
+Grid @ Transpose @ ParallelMap[ArrayPlot[(# + 1) / 2, ImageSize->Tiny] &, #["latticeData"] & /@ data, {2}]

@@ -1,6 +1,7 @@
 (* ::Package:: *)
 
 Remove["Global`*"]
+$HistoryLength = 0;
 SetDirectory[NotebookDirectory[]];
 << RBM`
 
@@ -9,22 +10,24 @@ dataPath = "E:\\Files\\Programs\\machine-learning\\data\\mnist\\";
 {imageTrainRaw, imageTestRaw} =
   Import[dataPath <> #, "UnsignedInteger8", "HeaderBytes" -> 16] & /@
     {"train-images-idx3-ubyte", "t10k-images-idx3-ubyte"};
-Dimensions /@ %
+Dimensions @ imageTrainRaw
+Dimensions @ imageTestRaw
 
 
 (* Binarize and reshape *)
 {imageTrain, imageTest} = Round[Partition[#, 784] / 255.0] & /@
-  {imageTrainRaw[[;; 784 * 1000]], imageTestRaw};
-Dimensions /@ %
+  {imageTrainRaw[[;; 784 * 60000]], imageTestRaw};
+Dimensions @ imageTrain
+Dimensions @ imageTest
 
 
 (* Parameters *)
 visibleNum   = 784;
 hiddenNum    = 100;
 epochNum     = 20;
-batchSize    = 20;
+batchSize    = 80;
 kParameter   = 10;
-sampleNum    = 1;
+sampleNum    = 10;
 momentum     = 0.0;
 learningRate = 0.1;
 
@@ -78,3 +81,8 @@ Export["data\\mnist-trained.json",
   KeyTake[trained, {"rbm_union", "cost_list"}],
   "Compact" -> True]
 *)
+
+
+plotMNIST[data_] := ArrayPlot[ArrayReshape[1-data, {28, 28}],
+  ImageSize -> 60, Frame -> False]
+GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotMNIST, trained$w]
