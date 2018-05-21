@@ -11,8 +11,8 @@
 \ifdefined\DRAFT
   \def\tikzinput#1{}
 \else
-  \usepackage{tikz,xcolor,xcolor-material}
-  \usetikzlibrary{arrows,arrows.meta,calc}
+  \usepackage{tikz,pgfplots,xcolor,xcolor-material}
+  \usetikzlibrary{arrows,arrows.meta,calc,pgfplots.colorbrewer}
   \def\tikzinput#1{\input{figures/#1}}
 \fi
 
