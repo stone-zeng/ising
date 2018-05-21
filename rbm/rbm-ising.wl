@@ -16,8 +16,8 @@ dataTrainRaw = ToCharacterCode /@ Import["lattice-data-train-t4.dat", "Lines"] -
 dataTestRaw  = ToCharacterCode /@ Import["lattice-data-test-t4.dat",  "Lines"] - 48;
 
 
-dataTrain = Flatten[#[[;;16, ;;16]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTrainRaw);
-dataTest  = Flatten[#[[;;16, ;;16]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTestRaw);
+dataTrain = Flatten[#[[;;20, ;;20]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTrainRaw);
+dataTest  = Flatten[#[[;;20, ;;20]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTestRaw);
 Echo[#, "Train data dimension:"] & @ Dimensions[dataTrain];
 Echo[#, "Test data dimension:"] & @ Dimensions[dataTest];
 Echo[Quantity[N @ #, "Megabytes"], "Train data size:"] & @
@@ -28,8 +28,8 @@ Echo[Quantity[N @ #, "Megabytes"], "Test data size:"] & @
 
 (* Parameters *)
 visibleNum   = Length @ First @ dataTrain;
-hiddenNum    = 64;
-epochNum     = 40;
+hiddenNum    = 100;
+epochNum     = 10;
 batchSize    = 20;
 kParameter   = 10;
 sampleNum    = 1;
@@ -79,6 +79,3 @@ sample = NestList[
   |>, 5];
 Echo[Row[plotMNIST /@ #["data"]],
   "Sample steps: " <> ToString[#["index"] * sample$step]] & /@ sample;
-
-
-1/2.30

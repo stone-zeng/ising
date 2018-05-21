@@ -53,22 +53,31 @@ pseudoLogLikelihood[rbm_, v_, s_] :=
     propDown: [batch_size * n_visible]
 *)
 propUp[rbm_, v_] :=
-  LogisticSigmoid[(rbm["c"] + #) & /@ (v . rbm["w"])]
+  Round @ LogisticSigmoid[(rbm["c"] + #) & /@ (v . rbm["w"])]
 propDown[rbm_, h_] :=
-  LogisticSigmoid[(rbm["b"] + #) & /@ (h . Transpose @ rbm["w"])]
+  Round @ LogisticSigmoid[(rbm["b"] + #) & /@ (h . Transpose @ rbm["w"])]
 
 
 (*
+  !! We use `propUp` and `propDown` instead.
   Returned values:
     sampleHiddenGivenVisible: [batch_size * n_hidden]
     sampleVisibleGivenHidden: [batch_size * n_visible]
 *)
+(*
 sampleHiddenGivenVisible[rbm_, v$sample_] :=
   Module[{$h$props = propUp[rbm, v$sample]},
     Ramp @ RealSign[$h$props - RandomReal[{0, 1}, Dimensions @ $h$props]]]
 sampleVisibleGivenHidden[rbm_, h$sample_] :=
   Module[{$v$props = propDown[rbm, h$sample]},
     Ramp @ RealSign[$v$props - RandomReal[{0, 1}, Dimensions @ $v$props]]]
+$sampleHiddenGivenVisible[rbm_, v$sample_] :=
+  Module[{$h$props = propUp[rbm, v$sample]},
+    ParallelMap[RandomVariate[BinomialDistribution[1, #]] &, $h$props, {2}, Method \[Rule] "CoarsestGrained"]]
+$sampleVisibleGivenHidden[rbm_, h$sample_] :=
+  Module[{$v$props = propDown[rbm, h$sample]},
+    ParallelMap[RandomVariate[BinomialDistribution[1, #]] &, $v$props, {2}, Method \[Rule] "CoarsestGrained"]]
+*)
 
 
 (*
@@ -81,17 +90,17 @@ sampleVisibleGivenHidden[rbm_, h$sample_] :=
 contrastiveDivergence[rbm_, v_, k_] :=
   Module[
     {$samples = Nest[
-      Module[{$v = sampleVisibleGivenHidden[rbm, #["h"]]},
+      Module[{$v = propDown[rbm, #["h"]]},
         <|
           (*
             "h": hidden samples  [batch_size * n_hidden]
             "v": visible samples [batch_size * n_visible]
           *)
-          "h" -> sampleHiddenGivenVisible[rbm, $v],
+          "h" -> propUp[rbm, $v],
           "v" -> $v
         |>
       ] &,
-      <|"h" -> sampleHiddenGivenVisible[rbm, v], "v" -> v|>,
+      <|"h" -> propUp[rbm, v], "v" -> v|>,
       k
     ]},
     (* Shape of `h`: [batch_size * n_hidden] *)
@@ -152,7 +161,7 @@ learn[rbm$union_, v_, k_, m_, lr_] :=
     [batch_size * n_visible]
 *)
 sampler[rbm_, v_, steps_] :=
-  Nest[sampleVisibleGivenHidden[rbm, sampleHiddenGivenVisible[rbm, #]] &,
+  Nest[propDown[rbm, propUp[rbm, #]] &,
     v, steps]
 
 
@@ -188,7 +197,7 @@ nextBatch[data_, batch$data_Association] :=
       $index      = batch$data["index"]
     },
     <|
-      "data"  -> data[[$index * $batch$size + 1 ;; ($index + 1) * $batch$size]],
+      "data"  -> data[[$index * $batch$size + 1 ;; Min[($index + 1) * $batch$size, $data$size]]],
       "index" -> Mod[$index + 1, Quotient[$data$size, $batch$size]]
     |>
   ]
@@ -202,7 +211,11 @@ nextBatch[data_, batch$data_Association] :=
 *)
 train[data_, rbm_, init$velocity_,
     epoches_, batch$size_, k_, s_, m_, lr_] :=
-  Module[{$batch$num = Quotient[Length @ data, batch$size]},
+  Module[
+    {
+      $batch$num    = Quotient[Length @ data, batch$size],
+      $sample$index = RandomSample[Range @ Length @ rbm["c"], 10]
+    },
     Nest[
       Module[
         {
@@ -216,7 +229,12 @@ train[data_, rbm_, init$velocity_,
           (* Monitor cost during evaluation *)
           If[Divisible[$iteration, $batch$num],
             Echo["\tCost: " <> ToString[$cost, StandardForm],
-              "Epoch " <> ToString @ Quotient[$iteration, $batch$num]]
+              "Epoch " <> ToString @ Quotient[$iteration, $batch$num]];
+            Echo[GraphicsRow @ ParallelMap[
+                Function[mat, MatrixPlot[ArrayReshape[mat, Sqrt[Length /@ {mat, mat}]],
+                  ImageSize -> 50, Frame -> False]],
+                Transpose[#["rbm_union"]["variable"]["w"]][[$sample$index]]],
+              "Weights\t"];
           ];
           (* The following is the function for `Nest` *)
           <|
