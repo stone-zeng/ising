@@ -72,9 +72,9 @@ $$getInverseVisibleUnit[v$unit_, index_] :=
     propDown: [batch_size * n_visible_x * n_visible_y]
 *)
 propUp[rbm_, v_] :=
-  Round @ LogisticSigmoid[(rbm["c"] + $$vDotw[#, rbm["w"]]) & /@ v]
+  LogisticSigmoid[10(rbm["c"] + $$vDotw[#, rbm["w"]]) & /@ v]
 propDown[rbm_, h_] :=
-  Round @ LogisticSigmoid[(rbm["b"] + $$hDotw[#, rbm["w"]]) & /@ h]
+  LogisticSigmoid[10(rbm["b"] + $$hDotw[#, rbm["w"]]) & /@ h]
 
 
 (*
@@ -223,7 +223,7 @@ nextBatch[data_, batch$data_Association] :=
 
 
 $$showWeightImages[w_, indices_] :=
-  GraphicsRow @ Map[
+  GraphicsRow @ ParallelMap[
     MatrixPlot[#, ImageSize -> 50, Frame -> False] &,
     Function[i, Transpose[w, {3, 4, 1, 2}][[##]] & @@ i] /@ indices]
 
@@ -239,8 +239,8 @@ train[data_, rbm_, init$velocity_,
   Module[
     {
       $batch$num    = Quotient[Length @ data, batch$size],
-      (* `10` is the number of monitoring images. *)
-      $sample$index = RandomSample[Tuples @ Range @ Dimensions @ rbm["c"], 6]
+      (* `12` is the number of monitoring images. *)
+      $sample$index = RandomSample[Tuples @ Range @ Dimensions @ rbm["c"], 12]
     },
     Nest[
       Module[

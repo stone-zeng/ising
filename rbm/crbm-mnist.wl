@@ -1,8 +1,11 @@
 (* ::Package:: *)
 
+LaunchKernels[]
+
+
 Remove["Global`*"]
 SetDirectory[NotebookDirectory[]];
-<< RBM`
+<< CRBM`
 
 
 dataPath = "E:\\Files\\Programs\\machine-learning\\data\\mnist\\";
@@ -14,33 +17,32 @@ Dimensions @ imageTestRaw
 
 
 (* Binarize and reshape *)
-{imageTrain, imageTest} = Round[Partition[#, 784] / 255.0] & /@
-  {imageTrainRaw[[;; 784 * 20000]], imageTestRaw};
+{imageTrain, imageTest} = Round[ArrayReshape[#, {28, 28}] & /@ Partition[#, 784] / 255.0] & /@
+  {imageTrainRaw[[;; 784 * 1000]], imageTestRaw};
 Dimensions @ imageTrain
 Dimensions @ imageTest
 
 
 (* Parameters *)
-visibleNum   = 784;
-hiddenNum    = 100;
-epochNum     = 20;
-batchSize    = 64;
+visibleNum   = {28, 28};
+hiddenNum    = {5, 5};
+epochNum     = 10;
+batchSize    = 50;
 kParameter   = 1;
-sampleNum    = 20;
+sampleNum    = 1;
 momentum     = 0.0;
 learningRate = 0.1;
 
 (* Helper function *)
-plotMNIST[data_] := MatrixPlot[ArrayReshape[data, {28, 28}],
-  ImageSize -> 60, Frame -> False]
+plotMNIST[data_] := MatrixPlot[data, ImageSize -> 60, Frame -> False]
 
 (* Initialize *)
 rbm = AssociationThread[{"w", "b", "c"} ->
   Evaluate[RandomReal[{-1, 1}, #] & /@
-    {{visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
+    {Flatten @ {visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
 rbmVelocity = AssociationThread[{"w", "b", "c"} ->
   Evaluate[ConstantArray[0.0, #] & /@
-    {{visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
+    {Flatten @ {visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
 
 (* Main training loop *)
 trainingTime = First @ AbsoluteTiming[
@@ -50,14 +52,14 @@ trainingTime = First @ AbsoluteTiming[
 (* Training time and cost *)
 Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
 Echo[#, "Memory used:"]   & @ Quantity[MemoryInUse[] / 2^20., "Megabytes"];
-Echo[#, "Shape of weights monitor:"]  & @ Dimensions @ weightsMonitor;
 ListLogLogPlot[-trained["cost_list"],
   PlotRange -> All, Joined -> True,
   PlotTheme -> "Detailed", PlotLabel -> "Learning curve"]
 
 (* Filters *)
-trained$w = Transpose @ trained["rbm_union"]["variable"]["w"];
-GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotMNIST, trained$w]
+trained$w = trained["rbm_union"]["variable"]["w"];
+Transpose[trained$w,{3, 4, 1, 2}];
+GraphicsGrid @ ParallelMap[plotMNIST, %, {2}]
 
 (* Generated samples *)
 sample$num   = 20;
@@ -81,3 +83,9 @@ Export["data\\mnist-trained.json",
   KeyTake[trained, {"rbm_union", "cost_list"}],
   "Compact" -> True]
 *)
+
+
+GraphicsGrid @ ParallelMap[MatrixPlot[#, ImageSize -> 60, Frame -> False] &, Transpose[rbmVelocity["w"],{3,4,1,2}], {2}]
+
+
+trained[[1,1,1]]//Dimensions

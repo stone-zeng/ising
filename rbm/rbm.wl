@@ -233,8 +233,9 @@ train[data_, rbm_, init$velocity_,
             Echo[GraphicsRow @ ParallelMap[
                 Function[mat, MatrixPlot[ArrayReshape[mat, Sqrt[Length /@ {mat, mat}]],
                   ImageSize -> 50, Frame -> False]],
-                Transpose[#["rbm_union"]["variable"]["w"]][[$sample$index]]],
+                Transpose[$rbm$union["variable"]["w"]][[$sample$index]]],
               "Weights\t"];
+            Echo[Iconize[Transpose[$rbm$union["variable"]["w"]][[$sample$index]]]];
           ];
           (* The following is the function for `Nest` *)
           <|

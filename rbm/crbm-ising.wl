@@ -2,41 +2,47 @@
 
 Remove["Global`*"]
 SetDirectory[NotebookDirectory[]];
-<< RBM`
+<< CRBM`
 
 
-dataPath = "E:\\Files\\Programs\\machine-learning\\data\\mnist\\";
-{imageTrainRaw, imageTestRaw} =
-  Import[dataPath <> #, "UnsignedInteger8", "HeaderBytes" -> 16] & /@
-    {"train-images-idx3-ubyte", "t10k-images-idx3-ubyte"};
-Dimensions @ imageTrainRaw
-Dimensions @ imageTestRaw
+(* ::Section:: *)
+(*MNIST*)
 
 
-(* Binarize and reshape *)
-{imageTrain, imageTest} = Round[Partition[#, 784] / 255.0] & /@
-  {imageTrainRaw[[;; 784 * 20000]], imageTestRaw};
-Dimensions @ imageTrain
-Dimensions @ imageTest
+SetDirectory[StringRiffle[StringSplit[NotebookDirectory[], "\\"][[;;-2]], "\\"] <> "\\ising\\data\\lattice-data\\2"]
+
+
+dataTrainRaw = ToCharacterCode /@ Import["lattice-data-train-t4.dat", "Lines"] - 48;
+dataTestRaw  = ToCharacterCode /@ Import["lattice-data-test-t4.dat",  "Lines"] - 48;
+
+
+dataTrain = Flatten[#[[;;20, ;;20]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTrainRaw);
+dataTest  = Flatten[#[[;;20, ;;20]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTestRaw);
+Echo[#, "Train data dimension:"] & @ Dimensions[dataTrain];
+Echo[#, "Test data dimension:"] & @ Dimensions[dataTest];
+Echo[Quantity[N @ #, "Megabytes"], "Train data size:"] & @
+  (ByteCount[dataTrain] / 2^20);
+Echo[Quantity[N @ #, "Megabytes"], "Test data size:"] & @
+  (ByteCount[dataTest] / 2^20);
 
 
 (* Parameters *)
-visibleNum   = 784;
+visibleNum   = Length @ First @ dataTrain;
 hiddenNum    = 100;
-epochNum     = 20;
-batchSize    = 64;
-kParameter   = 1;
-sampleNum    = 20;
-momentum     = 0.0;
+epochNum     = 10;
+batchSize    = 20;
+kParameter   = 10;
+sampleNum    = 1;
+momentum     = 0;
 learningRate = 0.1;
 
 (* Helper function *)
-plotMNIST[data_] := MatrixPlot[ArrayReshape[data, {28, 28}],
+plotMNIST[data_] := MatrixPlot[ArrayReshape[data, Sqrt @ {visibleNum, visibleNum}],
   ImageSize -> 60, Frame -> False]
 
 (* Initialize *)
 rbm = AssociationThread[{"w", "b", "c"} ->
-  Evaluate[RandomReal[{-1, 1}, #] & /@
+  Evaluate[RandomReal[{0, 1}, #] & /@
     {{visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
 rbmVelocity = AssociationThread[{"w", "b", "c"} ->
   Evaluate[ConstantArray[0.0, #] & /@
@@ -44,17 +50,16 @@ rbmVelocity = AssociationThread[{"w", "b", "c"} ->
 
 (* Main training loop *)
 trainingTime = First @ AbsoluteTiming[
-  trained = train[imageTrain, rbm, rbmVelocity,
+  trained = train[dataTrain, rbm, rbmVelocity,
     epochNum, batchSize, kParameter, sampleNum, momentum, learningRate];];
 
 (* Training time and cost *)
 Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
 Echo[#, "Memory used:"]   & @ Quantity[MemoryInUse[] / 2^20., "Megabytes"];
-Echo[#, "Shape of weights monitor:"]  & @ Dimensions @ weightsMonitor;
 ListLogLogPlot[-trained["cost_list"],
   PlotRange -> All, Joined -> True,
   PlotTheme -> "Detailed", PlotLabel -> "Learning curve"]
-
+(*
 (* Filters *)
 trained$w = Transpose @ trained["rbm_union"]["variable"]["w"];
 GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotMNIST, trained$w]
@@ -62,22 +67,15 @@ GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotMNIST, trained$w]
 (* Generated samples *)
 sample$num   = 20;
 sample$step  = 100;
-sample$index = RandomSample[Range @ Length @ imageTest, sample$num];
+sample$index = RandomSample[Range @ Length @ dataTest, sample$num];
 sample = NestList[
   <|
     "data"  -> sampler[trained["rbm_union"]["variable"], #["data"], sample$step],
     "index" -> #["index"] + 1
   |> &,
   <|
-    "data"  -> imageTest[[sample$index]],
+    "data"  -> dataTest[[sample$index]],
     "index" -> 0
   |>, 5];
 Echo[Row[plotMNIST /@ #["data"]],
-  "Sample steps: " <> ToString[#["index"] * sample$step]] & /@ sample;
-
-
-(*
-Export["data\\mnist-trained.json",
-  KeyTake[trained, {"rbm_union", "cost_list"}],
-  "Compact" -> True]
-*)
+  "Sample steps: " <> ToString[#["index"] * sample$step]] & /@ sample;*)
