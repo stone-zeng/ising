@@ -209,3 +209,79 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
 \section{重整化群}
 \section{Ising 模型与 \AdSCFT{}}
 \section{Ising 模型的 Monte Carlo 模拟}
+
+\subsection{Metropolis 算法}
+
+在 \eqref{eq:ising-probability}~式中，我们给出了构型 $\q{\sigma_i}$ 在平衡态中出现的概率。严格
+计算这一概率，需要对所有可能的构型进行求和。设自旋数目为 $N$，则构型数正比于 $N!$，可见直接对它们
+进行求和是不现实的。为了回避过于巨大的计算开销，Monte Carlo 算法给出了另外一种方案，即以按照一定
+概率的抽样，代替对全部构型的平均。
+
+考虑自旋构型 $\q{\sigma_i}$ 随时间的演化。设在 $t$ 时刻，构型 $\q{\sigma_i}$ 对应的概率为
+$P\qty\big(\q{\sigma_i},\,t)$，则
+\begin{align}
+  P\qty\big(\q{\sigma_i},\,t+1)
+  &= P\qty\big(\q{\sigma_i},\,t) \notag \\
+  &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+   - \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}).
+\end{align}
+式中，$W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})$ 表示从 $\q{\sigma_i}$ 到 $\q{\sigma'_i}$ 的
+转移概率，需要满足细致平衡条件：
+\begin{equation}
+  \label{eq:detailed-balance}
+    P_{\text{eq}}(\q{\sigma_i})  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+  = P_{\text{eq}}(\q{\sigma'_i}) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i}).
+\end{equation}
+平衡态下，构型 $\q{\sigma_i}$ 对应的概率可由式~\eqref{eq:ising-probability} 获得，它正比于
+$\ee^{-\beta H(\q{\sigma_i})}$，因而有
+\begin{equation}
+    \frac{W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})}{W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})}
+  = \frac{\ee^{-\beta H(\q{\sigma'_i})}}{\ee^{-\beta H(\q{\sigma_i})}}
+  = \ee^{-\beta \incr{E}}.
+\end{equation}
+其中的 $\incr{E}$ 表示两构型间的能量差。考虑到概率的有效取值范围为 $[0,\,1]$，我们有
+\begin{equation}
+  \label{eq:metropolis-probability}
+  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
+  \begin{cases}
+    1, & \incr{E} \leqslant 0; \\
+    \ee^{-\beta \incr{E}}, & \incr{E} > 0. \\
+  \end{cases}
+\end{equation}
+
+Metropolis 算法是 Monte Carlo 模拟的一种具体实现，它给出了选取下一时刻自旋构型的方案。
+具体步骤可以表述如下：
+
+\begin{enumerate}
+  \item 初始化所有自旋，可以随机取为 0 或 1。但如果初始时就令自旋（近似）满足一定的概率分布，
+    可以使得算法更为高效。
+  \item 在自旋构型 $\q{\sigma_i}$ 的基础上，随机生成一个与之相差不大的构型 $\q{\sigma'_i}$。
+    通常做法是翻转某一个自旋。
+  \item 计算能量差 $\incr{E}$，按照式~\eqref{eq:metropolis-probability} 获得接受概率 $P$。生成一个
+    区间 $(0,\,1)$ 内的随机数 $\xi$，若 $\xi<P$，则接受构型 $\q{\sigma'_i}$（即翻转相应自旋）；
+    否则不进行操作。
+  \item 遍历整个点阵，这成为一个 Monte Carlo 步（Monte Carlo sweep, MCS）。为满足细致平衡条件
+    \eqref{eq:detailed-balance}~式，原则上需在点阵中随机选取自旋，并计算接受概率/决定是否翻转；
+    但出于效率的考虑，也常常直接按次序遍历整个点阵。
+  \item 重复进行 2--4 步，测量各物理量的，并计算它们的统计平均值及标准误差。
+\end{enumerate}
+
+\subsection{模拟结果}
+
+在后文中，机器学习所用到的 Ising 模型训练数据集均利用上面介绍的 Metropolis 算法生成。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \tikzinput{ising-energy}
+    \caption{能量}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \tikzinput{ising-magnet}
+    \caption{磁矩}
+  \end{subfigure}
+  \caption{MNIST 数据集中的首张图片，这是一个数字 5。图中白色区域始终代表 0 值}
+  \label{fig:ising-e-m}
+\end{figure}
