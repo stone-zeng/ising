@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+  \begin{semilogxaxis}[
+      xlabel={步数}, ylabel={损失函数},
+      xtick={1,10,100,1000,10000},
+      xticklabels={1,\num{10},\num{100},\num{1000},\num{10000}},
+      scaled y ticks=manual:{$\times 10^4$}{\pgfmathparse{#1/1e4}},
+      xtick pos=lower, ytick pos=left, grid=major,
+      thick, height=6cm]
+    \addplot [MaterialDeepOrange] table {figures/data/learning-curve.txt};
+  \end{semilogxaxis}
+\end{tikzpicture}

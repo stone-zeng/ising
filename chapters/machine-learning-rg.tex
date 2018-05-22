@@ -284,36 +284,102 @@ $\bm{h}'$，因此
 
 本节我们将利用 MNIST 数据集训练 RBM，并基于已有数据生成新的数据，即让计算机学会“书写”数字。
 
-MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个数字，其大小被统一为 $28 \times 28$ 像素，
-并保证数字处于居中位置。RBM 的训练需要使用布尔型数据，我们也据此将图片进行了二值化处理，
-如图~\ref{fig:mnist} 所示。
+MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手写数字，其大小被统一为 $28 \times 28$
+像素，并保证数字处于居中位置。RBM 的训练需要使用布尔型数据，我们也据此将图片进行了二值化处理，
+如图~\ref{fig:mnist-image} 所示。
 
 \begin{figure}[htb]
   \centering
   \begin{subfigure}[b]{0.35\textwidth}
     \centering
-    \tikzinput{mnist-i}
+    % \tikzinput{mnist-i}
+    \imageinput[width=2cm]{mnist-image.pdf}
     \caption{原始图像，灰度值包括 0--255}
   \end{subfigure}
   \begin{subfigure}[b]{0.35\textwidth}
     \centering
-    \tikzinput{mnist-ii}
+    % \tikzinput{mnist-ii}
+    \imageinput[width=2cm]{mnist-image-binary.pdf}
     \caption{二值化后的图像，只包含值 0 和 1}
   \end{subfigure}
   \caption{MNIST 数据集中的首张图片，这是一个数字 5。图中白色区域始终代表 0 值}
-  \label{fig:mnist}
+  \label{fig:mnist-image}
 \end{figure}
 
-具体的训练数据如下：
+具体的训练参数如下：
 
 \begin{enumerate}
   \item 可见层单元数量：784（$=28 \times 28$），即把图片压平为一维向量；
   \item 隐藏层单元数量：100；
   \item 批次（batch）大小：64，表示每次同时计算的样本数量；
   \item 训练轮次（epoch）：20，一个轮次表示将整个数据集训练一遍；
-  \item \CDk{} 中的参数 $k=1$；
+  \item \CDk{} 中的参数 $k=30$；
   \item 学习率 $\alpha=0.1$。
 \end{enumerate}
+
+在训练过程中，我们需要监测损失函数的变化。从图~\ref{fig:learning-curve} 中可以看到，随着步数的
+增加，损失函数迅速下降，并很快趋于平稳。这说明 RBM 的训练情况良好。
+
+\begin{figure}[htb]
+  \centering
+  \tikzinput{learning-curve}
+  \caption{学习曲线。这里的步数等于批次数与训练轮次的乘积，注意取了对数坐标}
+  \label{fig:learning-curve}
+\end{figure}
+
+与此同时，我们还需要监测权重矩阵的变化情况。初始时，权重矩阵 $\bm{W}$ 中的所有元素均取为 0 到 1
+之间的随机数。经过一个轮次的训练后，$\bm{W}$ 中出现了一些明暗变化（图~%
+\ref{fig:mnist-weight-epoch-a}）；到第 6 个轮次，可以明显地看到 $\bm{W}$ 中的展现出了笔画的特征，
+但仍有较大噪音（图~\ref{fig:mnist-weight-epoch-b}）；到第 20 轮即训练结束时，各子权重矩阵均显著
+出现了明暗对比，具有清晰的笔画线条，并且噪音较小（图~\ref{fig:mnist-weight-epoch-c}
+和图~\ref{fig:mnist-weight}）。注意到图~\ref{fig:mnist-weight} 中仍有一些子权重矩阵的训练效果不
+理想，出现了较的涨落。但可以预料，随着训练轮次的持续增加，涨落会逐渐减小。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{mnist-weight-epoch-1.pdf}
+    \caption{第 1 个训练轮次}
+    \label{fig:mnist-weight-epoch-a}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{mnist-weight-epoch-6.pdf}
+    \caption{第 6 个训练轮次}
+    \label{fig:mnist-weight-epoch-b}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{mnist-weight-epoch-20.pdf}
+    \caption{第 20 个训练轮次}
+    \label{fig:mnist-weight-epoch-c}
+  \end{subfigure}
+  \caption{训练过程中的权重矩阵（部分）。权重矩阵 $\bm{W}$ 的形状为 $100 \times 784$，这里将其
+  变形为 100 个 $28 \times 28$ 的子矩阵，以便更加清晰地呈现出从可见层到隐藏层的映照关系}
+  \label{fig:mnist-weight-epoch}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=10cm]{mnist-weight.pdf}
+  \caption{最终生成的权重矩阵}
+  \label{fig:mnist-weight}
+\end{figure}
+
+最后，我们根据训练得到的数据生成新的手写数字。首先从 MNIST 数据集中随机选取一些样本图像作为可见层，
+利用 Gibbs 采样生成隐藏层，再以同样方式返回到可见层，以此类推进行迭代，结果见图~%
+\ref{fig:mnist-samples}。经过若干次采样之后，RBM 确实给出了不同于原始图像的分布，即学会了“书写”
+数字。对于笔画比较简单的数字，如 1、7 等，学习效果较好；但对于稍复杂的数字，如 3、6 等，训练后的
+RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出了模糊的阴影，并没有较好地复现原始图像。
+这说明 RBM 训练算法仍有可以提高的余地。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=12cm]{mnist-samples.pdf}
+  \caption{由训练完成的 RBM 生成的数字图像。第一行为原始图像，之后每一行增加 \num{500} 次 Gibbs 采样，到最后一行共进行了 \num{4000} 次采样}
+  \label{fig:mnist-samples}
+\end{figure}
 
 \section{RBM 与重整化群的对应关系}
 

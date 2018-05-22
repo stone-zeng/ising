@@ -2,11 +2,13 @@
 
 \ifdefined\DRAFT
   \PassOptionsToClass{draft}{ctexbook}
+  \PassOptionsToPackage{draft}{graphicx}
 \fi
 
 \documentclass[UTF8]{ctexbook}
+%\documentclass{fduthesis}
 \usepackage{amsmath,unicode-math,physics,siunitx,
-  geometry,caption,subcaption,hyperref}
+  geometry,graphicx,enumitem,caption,subcaption,hyperref}
 
 \ifdefined\DRAFT
   \def\tikzinput#1{}
@@ -16,11 +18,15 @@
   \def\tikzinput#1{\input{figures/#1}}
 \fi
 
+\newcommand\imageinput[2][]{\includegraphics[#1]{figures/#2}}
+
 \geometry{vmargin=2.54cm,hmargin=3.17cm}
 \setmainfont{XITS}
 \setmathfont{XITS Math}[math-style=ISO, bold-style=ISO, StylisticSet=1]
 \allowdisplaybreaks
 \hypersetup{colorlinks=true}
+
+\setlist[enumerate]{itemsep=0pt, parsep=\parskip, topsep=0pt}
 
 % Constants
 \def\ee{{\symrm{e}}}
@@ -58,8 +64,8 @@
 
 %\maketitle
 
-%\include{chapters/ising}
-%\include{chapters/machine-learning}
+\include{chapters/ising}
+\include{chapters/machine-learning}
 \include{chapters/machine-learning-rg}
 
 \end{document}
