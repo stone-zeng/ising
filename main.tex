@@ -11,7 +11,7 @@
   geometry,graphicx,enumitem,caption,subcaption,hyperref}
 
 \ifdefined\DRAFT
-  \def\tikzinput#1{}
+  \def\tikzinput#1{\rule{3cm}{3cm}}
 \else
   \usepackage{tikz,pgfplots,xcolor,xcolor-material}
   \usetikzlibrary{arrows,arrows.meta,calc,pgfplots.colorbrewer}
