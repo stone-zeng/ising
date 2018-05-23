@@ -17,15 +17,16 @@ $PREAMBLE_DUMPED = $PREAMBLE_COMMON + "\endofdump`n" + `
 "\def\Tc{T_c}
 \def\bm#1{#1}`n"
 
-$TEXTEMP = "plot.tex"
-$TEXFMT  = "plot-fmp"
+$TEMP    = "@plottemp"
+$TEXTEMP = $TEMP + ".tex"
+$TEXFMT  = "@plotformat"
 
 function MakeFigure {
   Param ([string]$filename, [int]$flag)
   # flag:
   #   0: xelatex
-  #   1: pdflatex (dumped)  -d
-  #   2: pdftex (make dump) -D
+  #   1: pdflatex (dumped)
+  #   2: pdftex (make dump)
   $texbody = "\begin{document}`n  \input{" + $filename + "}`n\end{document}"
   if ($flag -eq 0) {
     Out-File -FilePath $TEXTEMP -Encoding ascii -InputObject $PREAMBLE
@@ -39,41 +40,52 @@ function MakeFigure {
   }
   elseif ($flag -eq 2) {
     Out-File -FilePath $TEXTEMP -Encoding ascii -InputObject $PREAMBLE_DUMPED
-    Out-File -FilePath $TEXTEMP -Encoding ascii -Append -InputObject $texbody
     & "pdftex.exe" "-ini" ("-jobname=" + $TEXFMT) "&pdflatex" "mylatexformat.ltx" $TEXTEMP
   }
 }
 
+# The "main" function
 if ($args[0] -eq "-a") {
   $FILELIST =
+    "ising-energy",
+    "ising-magnet",
+    "ising-cv",
+    "ising-cv-exact",
+    "ising-cv-fit-i",
+    "ising-cv-fit-ii",
     "boltzmann-machine",
     "gibbs-sampling",
-    #"ising-cv-fit-i",
-    #"ising-cv-fit-ii",
-    #"ising-cv",
-    #"ising-energy",
-    #"ising-magnet",
-    #"learning-curve",
+    "learning-curve",
     "rbm"
   foreach ($item in $FILELIST) {
     MakeFigure -filename $item -flag 0
+    Move-Item -Force ($item + ".pdf") ".."
   }
 }
-elseif ($args[0] -eq "-c") {
-  foreach ($item in "*.aux", "*.log", "*.fmt", "*.pdf", "plot.tex") {
+elseif ($args[0] -clike "-c") {
+  foreach ($item in "*.aux", "*.log", ($TEMP + ".*")) {
+    Remove-Item $item
+  }
+}
+elseif ($args[0] -clike "-C") {
+  foreach ($item in "*.aux", "*.log", "*.fmt", "*.pdf", ($TEMP + ".*")) {
     Remove-Item $item
   }
 }
 elseif ($args[0] -eq "-f") {
-  MakeFigure -filename $FILE -flag 2
+  MakeFigure -flag 2
 }
 else {
   if (Test-Path $args[0]) {
-    $FILE = $args[0] -replace "\.\\", ""
+    $file = $args[0] -replace "\.\\",  ""
+    $file = $file    -replace "\.tex", ""
     if ($args.Length -ge 2) {
-      if ($args[1] -clike "-d") { MakeFigure -filename $FILE -flag 1 }
+      if ($args[1] -clike "-d") { MakeFigure -filename $file -flag 1 }
     }
-    else { MakeFigure -filename $FILE -flag 0 }
+    else {
+      MakeFigure -filename $file -flag 0
+      Move-Item -Force ($file + ".pdf") ".."
+    }
   }
   else { Write-Output ("`"" + $args[0] + "`" does not exist!") }
 }

@@ -1,5 +1,6 @@
 \begin{tikzpicture}
   \begin{semilogxaxis}[
+      extra description/.code={\node at (0.9,0.9) {(b)};},
       xlabel={$L$}, ylabel={$C_*/N$},
       ylabel near ticks,
       ymax=3.5,
@@ -8,7 +9,7 @@
       xtick pos=lower, ytick pos=left,
       minor y tick num=3,
       legend pos=north west,
-      legend style={font=\scriptsize, draw=none},
+      legend style={font=\scriptsize, draw=none, cells={anchor=west}},
       thick, height=6cm]
     \addplot [
         only marks,

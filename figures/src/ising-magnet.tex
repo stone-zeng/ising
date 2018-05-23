@@ -1,5 +1,6 @@
 \begin{tikzpicture}
   \begin{axis}[
+      extra description/.code={\node at (0.9,0.9) {(b)};},
       xlabel={$T/J$}, ylabel={$\bar{M}/N$},
       ylabel near ticks,
       xtick={1,1.5,2,2.5,3,3.5}, ytick={0,0.25,0.50,0.75,1},
@@ -8,36 +9,36 @@
       extra x tick style={tiny, grid=major},
       xtick pos=lower, ytick pos=left,
       legend pos=south west,
-      legend style={font=\scriptsize, draw=none},
+      legend style={font=\scriptsize, draw=none, cells={anchor=west}},
       thick, height=6cm]
-    \addplot [
-        MaterialDeepOrange,
-        error bars/.cd,
-          error bar style={mark size=0.04cm},
-          y dir=both,
-          y explicit]
-      table [x=T, y=M16, y error=dM16] {figures/data/ising-magnet.txt};
-    \addplot [
-        MaterialBlue,
-        error bars/.cd,
-          error bar style={mark size=0.04cm},
-          y dir=both,
-          y explicit]
-      table [x=T, y=M32, y error=dM32] {figures/data/ising-magnet.txt};
-    \addplot [
-        MaterialGreen,
-        error bars/.cd,
-          error bar style={mark size=0.04cm},
-          y dir=both,
-          y explicit]
-      table [x=T, y=M64, y error=dM64] {figures/data/ising-magnet.txt};
     \addplot [
         MaterialPurple,
         error bars/.cd,
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
-      table [x=T, y=M128, y error=dM128] {figures/data/ising-magnet.txt};
-    \legend{16, 32, 64, 128}
+      table [x=T, y=M128, y error=dM128] {../data/ising-magnet.txt};
+    \addplot [
+        MaterialGreen,
+        error bars/.cd,
+          error bar style={mark size=0.04cm},
+          y dir=both,
+          y explicit]
+      table [x=T, y=M64, y error=dM64] {../data/ising-magnet.txt};
+    \addplot [
+        MaterialBlue,
+        error bars/.cd,
+          error bar style={mark size=0.04cm},
+          y dir=both,
+          y explicit]
+      table [x=T, y=M32, y error=dM32] {../data/ising-magnet.txt};
+    \addplot [
+        MaterialDeepOrange,
+        error bars/.cd,
+          error bar style={mark size=0.04cm},
+          y dir=both,
+          y explicit]
+      table [x=T, y=M16, y error=dM16] {../data/ising-magnet.txt};
+    \legend{128,64,32,16}
   \end{axis}
 \end{tikzpicture}

@@ -1,6 +1,7 @@
 \chapter{Ising 模型}
 
 \section{Ising 模型的统计物理}
+\label{sec:ising-physics}
 
 Ising 模型是统计物理中描述铁磁系统的一种简单模型。Ising 模型由一系列自旋排列而成的点阵构成，其中的每
 个自旋只有两种取向，即 $+1$ 或 $-1$。自旋与自旋之间的相互作用可以导致相变的出现，最典型的例子是二维
@@ -271,46 +272,49 @@ Metropolis 算法是 Monte Carlo 模拟的一种具体实现，它给出了选�
 在后文中，机器学习所用到的 Ising 模型训练数据集均利用上面介绍的 Metropolis 算法生成。为了文章的
 完整性，这里我们也顺带给出 Ising 模型的 Monte Carlo 模拟结果。
 
-以下结果中，Ising 点阵大小分别为 $8 \times 8$、$16 \times 16$、$32 \times 32$、$64 \times 64$ 和
-$128 \times 128$
-\footnote{在 $8 \times 8$ 点阵中各物理量涨落较大，因此在部分图中没有绘出。}，
-并采用周期性边界条件。选取温度区间 $T/J \in [1,\,3.6]$，外磁场为零。进行
+以下结果中，Ising 点阵大小分别为 $16 \times 16$、$32 \times 32$、$64 \times 64$ 和
+$128 \times 128$，并采用周期性边界条件。选取温度区间 $T/J \in [1,\,3.6]$，外磁场为零。进行
 \num{900} MCS 之后，认为体系达到平衡态。之后再进行 \num{100} MCS，并在其中取系综平均计算各物理量。
 每个温度下，重复模拟 50 次，统计各物理量的平均值及标准差（作为不确定度）。模拟结果见
-图~\ref{fig:ising-e-m} 和。
+图~\ref{fig:ising-e-m}。
 
 \begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{0.49\textwidth}
-    \centering
-    \tikzinput{ising-energy}
-    \caption{能量}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-energy}
   \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \centering
-    \tikzinput{ising-magnet}
-    \caption{磁化强度}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-magnet}
+  \end{subfigure}
+  \\[3ex]
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-cv}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-cv-exact}
   \end{subfigure}
   \caption{利用 Metropolis 算法模拟 Ising 模型得到的能量与磁化强度随温度的变化曲线。为了更清晰地
     反映出相变的临界情况，我们在临界点附近增大了采样密度。图中还用灰线标出了临界温度 $\Tc$ 的位置}
   \label{fig:ising-e-m}
 \end{figure}
 
-\begin{figure}[htb]
-  \centering
-  \tikzinput{ising-cv}
-  \caption{热容}
-  \label{fig:ising-cv}
-\end{figure}
+根据模拟结果，我们可以看到，随着体系尺度的增加，临界行为逐渐接近 \ref{sec:ising-physics}~节中给出的严格计算结果，如自发磁矩出现奇点、热容呈现对数发散等。
+
+为了与模拟结果进行对照，我们还给出了有限体系热容的精确结果，见图~\ref{fig:ising-e-m}~(d)。
 
 \begin{figure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \tikzinput{ising-cv-fit-i}
-    \caption{临界温度随点阵尺度的变化。注意 $x$ 轴、$y$ 轴均取了对数坐标}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-cv-fit-i}
+    %\caption{临界温度随点阵尺度的变化。注意 $x$ 轴、$y$ 轴均取了对数坐标}
   \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \tikzinput{ising-cv-fit-ii}
-    \caption{热容极大值随点阵尺度的变化。注意只有 $x$ 轴均取了对数坐标}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-cv-fit-ii}
+    %\caption{热容极大值随点阵尺度的变化。注意只有 $x$ 轴均取了对数坐标}
   \end{subfigure}
   \caption{Boltzmann machine}
 \end{figure}

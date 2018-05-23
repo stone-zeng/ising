@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+  \begin{axis}[
+      extra description/.code={\node at (0.9,0.9) {(d)};},
+      xlabel={$T/J$}, ylabel={$C/N$},
+      ylabel near ticks,
+      ymin=-0.3, ymax=3.5,
+      xtick={1,1.5,2,2.5,3,3.5},
+      extra x ticks={2.26919},
+      extra x tick labels={},
+      extra x tick style={tiny, grid=major},
+      xtick pos=lower, ytick pos=left,
+      legend pos=north west,
+      legend style={font=\scriptsize, draw=none, cells={anchor=west}},
+      font=\small,
+      thick, height=6cm]
+    \addplot [MaterialCyan]       table [x=T, y=C256] {../data/ising-cv-exact.txt};
+    \addplot [MaterialPurple]     table [x=T, y=C128] {../data/ising-cv-exact.txt};
+    \addplot [MaterialGreen]      table [x=T, y=C64]  {../data/ising-cv-exact.txt};
+    \addplot [MaterialBlue]       table [x=T, y=C32]  {../data/ising-cv-exact.txt};
+    \addplot [MaterialDeepOrange] table [x=T, y=C16]  {../data/ising-cv-exact.txt};
+    \addplot [MaterialTeal]       table [x=T, y=C8]   {../data/ising-cv-exact.txt};
+    \addplot [MaterialRed]        table [x=T, y=C4]   {../data/ising-cv-exact.txt};
+    \legend{256,128,64,32,16,8,4}
+  \end{axis}
+\end{tikzpicture}

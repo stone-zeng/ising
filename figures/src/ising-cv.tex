@@ -1,36 +1,68 @@
 \begin{tikzpicture}
   \begin{axis}[
-      xlabel={$T/J$}, ylabel={$\bar{M}$},
+      extra description/.code={\node at (0.9,0.9) {(c)};},
+      xlabel={$T/J$}, ylabel={$C/N$},
       ylabel near ticks,
+      ymin=-0.3, ymax=3.5,
       xtick={1,1.5,2,2.5,3,3.5},
       extra x ticks={2.26919},
       extra x tick labels={},
       extra x tick style={tiny, grid=major},
       xtick pos=lower, ytick pos=left,
+      legend reversed,
       legend pos=north west,
-      legend style={font=\scriptsize, draw=none},
+      legend style={font=\scriptsize, draw=none, cells={anchor=west}},
       thick, height=6cm]
-    \addplot [MaterialDeepOrange]
-      table [x=T, y=C64] {../data/ising-cv-exact.txt};
-    \addplot [MaterialBlue]
-      table [x=T, y=C128] {../data/ising-cv-exact.txt};
     \addplot [
-        only marks,
-        mark=x,
         MaterialDeepOrange,
+        error bars/.cd,
+          error bar style={mark size=0.04cm},
+          y dir=both,
+          y explicit]
+      table [x=T, y=C16, y error=dC16] {../data/ising-cv.txt};
+    \addplot [
+        MaterialBlue,
+        error bars/.cd,
+          error bar style={mark size=0.04cm},
+          y dir=both,
+          y explicit]
+      table [x=T, y=C32, y error=dC32] {../data/ising-cv.txt};
+    \addplot [
+        MaterialGreen,
         error bars/.cd,
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
       table [x=T, y=C64, y error=dC64] {../data/ising-cv.txt};
     \addplot [
-        only marks,
-        mark=x,
-        MaterialBlue,
+        MaterialPurple,
         error bars/.cd,
+          error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
       table [x=T, y=C128, y error=dC128] {../data/ising-cv.txt};
-    \legend{64, 128}
+    \legend{16, 32, 64, 128}
+    %\addplot [
+    %    only marks,
+    %    mark=x,
+    %    MaterialBlue,
+    %    error bars/.cd,
+    %      y dir=both,
+    %      y explicit]
+    %  table [x=T, y=C128, y error=dC128] {../data/ising-cv.txt};
+    %\addplot [
+    %    only marks,
+    %    mark=x,
+    %    MaterialDeepOrange,
+    %    error bars/.cd,
+    %      error bar style={mark size=0.04cm},
+    %      y dir=both,
+    %      y explicit]
+    %  table [x=T, y=C64, y error=dC64] {../data/ising-cv.txt};
+    %\addplot [MaterialBlue]
+    %  table [x=T, y=C128] {../data/ising-cv-exact.txt};
+    %\addplot [MaterialDeepOrange]
+    %  table [x=T, y=C64] {../data/ising-cv-exact.txt};
+    %\legend{,,128,64}
   \end{axis}
 \end{tikzpicture}

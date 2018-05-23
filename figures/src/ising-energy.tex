@@ -1,5 +1,6 @@
 \begin{tikzpicture}
   \begin{axis}[
+      extra description/.code={\node at (0.9,0.9) {(a)};},
       xlabel={$T/J$}, ylabel={$E/N$},
       ylabel near ticks,
       ymin=-4.3, ymax=0.3,
@@ -8,8 +9,9 @@
       extra x tick labels={},
       extra x tick style={tiny, grid=major},
       xtick pos=lower, ytick pos=left,
+      legend reversed=true,
       legend pos=north west,
-      legend style={font=\scriptsize, draw=none},
+      legend style={font=\scriptsize, draw=none, cells={anchor=west}},
       thick, height=6cm]
     \addplot [
         MaterialDeepOrange,
@@ -17,28 +19,28 @@
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
-      table [x=T, y=E16, y error=dE16] {figures/data/ising-energy.txt};
+      table [x=T, y=E16, y error=dE16] {../data/ising-energy.txt};
     \addplot [
         MaterialBlue,
         error bars/.cd,
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
-      table [x=T, y=E32, y error=dE32] {figures/data/ising-energy.txt};
+      table [x=T, y=E32, y error=dE32] {../data/ising-energy.txt};
     \addplot [
         MaterialGreen,
         error bars/.cd,
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
-      table [x=T, y=E64, y error=dE64] {figures/data/ising-energy.txt};
+      table [x=T, y=E64, y error=dE64] {../data/ising-energy.txt};
     \addplot [
         MaterialPurple,
         error bars/.cd,
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
-      table [x=T, y=E128, y error=dE128] {figures/data/ising-energy.txt};
+      table [x=T, y=E128, y error=dE128] {../data/ising-energy.txt};
     \legend{16, 32, 64, 128}
   \end{axis}
 \end{tikzpicture}
