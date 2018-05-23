@@ -27,7 +27,10 @@ function MakeFigure {
   #   0: xelatex
   #   1: pdflatex (dumped)
   #   2: pdftex (make dump)
-  $texbody = "\begin{document}`n  \input{" + $filename + "}`n\end{document}"
+  $texbody =
+    "\begin{document}`n" +
+    "\small`n" +
+    "\input{" + $filename + "}`n\end{document}"
   if ($flag -eq 0) {
     Out-File -FilePath $TEXTEMP -Encoding ascii -InputObject $PREAMBLE
     Out-File -FilePath $TEXTEMP -Encoding ascii -Append -InputObject $texbody

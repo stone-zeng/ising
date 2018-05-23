@@ -21,20 +21,20 @@ $\theta_i$ 则表示单元 $s_i$ 处的偏差。
   \centering
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \tikzinput{boltzmann-machine}
-    \caption{Boltzmann 机}
+    \imageinput{boltzmann-machine}
+    \caption{}
     \label{fig:boltzmann-machine}
   \end{subfigure}
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \tikzinput{rbm}
+    \imageinput{rbm}
     \vspace{0.4cm}
-    \caption{限制 Boltzmann 机（RBM）}
+    \caption{}
     \label{fig:rbm}
   \end{subfigure}
   \caption{Boltzmann 机和限制 Boltzmann 机的结构示意图。其中红色圆圈表示可见层，蓝色方块表示隐藏层。
-  Boltzmann 机的所有单元之间均有权重矩阵连接；而在限制 Boltzmann 机中，只有可见层与隐藏层之间才连接
-  有权重矩阵}
+    (a)~Boltzmann 机，所有单元之间均有权重矩阵连接；
+    (b)~限制 Boltzmann 机，只有可见层与隐藏层之间才连接有权重矩阵}
 \end{figure}
 
 与 Ising 模型类似［式~\eqref{eq:ising-probability}］，状态 $\bm{s}=\q{s_i}$ 出现的概率由 Boltzmann
@@ -157,7 +157,7 @@ $\bm{v}$，则隐藏层分布为
 
 \begin{figure}[htb]
   \centering
-  \tikzinput{gibbs-sampling}
+  \imageinput{gibbs-sampling}
   \caption{Gibbs 采样的示意图。上标代表进行的采样次数}
   \label{fig:gibbs-sampling}
 \end{figure}
@@ -293,14 +293,16 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
   \begin{subfigure}[b]{0.35\textwidth}
     \centering
     \imageinput[width=2cm]{mnist-image.pdf}
-    \caption{原始图像，灰度值包括 0--255}
+    \caption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.35\textwidth}
     \centering
     \imageinput[width=2cm]{mnist-image-binary.pdf}
-    \caption{二值化后的图像，只包含值 0 和 1}
+    \caption{}
   \end{subfigure}
-  \caption{MNIST 数据集中的首张图片，这是一个数字 5。图中白色区域始终代表 0 值}
+  \caption{MNIST 数据集中的首张图片，对应数字 5。
+    (a)~原始图像，灰度值从白色到黑色分别对应 0--255；
+    (b)~二值化后的图像，只包含值 0（白色）和 1（黑色）}
   \label{fig:mnist-image}
 \end{figure}
 
@@ -320,7 +322,7 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
 
 \begin{figure}[htb]
   \centering
-  \tikzinput{learning-curve}
+  \imageinput{learning-curve}
   \caption{学习曲线。这里的步数等于批次数与训练轮次的乘积，注意取了对数坐标}
   \label{fig:learning-curve}
 \end{figure}
@@ -338,23 +340,24 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \imageinput[width=3cm]{mnist-weight-epoch-1.pdf}
-    \caption{第 1 个训练轮次}
+    \caption{}
     \label{fig:mnist-weight-epoch-a}
   \end{subfigure}
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \imageinput[width=3cm]{mnist-weight-epoch-6.pdf}
-    \caption{第 6 个训练轮次}
+    \caption{}
     \label{fig:mnist-weight-epoch-b}
   \end{subfigure}
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \imageinput[width=3cm]{mnist-weight-epoch-20.pdf}
-    \caption{第 20 个训练轮次}
+    \caption{}
     \label{fig:mnist-weight-epoch-c}
   \end{subfigure}
   \caption{训练过程中的权重矩阵（部分）。权重矩阵 $\bm{W}$ 的形状为 $100 \times 784$，这里将其
-  变形为 100 个 $28 \times 28$ 的子矩阵，以便更加清晰地呈现出从可见层到隐藏层的映照关系}
+    变形为 100 个 $28 \times 28$ 的子矩阵，以便更加清晰地呈现出从可见层到隐藏层的映照关系。
+    (a)~第 1 个训练轮次；(b)~第 6 个训练轮次；(c)~第 20 个训练轮次}
   \label{fig:mnist-weight-epoch}
 \end{figure}
 

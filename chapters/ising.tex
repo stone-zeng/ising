@@ -208,7 +208,117 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
 \end{equation}
 
 \section{重整化群}
+
+前面已经指出，在相变临界点处关联长度 $\xi$ 会出现发散。因此，$\xi$ 在任意尺度变换下均是不变的，
+即对应变换的不动点。根据这一观点，我们可以直接计算出临界指数而无需严格求解配分函数，这称为
+重整化群方法。
+
+一般而言，体系的配分函数总可以写成
+\begin{equation}
+  Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})},
+\end{equation}
+其中，体系的 Hamilton 量为
+\begin{equation}
+    H(\q{\sigma_i})
+  = H(\q{\sigma_i},\,\bm{K})
+  = - \sum_i K^{(1)}_i \sigma_i
+    - \sum_{\nearest{ij}} K^{(2)}_{ij} \sigma_i\sigma_j
+    - \sum_{\nearest{ijk}} K^{(3)}_{ijk} B_i\sigma_i\sigma_j\sigma_k - \cdots
+\end{equation}
+耦合参数 $\bm{K}$ 可以表征体系中的多种相互作用。
+
+接下来对体系进行一次标度变换，即粗粒近似。此时，多个自旋被统一处理，视作一个 Kadanoff 集团。
+自旋数目（即体系自由度）$N$ 和关联长度 $\xi$ 分别变为
+\begin{equation}
+  \label{eq:N-xi-renormalization}
+  N' = L^{-d} N \qc \xi' = L^{-1} \xi.
+\end{equation}
+其中 $L>1$ 为缩放系数，$d$ 则为体系的维度。经过一次粗粒近似后，体系的配分函数数值上应当保持不变，
+但形式上需要变为对 Kadanoff 集团 $\q{\sigma_i'}$ 的求和：
+\begin{equation}
+  Z_{N'} = \sum_\q{\sigma'_i} \ee^{-\beta H(\q{\sigma_i'},\,\bm{K}')},
+\end{equation}
+式中的 $\bm{K}'$ 为变换后的耦合参数，它满足
+\begin{equation}
+  \label{eq:K-renormalization}
+  \bm{K}' = \trR{L}(\bm{K}).
+\end{equation}
+考虑到 $\bm{K}$ 作为向量可以张成一个向量空间 $\spaceV$，我们可以把 $\trR{L}$ 理解为 $\spaceV$
+上的一个算子（未必要求线性）。
+
+粗粒近似可以重复进行，即
+\begin{equation}
+  \bm{K} \to \bm{K}' = \trR{L}(\bm{K}) \to \cdots \to \bm{K}^{(n)} = \trR[n]{L}(\bm{K}).
+\end{equation}
+可见 $\trR[k]{L}$ 连同恒等变换构成一个半群（不存在逆变换）。根据重整化群理论的精神，重整化变换
+$\trR{L}$ 存在不动点 $\bm{K}^*$，满足
+\begin{equation}
+  \trR{L}(\bm{K}^*) = \bm{K}^*.
+\end{equation}
+在不动点附近分别展开 $\bm{K}$ 和 $\bm{K}'$，得到
+\begin{equation}
+  \bm{K}  = \bm{K}^* + \delta{\bm{K}} \qc
+  \bm{K}' = \bm{K}^* + \delta{\bm{K}'}.
+\end{equation}
+代入 \eqref{eq:K-renormalization}~式，有
+\begin{align}
+  &\mathrel{\phantom{\implies}}
+    \bm{K}^* + \delta{\bm{K}'}
+  = \trR{L}(\bm{K}^* + \delta{\bm{K}})
+  = \trR{L}(\bm{K}^*) + \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}} \notag \\
+  &\implies
+    \delta{\bm{K}'}
+  = \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}}
+  = \trA[*]{L} \delta{\bm{K}}.
+\end{align}
+式中，$\trA[*]{L}$ 是 $\trR{L}$ 在 $\bm{K}^*$ 处的线性近似。设 $\trA[*]{L}$ 的本征值与
+本征向量分别为 $\lambda_i$ 和 $\bm{\phi}_i$，则可将 $\delta{\bm{K}}$ 和 $\delta{\bm{K}'}$ 展开：
+\begin{equation}
+  \delta{\bm{K}}  = \sum_i u_i  \bm{\phi}_i \qc
+  \delta{\bm{K}'} = \sum_i u'_i \bm{\phi}_i.
+\end{equation}
+两边作用 $\trA[*]{L}$，可得到系数满足的关系
+\begin{equation}
+  u_i' = \lambda_i u_i.
+\end{equation}
+同理，作用 $n$ 次 $\trA[*]{L}$，即 $\qty\big(\trA[*]{L})^n$，可有
+\begin{equation}
+  u_i^{(n)} = \lambda_i^n u_i^{(0)}.
+\end{equation}
+显然，若本征值 $\lambda_i>1$，则随着 $n$ 的增加，$u_i^{(n)}$ 的权重越来越大，因此决定了体系的
+临界行为，对应的参数 $u_i$ 称为相关变量；反之，若本征值 $\lambda_i<1$，则 $u_i^{(n)}$ 的权重随着
+$n$ 的增加越来越小，故对应的 $u_i$ 称为无关变量。$\lambda_i=1$ 对应的 $u_i^{(n)}$ 会保持定常行为，
+能够带来介于以上二者之间的影响，如幂律行为中的对数项。
+
+对于 Ising 模型，可以给出两个相关变量，它们分别与约化温度和约化磁场关联：
+\begin{equation}
+  u_1 \propto t \qc u_2 \propto b.
+\end{equation}
+根据式~\eqref{eq:N-xi-renormalization}，我们有
+\begin{equation}
+  \xi' = L^{-1} \xi \implies \xi^{(n)} = L^{-n} \xi^{(0)}.
+\end{equation}
+关联长度 $\xi$ 是 $u_i$ 的函数，因此
+\begin{equation}
+  \xi^{(n)} = \xi\qty\big(\q{u_i^{(n)}}) = \xi\qty\big(\q{\lambda_i^n u_i^{(0)}}) \qc
+  \xi^{(0)} = \xi\qty\big(\q{u_i^{(0)}}).
+\end{equation}
+根据临界指数 $\nu$ 的定义，有
+\begin{equation}
+  \xi \propto t^{-\nu} \propto u_1^{-\nu}.
+\end{equation}
+联立以上三式，我们有
+\begin{equation}
+  \xi^{(n)} \propto \lambda_1^{-n\nu} u_1^{-\nu} \qc
+  \xi^{(0)} \propto u_1^{-\nu}
+  \implies \frac{\xi^{(n)}}{\xi^{(0)}} = \lambda_1^{-n\nu} = L^{-n}
+  \implies \nu = \frac{\ln L}{\ln \lambda_1}.
+\end{equation}
+这样，我们就利用重整化群方法计算得到了临界指数 $\nu$。一旦给定了具体的重整化变换 $\trR{L}$，
+就立刻可以给出 $\nu$ 的数值，而无需对配分函数进行严格求解。
+
 \section{Ising 模型与 \AdSCFT{}}
+
 \section{Ising 模型的 Monte Carlo 模拟}
 
 \subsection{Metropolis 算法}
@@ -276,45 +386,63 @@ Metropolis 算法是 Monte Carlo 模拟的一种具体实现，它给出了选�
 $128 \times 128$，并采用周期性边界条件。选取温度区间 $T/J \in [1,\,3.6]$，外磁场为零。进行
 \num{900} MCS 之后，认为体系达到平衡态。之后再进行 \num{100} MCS，并在其中取系综平均计算各物理量。
 每个温度下，重复模拟 50 次，统计各物理量的平均值及标准差（作为不确定度）。模拟结果见
-图~\ref{fig:ising-e-m}。
+图~\ref{fig:ising-observables}。
 
 \begin{figure}[htb]
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-energy}
+    \phantomcaption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-magnet}
+    \phantomcaption{}
   \end{subfigure}
   \\[3ex]
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-cv}
+    \phantomcaption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-cv-exact}
+    \phantomcaption{}
+    \label{fig:ising-cv-exact}
   \end{subfigure}
-  \caption{利用 Metropolis 算法模拟 Ising 模型得到的能量与磁化强度随温度的变化曲线。为了更清晰地
-    反映出相变的临界情况，我们在临界点附近增大了采样密度。图中还用灰线标出了临界温度 $\Tc$ 的位置}
-  \label{fig:ising-e-m}
+  \caption{Ising 模型各物理量随温度的变化曲线。为了更清晰地反映出相变的临界情况，我们在临界点附近
+    增大了采样密度。图中还用灰线标出了临界温度 $\Tc$ 的位置。图中的误差棒代表正负一个标准差。
+    (a)~能量；(b)~自发磁化；(c)~热容，注意到在较小的点阵中存在巨大的涨落 \protect\footnotemark{}；
+    (d)~热容的精确计算结果，额外给出了 $4 \times 4$、$8 \times 8$ 和 $256 \times 256$ 点阵中的情形}
+  \label{fig:ising-observables}
 \end{figure}
 
-根据模拟结果，我们可以看到，随着体系尺度的增加，临界行为逐渐接近 \ref{sec:ising-physics}~节中给出的严格计算结果，如自发磁矩出现奇点、热容呈现对数发散等。
+\footnotetext{不确定度（标准差）在 $T/J=\num{1.8}$ 和 \num{2.8} 处的突变来自于采样的不均匀。为了提高临界点附近的精度，该区间之内温度采样间隔为 \num{0.02}，区间之外则为 \num{0.1}。}
 
-为了与模拟结果进行对照，我们还给出了有限体系热容的精确结果，见图~\ref{fig:ising-e-m}~(d)。
+根据模拟结果，我们发现随着体系尺度的增加，临界行为逐渐接近 \ref{sec:ising-physics}~节中给出的
+严格计算结果，如自发磁矩的幂律发散、热容的对数发散等。
+
+为了与模拟结果进行对照，我们还给出了有限体系热容的精确结果，见图~\ref{fig:ising-cv-exact}。
+可以看到，随着尺度的增加，热容的极大值逐渐增大，极值点出现的位置也向 $\Tc$ 靠近。事实上，将极值点
+位置 $T_*$ 和热容极大值 $C_*$ 关于体系尺度 $L$ 分别进行拟合，可以得到如下关系：
+\begin{equation}
+  T_* - \Tc \propto L^{-1} \qc
+  C_*       \propto \ln L.
+\end{equation}
+结果见图~\ref{fig:ising-fit}。
 
 \begin{figure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-cv-fit-i}
-    %\caption{临界温度随点阵尺度的变化。注意 $x$ 轴、$y$ 轴均取了对数坐标}
   \end{subfigure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-cv-fit-ii}
-    %\caption{热容极大值随点阵尺度的变化。注意只有 $x$ 轴均取了对数坐标}
   \end{subfigure}
-  \caption{Boltzmann machine}
+  \caption{利用图~\ref{fig:ising-cv-exact} 中热容的精确计算结果关于体系尺度拟合。
+    (a)~临界温度随点阵尺度的变化，$x$、$y$ 轴均取对数坐标；
+    (b)~热容极大值随点阵尺度的变化，只有 $x$ 轴取对数坐标}
+  \label{fig:ising-fit}
 \end{figure}
