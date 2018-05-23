@@ -385,6 +385,47 @@ RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出�
 \section{RBM 与重整化群的对应关系}
 
 \section{利用 RBM 研究 Ising 模型}
+
+\section{卷积层}
+
+\subsection{卷积}
+
+在训练 RBM 的过程中，原始数据中的二维矩阵（MNIST 中的二维图像，或二维 Ising 模型的自旋构型）都被
+压平成了一维向量。因此，原始数据中有关局域性（locality）的信息便会被全部丢失，没有被机器学习
+利用起来。
+
+为了克服这一问题，我们可以引入卷积层（convolution layer）。数学上，一维体系下的卷积可以定义如下：
+\begin{equation}
+  (f \ast g) (t) = \int_{-\infty}^{+\infty} f(\tau) \, g(t-\tau) \dd{\tau}.
+\end{equation}
+对于离散情况，有
+\begin{equation}
+  (f \ast g) [n] = \sum_{k=-\infty}^{+\infty} f[k] \, g[k-n] \qc n,\,k \in \Z.
+\end{equation}
+
+卷积可以理解为一种“加权平均”。将卷积核 $f$ 与相同长度的“信号” $g$ 的片段逐项相乘，并依次放置在
+相应位置，即完成了 $f$ 与 $g$ 的卷积。
+
+将以上定义推广至高维，可得
+\begin{equation}
+  (f \ast g) [\bm{n}] = \sum_{\bm{k}} f[\bm{k}] \, g[\bm{k}-\bm{n}] \qc
+  n=\mqty[n_1 \\ n_2 \\ \vdots \\ n_N], \, k=\mqty[k_1 \\ k_2 \\ \vdots \\ k_N] \in \Z^N.
+\end{equation}
+对于二维图像处理的问题，可以把卷积核 $f$ 理解为“滤镜”（filter），其过程如图~\ref{fig:convolution}
+所示。事实上，如果取卷积核为 Gauss 函数
+\begin{equation}
+  f(\bm{x}) = \frac{1}{2\pp\sigma^2} \exp(-\frac{\norm{\bm{x}}^2}{2\sigma^2}),
+\end{equation}
+与待处理的图像进行卷积时，每次做“加权平均”，由于 Gauss 函数离中心较远处收敛迅速，所以中心像素
+所占权重最大；而随着到中心的距离增加，各像素贡献也逐渐减小。整体来看，每个像素均用其周围一部分像素
+的加权平均来代替，因而最终的结果就是对原始数据的 Gauss 模糊。
+
+\begin{figure}[htb]
+  \centering
+  %\imageinput{convolution.pdf}
+  \caption{卷积}
+  \label{fig:convolution}
+\end{figure}
+
 \section{卷积限制 Boltzmann 机（CRBM）}
-\section{卷积层、小波变换与 \AdSCFT{}}
 \section{利用 CRBM 研究 Ising 模型}
