@@ -11,9 +11,9 @@
       legend style={font=\scriptsize, draw=none},
       thick, height=6cm]
     \addplot [MaterialDeepOrange]
-      table [x=T, y=C64] {figures/data/ising-cv-exact.txt};
+      table [x=T, y=C64] {../data/ising-cv-exact.txt};
     \addplot [MaterialBlue]
-      table [x=T, y=C128] {figures/data/ising-cv-exact.txt};
+      table [x=T, y=C128] {../data/ising-cv-exact.txt};
     \addplot [
         only marks,
         mark=x,
@@ -22,7 +22,7 @@
           error bar style={mark size=0.04cm},
           y dir=both,
           y explicit]
-      table [x=T, y=C64, y error=dC64] {figures/data/ising-cv.txt};
+      table [x=T, y=C64, y error=dC64] {../data/ising-cv.txt};
     \addplot [
         only marks,
         mark=x,
@@ -30,7 +30,7 @@
         error bars/.cd,
           y dir=both,
           y explicit]
-      table [x=T, y=C128, y error=dC128] {figures/data/ising-cv.txt};
+      table [x=T, y=C128, y error=dC128] {../data/ising-cv.txt};
     \legend{64, 128}
   \end{axis}
 \end{tikzpicture}

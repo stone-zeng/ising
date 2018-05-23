@@ -4,6 +4,7 @@
 *.blg
 *.fdb_latexmk
 *.fls
+*.fmt
 *.log
 *.out
 *.pdf
@@ -18,3 +19,4 @@ fduthesis*
 
 .vscode/
 plot.temp/
+figures/src/plot.tex
