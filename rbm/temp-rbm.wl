@@ -104,6 +104,13 @@ contrastiveDivergence[rbm_, v_, k_] :=
           w$pos$grad = Transpose[v] . h,
           w$neg$grad = Transpose[samples["v"]] . samples["h"]
         },
+Echo[Dimensions@w$pos$grad];
+Echo[ArrayPlot[ArrayReshape[w$pos$grad\[Transpose][[1]],{28,28}],ImageSize->50]];
+Echo[ArrayPlot[ArrayReshape[w$neg$grad\[Transpose][[1]],{28,28}],ImageSize->50]];
+Echo[samples["v"][[1]]];
+Echo[samples["h"][[1]]];
+(*Echo[ArrayReshape[w$pos$grad\[Transpose]\[LeftDoubleBracket]1\[RightDoubleBracket],{28,28}]//MatrixForm];
+Echo[ArrayReshape[w$neg$grad\[Transpose]\[LeftDoubleBracket]1\[RightDoubleBracket],{28,28}]//MatrixForm];*)
         <|
           (*
             Shapes:
@@ -243,7 +250,7 @@ imageTestRaw  = importMNIST["t10k-images-idx3-ubyte"];
 Dimensions /@ {imageTrainRaw,  imageTestRaw}
 
 
-imageTrain = Round[Partition[imageTrainRaw, 784] / 255.0];
+imageTrain = Round[Partition[imageTrainRaw, 784] / 255.0][[;;200]];;
 imageTest  = Round[Partition[imageTestRaw,  784] / 255.0];
 Dimensions /@ {imageTrain, imageTest}
 
@@ -251,7 +258,7 @@ Dimensions /@ {imageTrain, imageTest}
 (* Parameters *)
 visibleNum   = 784;
 hiddenNum    = 100;
-epochNum     = 20;
+epochNum     = 5;
 batchSize    = 64;
 kParameter   = 30;
 learningRate = 0.1;
@@ -267,7 +274,7 @@ rbm = AssociationThread[{"W", "b", "c"} ->
 (* Main training loop *)
 trainingTime = First @ AbsoluteTiming[
   trained = First @ train[imageTrain, rbm, epochNum, batchSize, kParameter, learningRate];];
-
+(*
 (* Training time and cost *)
 Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
 ListLogLogPlot[-trained["cost_list"],
@@ -291,7 +298,7 @@ sample = NestList[
     "index" -> 0
   |>, 5];
 Echo[Row[plotMNIST /@ #["data"]],
-  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;*)
 
 
 

@@ -56,7 +56,7 @@ pseudoLogLikelihood[rbm_, v_, s_] :=
     index:  [2] in [n_visible_x * n_visible_y]
 *)
 $$getInverseVisibleUnit[v$unit_, index_] :=
-  ReplacePart[v$unit, i -> 1 - v$unit[[##]] & @@ index]
+  ReplacePart[v$unit, index -> 1 - v$unit[[##]] & @@ index]
 
 
 (*
