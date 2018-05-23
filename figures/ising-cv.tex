@@ -1,0 +1,35 @@
+\begin{tikzpicture}
+  \begin{axis}[
+      xlabel={$T/J$}, ylabel={$\bar{M}$},
+      xtick={1,1.5,2,2.5,3,3.5}, %ytick={0,0.25,0.50,0.75,1},
+      extra x ticks={2.26919},
+      extra x tick labels={},
+      extra x tick style={tiny, grid=major},
+      xtick pos=lower, ytick pos=left,
+      legend pos=north west,
+      legend style={font=\scriptsize, draw=none},
+      thick, height=6cm]
+    \addplot [MaterialDeepOrange]
+      table [x=T, y=C64] {figures/data/ising-cv-exact.txt};
+    \addplot [MaterialBlue]
+      table [x=T, y=C128] {figures/data/ising-cv-exact.txt};
+    \addplot [
+        only marks,
+        mark=x,
+        MaterialDeepOrange,
+        error bars/.cd,
+          error bar style={mark size=0.04cm},
+          y dir=both,
+          y explicit]
+      table [x=T, y=C64, y error=dC64] {figures/data/ising-cv.txt};
+    \addplot [
+        only marks,
+        mark=x,
+        MaterialBlue,
+        error bars/.cd,
+          y dir=both,
+          y explicit]
+      table [x=T, y=C128, y error=dC128] {figures/data/ising-cv.txt};
+    \legend{64, 128}
+  \end{axis}
+\end{tikzpicture}
