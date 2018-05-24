@@ -1,0 +1,74 @@
+\begin{tikzpicture}
+  \begin{axis}[
+      extra description/.code={\node at (0.9,0.1) {(b)};},
+      xlabel={$tL^{1/\nu}$}, ylabel={$P$},
+      ylabel near ticks,
+      xmin=-48, xmax=48,
+      xtick={-40,-20,...,40}, ytick={0,0.25,0.50,0.75,1},
+      extra x ticks={0},
+      extra x tick labels={},
+      extra x tick style={tiny, grid=major},
+      xtick pos=lower, ytick pos=left,
+      legend pos=north west,
+      legend style={font=\scriptsize, draw=none, cells={anchor=west}},
+      font=\small,
+      thick, height=6cm]
+    \addplot [
+      MaterialCyan,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T64, y=P64] {../data/ising-learning-net-scaled.txt};
+    \addplot [
+      MaterialPurple,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T48, y=P48] {../data/ising-learning-net-scaled.txt};
+    \addplot [
+      MaterialGreen,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T32, y=P32] {../data/ising-learning-net-scaled.txt};
+    \addplot [
+      MaterialBlue,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T24, y=P24] {../data/ising-learning-net-scaled.txt};
+    \addplot [
+      MaterialDeepOrange,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T16, y=P16] {../data/ising-learning-net-scaled.txt};
+    \addplot [
+      MaterialTeal,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T12, y=P12] {../data/ising-learning-net-scaled.txt};
+    \addplot [
+      MaterialRed,
+      mark=x,
+      error bars/.cd,
+        error bar style={mark size=0.04cm},
+        y dir=both,
+        y explicit]
+      table [x=T8, y=P8] {../data/ising-learning-net-scaled.txt};
+    \legend{64,48,32,24,16,12,8}
+  \end{axis}
+\end{tikzpicture}

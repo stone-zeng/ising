@@ -56,8 +56,13 @@ if ($args[0] -eq "-a") {
     #"ising-cv-exact",
     #"ising-cv-fit-i",
     #"ising-cv-fit-ii",
-    "linear-layer",
-    "neural-net"
+    #"linear-layer",
+    #"neural-net",
+    #"ising-learning-net",
+    #"ising-learning-net-scaled",
+    #"ising-learning-net-fit",
+    "ising-learning-linear",
+    "ising-learning-linear-scaled"
     #"boltzmann-machine",
     #"gibbs-sampling",
     #"learning-curve",

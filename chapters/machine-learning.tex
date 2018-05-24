@@ -98,6 +98,32 @@ $P(y=1)$。
 \end{figure}
 
 \subsection{训练结果}
+\label{subsec:ising-linear-train-result}
+
+下面我们来介绍具体的训练过程。所用点阵大小分别为 $8 \times 8$、$12 \times 12$、$16 \times 16$、
+$24 \times 24$、$32 \times 32$、$48 \times 48$ 和 $64 \times 64$。数据由 Metropolis 算法生成，
+温度区间为 $[1.0,\,3.5]$，间隔为 0.1。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-linear.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-linear}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-linear-scaled.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-linear-scaled}
+  \end{subfigure}
+  \caption{训练}
+  \label{fig:ising-learning-linear}
+\end{figure}
+
+从图中可以看出，线性分类模型大致可以区分无序相有有序相，但效果不好，误差较大。理论上，
+$P \sim tL^{1/\nu}$ 曲线应当完全重合，但图~\ref{fig:ising-learning-linear-scaled} 显示出了与理论结果相当大的偏离。对于较大点阵，很明显可以看到，线性模型几乎不能分清有序项的存在。这其实是训练部充分的体现。
 
 \section{神经网络}
 
@@ -167,3 +193,43 @@ $\bm{x}^{(i)}$，标签为 $y^{(i)}$，则损失函数
 过拟合问题。
 
 \section{Ising 模型相变研究（二）：多层神经网络}
+
+接下来我们利用如图~\ref{fig:neural-net} 所示的多层神经网络来对 Ising 模型的相进行分类。所用数据与 \ref{subsec:ising-linear-train-result}~小节中相同。具体训练参数如下：
+
+\begin{itemize}
+  \item 第一线性层神经元数量为原始数据大小的 $1/4$，如对于 $8 \times 8$ 点阵，神经元数量为 16；
+  %\item 
+  %\item 
+  %\item 
+  %\item 
+  %\item 
+\end{itemize}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-net.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-net}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-net-scaled.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-net-scaled}
+  \end{subfigure}
+  \caption{}
+  \label{fig:ising-learning-net}
+\end{figure}
+
+与线性模型给出的结果图~\ref{fig:ising-learning-linear} 相比，神经网络的效果要好很多，尽管我们只是增加了一层网络。除了 $8 \times 8$ 点阵仍然存在一定误差，其他尺寸下神经网络均可清晰地分辨不同相的存在。图~\ref{fig:ising-learning-net-scaled} 也显示出了做尺度缩放之后的一致性。
+
+利用概率分布曲线，我们可以插值并反解出临界温度的位置（对应概率 $P=0.5$）。关于 $1/L$ 拟合，得到图~\ref{fig:ising-learning-net-fit}。给出的拟合结果为 $T_*/J=\num{2.2488(11)}$，这与理论值相差不大。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{ising-learning-net-fit.pdf}
+  \caption{}
+  \label{fig:ising-learning-net-fit}
+\end{figure}
