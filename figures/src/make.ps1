@@ -50,16 +50,19 @@ function MakeFigure {
 # The "main" function
 if ($args[0] -eq "-a") {
   $FILELIST =
-    "ising-energy",
-    "ising-magnet",
-    "ising-cv",
-    "ising-cv-exact",
-    "ising-cv-fit-i",
-    "ising-cv-fit-ii",
-    "boltzmann-machine",
-    "gibbs-sampling",
-    "learning-curve",
-    "rbm"
+    #"ising-energy",
+    #"ising-magnet",
+    #"ising-cv",
+    #"ising-cv-exact",
+    #"ising-cv-fit-i",
+    #"ising-cv-fit-ii",
+    "linear-layer",
+    "neural-net"
+    #"boltzmann-machine",
+    #"gibbs-sampling",
+    #"learning-curve",
+    #"rbm",
+    #"convolution"
   foreach ($item in $FILELIST) {
     MakeFigure -filename $item -flag 0
     Move-Item -Force ($item + ".pdf") ".."

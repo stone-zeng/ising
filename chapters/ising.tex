@@ -331,10 +331,10 @@ $n$ 的增加越来越小，故对应的 $u_i$ 称为无关变量。$\lambda_i=1
 考虑自旋构型 $\q{\sigma_i}$ 随时间的演化。设在 $t$ 时刻，构型 $\q{\sigma_i}$ 对应的概率为
 $P\qty\big(\q{\sigma_i},\,t)$，则
 \begin{align}
-  P\qty\big(\q{\sigma_i},\,t+1)
-  &= P\qty\big(\q{\sigma_i},\,t) \notag \\
+  P\qty\big(\q{\sigma_i},\,t+1) = P\qty\big(\q{\sigma_i},\,t)
   &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
-   - \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}).
+     \notag \\
+  &- \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}).
 \end{align}
 式中，$W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})$ 表示从 $\q{\sigma_i}$ 到 $\q{\sigma'_i}$ 的
 转移概率，需要满足细致平衡条件：
