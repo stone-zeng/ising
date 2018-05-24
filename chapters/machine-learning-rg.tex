@@ -583,8 +583,18 @@ $K_i$ 的定量结果。
 十分相似。事实上，RBM 正是基于线性网络的能量模型，它的核心是在线性映照 $x\to\bm{W}\bm{x}+\bm{b}$
 基础上给出的能量函数 \eqref{eq:rbm-energy}~式。
 
-%TODO
-下面我们需要把线性网络改变成卷积网络，称为卷积 RBM（CRBM），如图所示。线性网络中，可见层与隐藏层之间有如下关系：
+\begin{figure}[htb]
+  \centering
+  \imageinput{crbm.pdf}
+  \caption{卷积限制 Boltzmann 机示意图。绿色菱形为卷积核，它们作用在可见层（红色圆圈）上，
+    并产生隐藏层（蓝色方块）。与图~\ref{fig:rbm} 这里单元之间的连线并不表示权重。不同深浅的连线
+    展现了卷积核与可见层不同位置的对应。在实际训练中，可见层、隐藏层与卷积核均是二维矩阵，
+    相比该示意图额外还有一个垂直纸面的维度}
+  \label{fig:crbm}
+\end{figure}
+
+下面我们需要把线性网络改变成卷积网络，称为卷积 RBM（CRBM），如图~\ref{fig:crbm} 所示。
+线性网络中，可见层与隐藏层之间有如下关系：
 \begin{equation}
   \bm{h}+\bm{c} \sim \bm{W} (\bm{v}+\bm{b}).
 \end{equation}

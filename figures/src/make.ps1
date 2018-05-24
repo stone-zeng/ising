@@ -1,7 +1,7 @@
 $PREAMBLE_COMMON = `
 "\documentclass{standalone}
 \usepackage{kvsetkeys,epstopdf-base,pgfplots,xcolor,xcolor-material,siunitx}
-\usetikzlibrary{arrows,calc,graphs,arrows.meta,pgfplots.colorbrewer,positioning}`n"
+\usetikzlibrary{arrows,calc,graphs,arrows.meta,pgfplots.colorbrewer,positioning,shapes.geometric}`n"
 
 $PREAMBLE_FONTS = `
 "\usepackage[no-math]{fontspec}
