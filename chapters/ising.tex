@@ -81,7 +81,9 @@ Boltzmann 分布给出：
   \end{cases}
 \end{equation}
 
-\section{临界指数与标度变换}
+\section{临界行为与重整化群}
+
+\subsection{临界指数}
 
 一般而言，在接近临界点处，热力学量 $f$ 可按约化温度 $t=T/\Tc-1$ 展开：
 \begin{equation}
@@ -122,84 +124,93 @@ Boltzmann 分布给出：
 $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇异性仅依赖于 $\xi$ 的奇异性，而与体系的
 具体特征无关。
 
-以铁磁系统为例，设单位自旋的自由能 $f$ 是约化温度、约化磁场
-\begin{equation}
-  t = \frac{T}{\Tc} - 1 \qc
-  b = \frac{\mu B}{\Tc}
-\end{equation}
-的函数。将其分解为奇异部分 $f_{\symup{s}}$ 和非奇异部分 $f_{\symup{r}}$：
-\begin{equation}
-  f(t,\,b) = f_{\symup{s}}(t,\,b) + f_{\symup{r}}(t,\,b).
-\end{equation}
-在临界点附近，只有奇异部分 $f_{\symup{s}}$ 需要考虑。
+%以铁磁系统为例，设单位自旋的自由能 $f$ 是约化温度、约化磁场
+%\begin{equation}
+%  t = \frac{T}{\Tc} - 1 \qc
+%  b = \frac{\mu B}{\Tc}
+%\end{equation}
+%的函数。将其分解为奇异部分 $f_{\symup{s}}$ 和非奇异部分 $f_{\symup{r}}$：
+%\begin{equation}
+%  f(t,\,b) = f_{\symup{s}}(t,\,b) + f_{\symup{r}}(t,\,b).
+%\end{equation}
+%在临界点附近，只有奇异部分 $f_{\symup{s}}$ 需要考虑。
+%
+%标度变换可以视为对晶格的某种“缩放”。经过一次标度变换后，设体系的晶格常数由 $a$ 变成了 $a'=La$。
+%相应地，有
+%\begin{equation}
+%  \label{eq:transform-relation-t-b}
+%  t' = L^x t \qc b' = L^y b.
+%\end{equation}
+%体系总的自由能（配分函数）在标度变换下保持不变，但自旋数目发生了变化：$N \to N'=L^{-d} N$，$d$
+%为体系的维度。因而有
+%\begin{equation}
+%  N f_{\symup{s}} (t,\,b) = N' f_{\symup{s}} (t',\,b'),
+%\end{equation}
+%即
+%\begin{equation}
+%  f_{\symup{s}} (t,\,b) = L^{-d} f_{\symup{s}} (L^x t, \, L^y b).
+%\end{equation}
+%取 $L^x t=1$，则有
+%\begin{equation}
+%  f_{\symup{s}} (t,\,b) = t^{d/x} f_{\symup{s}} (1, \, L^y b).
+%\end{equation}
+%考虑到热容 $C$ 正比于自由能对温度的二阶导数，可得
+%\begin{equation}
+%  C \sim \pdv[2]{f_{\symup{s}}}{t} \sim t^{d/x-2},
+%\end{equation}
+%即临界指数
+%\begin{equation}
+%  \alpha = 2 - \frac{d}{x}.
+%\end{equation}
+%类似地，可以计算出其他临界指数满足的条件：
+%\begin{equation}
+%  \beta  = \frac{d-y}{x}  \qc
+%  \gamma = \frac{2y-d}{x} \qc
+%  \delta = \frac{y}{d-y}.
+%\end{equation}
+%消去 $x$ 、$y$，即得到标度律
+%\begin{equation}
+%  \label{eq:scaling-relation-i-ii}
+%  \alpha + 2\beta + \gamma = 2 \qc
+%  \gamma = \beta (\delta - 1).
+%\end{equation}
+%
+%另一方面，关联长度满足变换关系 $\xi\to\xi'=L^{-1}\xi$。代入式~\eqref{eq:transform-relation-t-b}，得
+%\begin{equation}
+%  \frac{\xi'}{\xi} = \qty(\frac{t'}{t})^{-\nu} = L^{x\nu} = L^{-1}
+%  \implies \nu = \frac{1}{x}.
+%\end{equation}
+%因此得到另一条标度律
+%\begin{equation}
+%  \label{eq:scaling-relation-iii}
+%  \nu d = 2 - \alpha.
+%\end{equation}
+%
+%如果定义关联函数
+%\begin{equation}
+%  g(\bm{r}_{ij}) = \overline{(\sigma_i-\bar{\sigma_i})(\sigma_j-\bar{\sigma_j})},
+%\end{equation}
+%则有另一个临界指数 $\eta$ 与之关联：
+%\begin{equation}
+%  g(\bm{r}) \sim r^{2-d-\eta}.
+%\end{equation}
+%并同样有标度律
+%\begin{equation}
+%  \label{eq:scaling-relation-iv}
+%  \eta = 2 + d - 2y \implies \gamma = (2-\eta) \nu.
+%\end{equation}
+%
+%这样，利用四条标度律 \eqref{eq:scaling-relation-i-ii}、\eqref{eq:scaling-relation-iii} 和
+%\eqref{eq:scaling-relation-iv}~式，
 
-标度变换可以视为对晶格的某种“缩放”。经过一次标度变换后，设体系的晶格常数由 $a$ 变成了 $a'=La$。
-相应地，有
+利用自由能（配分函数）在标度变换下的形式不变性，可以得到临界指数所满足的标度律
 \begin{equation}
-  \label{eq:transform-relation-t-b}
-  t' = L^x t \qc b' = L^y b.
-\end{equation}
-体系总的自由能（配分函数）在标度变换下保持不变，但自旋数目发生了变化：$N \to N'=L^{-d} N$，$d$
-为体系的维度。因而有
-\begin{equation}
-  N f_{\symup{s}} (t,\,b) = N' f_{\symup{s}} (t',\,b'),
-\end{equation}
-即
-\begin{equation}
-  f_{\symup{s}} (t,\,b) = L^{-d} f_{\symup{s}} (L^x t, \, L^y b).
-\end{equation}
-取 $L^x t=1$，则有
-\begin{equation}
-  f_{\symup{s}} (t,\,b) = t^{d/x} f_{\symup{s}} (1, \, L^y b).
-\end{equation}
-考虑到热容 $C$ 正比于自由能对温度的二阶导数，可得
-\begin{equation}
-  C \sim \pdv[2]{f_{\symup{s}}}{t} \sim t^{d/x-2},
-\end{equation}
-即临界指数
-\begin{equation}
-  \alpha = 2 - \frac{d}{x}.
-\end{equation}
-类似地，可以计算出其他临界指数满足的条件：
-\begin{equation}
-  \beta  = \frac{d-y}{x}  \qc
-  \gamma = \frac{2y-d}{x} \qc
-  \delta = \frac{y}{d-y}.
-\end{equation}
-消去 $x$ 、$y$，即得到标度律
-\begin{equation}
-  \label{eq:scaling-relation-i-ii}
   \alpha + 2\beta + \gamma = 2 \qc
-  \gamma = \beta (\delta - 1).
+  \gamma = \beta (\delta - 1)  \qc
+  \nu d = 2 - \alpha           \qc
+  \gamma = (2-\eta) \nu.
 \end{equation}
-
-另一方面，关联长度满足变换关系 $\xi\to\xi'=L^{-1}\xi$。代入式~\eqref{eq:transform-relation-t-b}，得
-\begin{equation}
-  \frac{\xi'}{\xi} = \qty(\frac{t'}{t})^{-\nu} = L^{x\nu} = L^{-1}
-  \implies \nu = \frac{1}{x}.
-\end{equation}
-因此得到另一条标度律
-\begin{equation}
-  \label{eq:scaling-relation-iii}
-  \nu d = 2 - \alpha.
-\end{equation}
-
-如果定义关联函数
-\begin{equation}
-  g(\bm{r}_{ij}) = \overline{(\sigma_i-\bar{\sigma_i})(\sigma_j-\bar{\sigma_j})},
-\end{equation}
-则有另一个临界指数 $\eta$ 与之关联：
-\begin{equation}
-  g(\bm{r}) \sim r^{2-d-\eta}.
-\end{equation}
-并同样有标度律
-\begin{equation}
-  \label{eq:scaling-relation-iv}
-  \eta = 2 + d - 2y \implies \gamma = (2-\eta) \nu.
-\end{equation}
-
-这样，利用四条标度律 \eqref{eq:scaling-relation-i-ii}、\eqref{eq:scaling-relation-iii} 和
-\eqref{eq:scaling-relation-iv}~式，就可以计算得到 Ising 模型的其他几个临界指数：
+利用它们可以计算得到 Ising 模型的其他几个临界指数：
 \begin{equation}
   \gamma = \frac{7}{4} \qc
   \delta = 15          \qc
@@ -207,7 +218,7 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
   \eta   = \frac{1}{4}.
 \end{equation}
 
-\section{重整化群}
+\subsection{重整化群}
 
 前面已经指出，在相变临界点处关联长度 $\xi$ 会出现发散。因此，$\xi$ 在任意尺度变换下均是不变的，
 即对应变换的不动点。根据这一观点，我们可以直接计算出临界指数而无需严格求解配分函数，这称为
@@ -236,86 +247,93 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
 其中 $L>1$ 为缩放系数，$d$ 则为体系的维度。经过一次粗粒近似后，体系的配分函数数值上应当保持不变，
 但形式上需要变为对 Kadanoff 集团 $\q{\sigma_i'}$ 的求和：
 \begin{equation}
-  Z_{N'} = \sum_\q{\sigma'_i} \ee^{-\beta H(\q{\sigma_i'},\,\bm{K}')},
+  \label{eq:Z-H-renormalization}
+  Z_{N'}
+  = \sum_\q{\sigma'_i} \ee^{-\beta H^{\text{RG}}(\q{\sigma_i'},\,\bm{K}')}
+  = \sum_\q{\sigma'_i} \sum_\q{\sigma_i}
+    \ee^{-\beta \qty\big[H(\q{\sigma_i},\,\bm{K})-\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})]}.
 \end{equation}
-式中的 $\bm{K}'$ 为变换后的耦合参数，它满足
+式中的 $\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})$ 刻画了从单个自旋 $\q{\sigma_i}$ 到自旋集团
+$\q{\sigma_i'}$ 的变换，而 $\bm{K}'$ 为变换后的耦合参数，它满足
 \begin{equation}
   \label{eq:K-renormalization}
   \bm{K}' = \trR{L}(\bm{K}).
 \end{equation}
-考虑到 $\bm{K}$ 作为向量可以张成一个向量空间 $\spaceV$，我们可以把 $\trR{L}$ 理解为 $\spaceV$
-上的一个算子（未必要求线性）。
+耦合参数 $\bm{K}$ 作为向量可以张成一个向量空间 $\spaceV$，因而我们可以把 $\trR{L}$ 理解为 $\spaceV$
+上的一个算子（未必要求线性）。在不动点 $\bm{K}^*$ 附近做展开，可以得到 $\trR{L}$ 的线性近似
+$\trA[*]{L}$。计算矩阵 $\trA[*]{L}$ 的本征值，就可以直接给出临界指数的具体数值，而无需再对
+配分函数进行严格求解。
 
-粗粒近似可以重复进行，即
-\begin{equation}
-  \bm{K} \to \bm{K}' = \trR{L}(\bm{K}) \to \cdots \to \bm{K}^{(n)} = \trR[n]{L}(\bm{K}).
-\end{equation}
-可见 $\trR[k]{L}$ 连同恒等变换构成一个半群（不存在逆变换）。根据重整化群理论的精神，重整化变换
-$\trR{L}$ 存在不动点 $\bm{K}^*$，满足
-\begin{equation}
-  \trR{L}(\bm{K}^*) = \bm{K}^*.
-\end{equation}
-在不动点附近分别展开 $\bm{K}$ 和 $\bm{K}'$，得到
-\begin{equation}
-  \bm{K}  = \bm{K}^* + \delta{\bm{K}} \qc
-  \bm{K}' = \bm{K}^* + \delta{\bm{K}'}.
-\end{equation}
-代入 \eqref{eq:K-renormalization}~式，有
-\begin{align}
-  &\mathrel{\phantom{\implies}}
-    \bm{K}^* + \delta{\bm{K}'}
-  = \trR{L}(\bm{K}^* + \delta{\bm{K}})
-  = \trR{L}(\bm{K}^*) + \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}} \notag \\
-  &\implies
-    \delta{\bm{K}'}
-  = \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}}
-  = \trA[*]{L} \delta{\bm{K}}.
-\end{align}
-式中，$\trA[*]{L}$ 是 $\trR{L}$ 在 $\bm{K}^*$ 处的线性近似。设 $\trA[*]{L}$ 的本征值与
-本征向量分别为 $\lambda_i$ 和 $\bm{\phi}_i$，则可将 $\delta{\bm{K}}$ 和 $\delta{\bm{K}'}$ 展开：
-\begin{equation}
-  \delta{\bm{K}}  = \sum_i u_i  \bm{\phi}_i \qc
-  \delta{\bm{K}'} = \sum_i u'_i \bm{\phi}_i.
-\end{equation}
-两边作用 $\trA[*]{L}$，可得到系数满足的关系
-\begin{equation}
-  u_i' = \lambda_i u_i.
-\end{equation}
-同理，作用 $n$ 次 $\trA[*]{L}$，即 $\qty\big(\trA[*]{L})^n$，可有
-\begin{equation}
-  u_i^{(n)} = \lambda_i^n u_i^{(0)}.
-\end{equation}
-显然，若本征值 $\lambda_i>1$，则随着 $n$ 的增加，$u_i^{(n)}$ 的权重越来越大，因此决定了体系的
-临界行为，对应的参数 $u_i$ 称为相关变量；反之，若本征值 $\lambda_i<1$，则 $u_i^{(n)}$ 的权重随着
-$n$ 的增加越来越小，故对应的 $u_i$ 称为无关变量。$\lambda_i=1$ 对应的 $u_i^{(n)}$ 会保持定常行为，
-能够带来介于以上二者之间的影响，如幂律行为中的对数项。
-
-对于 Ising 模型，可以给出两个相关变量，它们分别与约化温度和约化磁场关联：
-\begin{equation}
-  u_1 \propto t \qc u_2 \propto b.
-\end{equation}
-根据式~\eqref{eq:N-xi-renormalization}，我们有
-\begin{equation}
-  \xi' = L^{-1} \xi \implies \xi^{(n)} = L^{-n} \xi^{(0)}.
-\end{equation}
-关联长度 $\xi$ 是 $u_i$ 的函数，因此
-\begin{equation}
-  \xi^{(n)} = \xi\qty\big(\q{u_i^{(n)}}) = \xi\qty\big(\q{\lambda_i^n u_i^{(0)}}) \qc
-  \xi^{(0)} = \xi\qty\big(\q{u_i^{(0)}}).
-\end{equation}
-根据临界指数 $\nu$ 的定义，有
-\begin{equation}
-  \xi \propto t^{-\nu} \propto u_1^{-\nu}.
-\end{equation}
-联立以上三式，我们有
-\begin{equation}
-  \xi^{(n)} \propto \lambda_1^{-n\nu} u_1^{-\nu} \qc
-  \xi^{(0)} \propto u_1^{-\nu}
-  \implies \frac{\xi^{(n)}}{\xi^{(0)}} = \lambda_1^{-n\nu} = L^{-n}
-  \implies \nu = \frac{\ln L}{\ln \lambda_1}.
-\end{equation}
-这样，我们就利用重整化群方法计算得到了临界指数 $\nu$。一旦给定了具体的重整化变换 $\trR{L}$，
-就立刻可以给出 $\nu$ 的数值，而无需对配分函数进行严格求解。
+%粗粒近似可以重复进行，即
+%\begin{equation}
+%  \bm{K} \to \bm{K}' = \trR{L}(\bm{K}) \to \cdots \to \bm{K}^{(n)} = \trR[n]{L}(\bm{K}).
+%\end{equation}
+%可见 $\trR[k]{L}$ 连同恒等变换构成一个半群（不存在逆变换）。根据重整化群理论的精神，重整化变换
+%$\trR{L}$ 存在不动点 $\bm{K}^*$，满足
+%\begin{equation}
+%  \trR{L}(\bm{K}^*) = \bm{K}^*.
+%\end{equation}
+%在不动点附近分别展开 $\bm{K}$ 和 $\bm{K}'$，得到
+%\begin{equation}
+%  \bm{K}  = \bm{K}^* + \delta{\bm{K}} \qc
+%  \bm{K}' = \bm{K}^* + \delta{\bm{K}'}.
+%\end{equation}
+%代入 \eqref{eq:K-renormalization}~式，有
+%\begin{align}
+%  &\mathrel{\phantom{\implies}}
+%    \bm{K}^* + \delta{\bm{K}'}
+%  = \trR{L}(\bm{K}^* + \delta{\bm{K}})
+%  = \trR{L}(\bm{K}^*) + \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}} \notag \\
+%  &\implies
+%    \delta{\bm{K}'}
+%  = \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}}
+%  = \trA[*]{L} \delta{\bm{K}}.
+%\end{align}
+%式中，$\trA[*]{L}$ 是 $\trR{L}$ 在 $\bm{K}^*$ 处的线性近似。设 $\trA[*]{L}$ 的本征值与
+%本征向量分别为 $\lambda_i$ 和 $\bm{\phi}_i$，则可将 $\delta{\bm{K}}$ 和 $\delta{\bm{K}'}$ 展开：
+%\begin{equation}
+%  \delta{\bm{K}}  = \sum_i u_i  \bm{\phi}_i \qc
+%  \delta{\bm{K}'} = \sum_i u'_i \bm{\phi}_i.
+%\end{equation}
+%两边作用 $\trA[*]{L}$，可得到系数满足的关系
+%\begin{equation}
+%  u_i' = \lambda_i u_i.
+%\end{equation}
+%同理，作用 $n$ 次 $\trA[*]{L}$，即 $\qty\big(\trA[*]{L})^n$，可有
+%\begin{equation}
+%  u_i^{(n)} = \lambda_i^n u_i^{(0)}.
+%\end{equation}
+%显然，若本征值 $\lambda_i>1$，则随着 $n$ 的增加，$u_i^{(n)}$ 的权重越来越大，因此决定了体系的
+%临界行为，对应的参数 $u_i$ 称为相关变量；反之，若本征值 $\lambda_i<1$，则 $u_i^{(n)}$ 的权重随着
+%$n$ 的增加越来越小，故对应的 $u_i$ 称为无关变量。$\lambda_i=1$ 对应的 $u_i^{(n)}$ 会保持定常行为，
+%能够带来介于以上二者之间的影响，如幂律行为中的对数项。
+%
+%对于 Ising 模型，可以给出两个相关变量，它们分别与约化温度和约化磁场关联：
+%\begin{equation}
+%  u_1 \propto t \qc u_2 \propto b.
+%\end{equation}
+%根据式~\eqref{eq:N-xi-renormalization}，我们有
+%\begin{equation}
+%  \xi' = L^{-1} \xi \implies \xi^{(n)} = L^{-n} \xi^{(0)}.
+%\end{equation}
+%关联长度 $\xi$ 是 $u_i$ 的函数，因此
+%\begin{equation}
+%  \xi^{(n)} = \xi\qty\big(\q{u_i^{(n)}}) = \xi\qty\big(\q{\lambda_i^n u_i^{(0)}}) \qc
+%  \xi^{(0)} = \xi\qty\big(\q{u_i^{(0)}}).
+%\end{equation}
+%根据临界指数 $\nu$ 的定义，有
+%\begin{equation}
+%  \xi \propto t^{-\nu} \propto u_1^{-\nu}.
+%\end{equation}
+%联立以上三式，我们有
+%\begin{equation}
+%  \xi^{(n)} \propto \lambda_1^{-n\nu} u_1^{-\nu} \qc
+%  \xi^{(0)} \propto u_1^{-\nu}
+%  \implies \frac{\xi^{(n)}}{\xi^{(0)}} = \lambda_1^{-n\nu} = L^{-n}
+%  \implies \nu = \frac{\ln L}{\ln \lambda_1}.
+%\end{equation}
+%这样，我们就利用重整化群方法计算得到了临界指数 $\nu$。一旦给定了具体的重整化变换 $\trR{L}$，
+%就立刻可以给出 $\nu$ 的数值，而无需对配分函数进行严格求解。
 
 \section{Ising 模型与 \AdSCFT{}}
 

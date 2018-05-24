@@ -69,10 +69,20 @@ RBM 中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以�
 \end{equation}
 对所有的 $\bm{h}$ 进行求和，我们就得到了某一可见层 $\bm{v}$ 对应的边缘概率分布：
 \begin{equation}
-  \label{eq:rbm-probability}
-  P(\bm{v}) = \frac{1}{Z} \sum_{\bm{h}} P(\bm{v},\,\bm{h})
-            = \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
+  \label{eq:rbm-probability-v}
+  P(\bm{v}) = \sum_{\bm{h}} P(\bm{v},\,\bm{h})
+            = \frac{1}{Z} \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}
+            \equiv \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{v})};
 \end{equation}
+同理，对所有的 $\bm{v}$ 进行求和，可得到隐藏层 $\bm{h}$ 对应的边缘概率分布：
+\begin{equation}
+  \label{eq:rbm-probability-h}
+  P(\bm{h}) = \sum_{\bm{h}} P(\bm{v},\,\bm{h})
+            = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
+            \equiv \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})}.
+\end{equation}
+这里定义的 $H^{\text{RBM}}(\bm{v})$ 和 $H^{\text{RBM}}(\bm{h})$ 称为变分 Hamilton 量
+（variational Hamiltonian）。
 
 \section{CD-\textit{k} 训练算法}
 
@@ -107,7 +117,7 @@ RBM 所采用的训练数据集只包含了可见层的内容，即
 \begin{equation}
   F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
 \end{equation}
-代入式~\eqref{eq:rbm-probability}，可有
+代入式~\eqref{eq:rbm-probability-v}，可有
 \begin{equation}
   \ln P\qty\big(\bm{v}^{(i)}) = \frac{\ee^{-F(\bm{v}^{(i)})}}{Z} \qc
   Z = \sum_{\bm{v}} \ee^{-F(\bm{v})}.
@@ -181,6 +191,7 @@ $\bm{v}$，则隐藏层分布为
 首先来计算式~\eqref{eq:hidden-layer-dist}、\eqref{eq:visible-layer-dist} 中出现的条件概率
 $P(\bm{h}|\bm{v})$。利用乘法公式，有
 \begin{align}
+  \label{eq:conditional-probability}
   P(\bm{h}|\bm{v})
   &= \frac{P(\bm{v},\,\bm{h})}{P(\bm{v})}
    = \frac{\ee^{-E(\bm{v},\,\bm{h})}}%
@@ -384,6 +395,48 @@ RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出�
 
 \section{RBM 与重整化群的对应关系}
 
+RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见层中的信息编码到了隐藏层中；而在重整化群
+方法中，我们把自旋进行粗粒近似，得到重整化后的 Hamilton 量。如果把 RBM 中的可见层理解为原始自旋
+点阵，而把隐藏层理解为粗粒近似下的 Kadanoff 集团，我们便可以得到 RBM 与重整化群的对应关系。
+在式~\eqref{eq:Z-H-renormalization} 中，我们给出了重整化前后 Hamilton 量的对应关系：
+\begin{equation}
+    \ee^{-H^{\text{RG}}(\bm{h})}
+  = \sum_{\bm{v}} \ee^{\opT(\bm{v},\,\bm{h})-H(\bm{v})}.
+\end{equation}
+这里我们已经把自旋 $\sigma_i'$、$\sigma_i'$ 用 RBM 的语言（$\bm{v}$、$\bm{h}$）进行表述，
+并把 $\beta$ 归入了 $H$。下面我们令
+\begin{equation}
+  \opT(\bm{v},\,\bm{h}) = H(\bm{v}) - E(\bm{v},\,\bm{h}).
+\end{equation}
+代入 \eqref{eq:rbm-probability-h}~式，可得
+\begin{align}
+  &\mathrel{\phantom{\implies}}
+    \frac{1}{Z} \ee^{-H^{\text{RG}}(\bm{h})}
+  = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
+  = p(\bm{h})
+  = \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})} \notag \\
+  &\implies H^{\text{RG}}(\bm{h}) = H^{\text{RBM}}(\bm{h}).
+\end{align}
+由此就建立了 RBM 与重整化群的严格映照。
+
+利用式~\eqref{eq:rbm-probability-v}、\eqref{eq:conditional-probability} 进行计算，可以证明
+\begin{equation}
+  \ee^{\opT(\bm{v},\,\bm{h})} = P(\bm{h}|\bm{v}) \ee^{H(\bm{v})-H^{\text{RBM}}(\bm{v})}.
+\end{equation}
+当重整化变换 $\opT(\bm{v},\,\bm{h})$ 可以使得自旋集团严格重现原始自旋的自由能时，我们有
+\begin{equation}
+  \sum_{\bm{h}} \ee^{\opT(\bm{v},\,\bm{h})} = 1;
+\end{equation}
+另一方面，给定 $\bm{v}$ 下的条件概率 $P(\bm{h}|\bm{v})$ 满足
+\begin{equation}
+  \sum{\bm{h}} P(\bm{h}|\bm{v}) = 1.
+\end{equation}
+这样可以得到
+\begin{equation}
+  H^{\text{RBM}}(\bm{v}) = H(\bm{v}),
+\end{equation}
+这说明经由 RBM 获得的概率分布严格等价于原始数据的分布。
+
 \section{利用 RBM 研究 Ising 模型}
 
 \section{卷积层}
@@ -396,6 +449,7 @@ RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出�
 
 为了克服这一问题，我们可以引入卷积层（convolution layer）。数学上，一维体系下的卷积可以定义如下：
 \begin{equation}
+  \label{eq:convolution-continuous}
   (f \ast g) (t) = \int_{-\infty}^{+\infty} f(\tau) \, g(t-\tau) \dd{\tau}.
 \end{equation}
 对于离散情况，有
@@ -427,6 +481,28 @@ RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出�
     中心的局部加权平均}
   \label{fig:convolution}
 \end{figure}
+
+\subsection{小波变换}
+
+类似于 Fourier 变换，小波变换（wavelet transform）也是一种函数变换。Fourier 变换将函数从时域转化为频域（物理上等价于从坐标空间变换到动量空间），即用具有不同频率的基函数（三角函数）将原始函数展开。与之类似，小波变换用一组母小波（mother wavelet）来展开原始函数。不同于三角函数，母小波具有收敛迅速的特点，因此利用母小波的平移，在给出频域特征的同时还可以保留一定的时域特征。
+
+在 $d$ 维空间中，利用母小波 $\psi$ 的缩放和平移可以张成一组基：
+\begin{equation}
+  \psi_{\bm{a},\,s}(\bm{x}) = \frac{1}{s^{d/2}} \psi\qty(\frac{\bm{x}-\bm{a}}{s}),
+\end{equation}
+其中的 $s$ 和 $\bm{a}$ 分别表征了 $\psi$ 的缩放和平移。任意函数可以利用这一组基展开：
+\begin{equation}
+  F(\bm{a},\,s) = \int \dd[d]{x} f(\bm{x}) \psi^\dagger_{\bm{a},\,s}(\bm{x}).
+\end{equation}
+这里 $\psi^\dagger$ 是 $\psi$ 的对偶小波。其逆变换为
+\footnote{由于数学上的某些限制，逆变换未必存在。}
+\begin{equation}
+  f(\bm{x}) = \frac{1}{C_\psi} \int_0^\infty \frac{\dd{s}}{s^{d+1}}
+              \int \dd[d]{a} F(\bm{a},\,s) \psi_{\bm{a},\,s}(\bm{x}).
+\end{equation}
+式中的 $C_\psi$ 为一系数。
+
+与 \eqref{eq:convolution-continuous}~式进行对照，可以看到小波变换也可以理解为一种卷积，它同样包括了平移之后再求和（积分）的操作。
 
 \section{卷积限制 Boltzmann 机（CRBM）}
 \section{利用 CRBM 研究 Ising 模型}
