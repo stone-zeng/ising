@@ -1,4 +1,4 @@
-\def\DRAFT{}
+%\def\DRAFT{}
 
 \ifdefined\DRAFT
   \PassOptionsToClass{draft}{ctexbook}
@@ -42,7 +42,9 @@
 \def\incr{{\symup{\Delta}}}
 \def\trans{{\symup{T}}}
 \def\opT{{\symbfup{T}}}
-\def\O{{\symscr{O}}} % Big O notation
+\def\opT{{\symbfup{T}}}
+\def\opO{{\symcal{O}}}
+\def\O{\mbox{\mathversion{script}$\symscr{O}$}} % Big O notation
 \def\likeL{{\symcal{L}}}
 \newcommand\trR[2][]{\mbox{\mathversion{script}$\symbfscr{R}^{\,#1}_{#2}$}}
 \newcommand\trA[2][]{\mbox{\mathversion{script}$\symbfscr{A}^{\,#1}_{#2}$}}
@@ -73,8 +75,8 @@
 
 %\maketitle
 
-%\include{chapters/ising}
-%\include{chapters/machine-learning}
+\include{chapters/ising}
+\include{chapters/machine-learning}
 \include{chapters/machine-learning-rg}
 
 \end{document}
