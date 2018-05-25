@@ -7,7 +7,7 @@
 \PassOptionsToPackage{no-math}{fontspec}
 \PassOptionsToPackage{showframe}{geometry}
 
-\documentclass[UTF8]{ctexbook}
+\documentclass[UTF8,oneside]{ctexbook}
 %\documentclass{fduthesis}
 \usepackage{amsmath,unicode-math,physics,siunitx,
   geometry,graphicx,enumitem,caption,subcaption,hyperref}
@@ -75,9 +75,18 @@
 \begin{document}
 
 %\maketitle
+\frontmatter
+\include{chapters/abstract}
 
+\mainmatter
 \include{chapters/ising}
 \include{chapters/machine-learning}
 \include{chapters/machine-learning-rg}
+\include{chapters/conclusion}
+
+\backmatter
+\ctexset{chapter/numbering=false}
+\include{chapters/appendix}
+\include{chapters/acknowledgements}
 
 \end{document}
