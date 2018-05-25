@@ -84,7 +84,7 @@ RBM 中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以�
 这里定义的 $H^{\text{RBM}}(\bm{v})$ 和 $H^{\text{RBM}}(\bm{h})$ 称为变分 Hamilton 量
 （variational Hamiltonian）。
 
-\section{CD-\textit{k} 训练算法}
+\section{\texorpdfstring{CD\raisebox{0.13ex}{-}\textit{k}}{CD-k} 训练算法}
 \label{sec:CDk-algorithm}
 
 RBM 常采用对比散度算法（contrastive divergence, \CDk）进行训练，它是一种计算极大似然梯度值的
@@ -570,7 +570,7 @@ DBN）］，才可以比较全面地展现出与重整化群的严格对应关�
        \int \dd[d]{x'} \dd{z'} G_i(\bm{x},z|\bm{x}'\!,z')
        \int \dd[d]{y_1} K_j(\bm{x}'\!,z'|\bm{y}_1)  \opO^j(\bm{y}_1)
        \int \dd[d]{y_2} K_k(\bm{x}'\!,z'|\bm{y}_2)  \opO^k(\bm{y}_2) \notag \\
-  &+ \O\qty(\frac{\lambda^2}{N^2}) \int \cdots
+  &+ \bigO\qty(\frac{\lambda^2}{N^2}) \int \cdots
 \end{align}
 其中的 $\opO^i$ 是与区块中场 $\phi^i$ 对偶的边界算符：
 \begin{equation}
