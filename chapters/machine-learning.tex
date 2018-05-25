@@ -102,7 +102,44 @@ $P(y=1)$。
 
 下面我们来介绍具体的训练过程。所用点阵大小分别为 $8 \times 8$、$12 \times 12$、$16 \times 16$、
 $24 \times 24$、$32 \times 32$、$48 \times 48$ 和 $64 \times 64$。数据由 Metropolis 算法生成，
-温度区间为 $[1.0,\,3.5]$，间隔为 0.1。
+选取温度区间 $T/J \in [1.0,\,3.6]$，间隔为 0.1；外磁场为零。进行 \num{1000} MCS 之后，认为体系
+达到平衡态，点阵数据即在此时抓取，如图~\ref{fig:ising-lattice} 所示。每个温度下重复独立运行
+\num{100} 组，因而对每个大小的点阵，一共有 \num{2700} 组训练数据。数据的特征向量取为点阵压平而成
+的一维向量，标签则依据温度进行选取：大于 $\Tc$ 为 1，小于 $\Tc$ 为 0。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-1-0.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-2-3.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-3-6.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{训练所用的 Ising 模型点阵数据，大小为 $64 \times 64$。
+    (a)~$\Tc/J=1.0$，为典型的低温有序相；
+    (b)~$\Tc/J=2.3$，处于临界温度附近，呈现出“花斑”图样，具有标度变换下的不变性；
+    (c)~$\Tc/J=3.6$，为高温无序相}
+  \label{fig:ising-lattice}
+\end{figure}
+
+训练使用 Mathematica 软件提供的机器学习框架。使用线性层（\code{LinearLayer[]}）+ 逻辑函数层
+（\code{LogisticSigmoid}）的网络结构，其余参数均采用默认值。每个大小的点阵，训练均大约需要半分钟。
+
+训练结束后，在测试集
+\footnote{原则上讲，测试集应当与训练集选取不同的数据样本，但这里方便起见，这里就采用训练集
+  作为测试集。}
+上给出预测结果，如图~\ref{fig:ising-learning-linear} 所示。最终给出的预测结果 $P$ 是数据标签的
+期望值，它等价于对应点阵样本属于无序相的概率。从图中可以看出，线性分类模型大致可以区分无序相和
+有序相，但预测效果不好，误差较大，尤其是较小点阵。
 
 \begin{figure}[htb]
   \centering
@@ -119,11 +156,20 @@ $24 \times 24$、$32 \times 32$、$48 \times 48$ 和 $64 \times 64$。数据由 
     \label{fig:ising-learning-linear-scaled}
   \end{subfigure}
   \caption{训练}
-  \label{fig:ising-learning-linear}
+  \label{fig:ising-learning-linear-total}
 \end{figure}
 
-从图中可以看出，线性分类模型大致可以区分无序相有有序相，但效果不好，误差较大。理论上，
-$P \sim tL^{1/\nu}$ 曲线应当完全重合，但图~\ref{fig:ising-learning-linear-scaled} 显示出了与理论结果相当大的偏离。对于较大点阵，很明显可以看到，线性模型几乎不能分清有序项的存在。这其实是训练部充分的体现。
+按照标度变换的原理，我们对点阵大小按温度进行缩放。可以证明，当横坐标取为
+\begin{equation}
+  tL^{1/\nu} = \frac{T-\Tc}{\Tc} L^{1/\nu}
+\end{equation}
+时，$P$ 曲线将与点阵大小无关，即各大小点阵对应的预测曲线完全重合。
+图~\ref{fig:ising-learning-linear-scaled} 显示出了与理论结果相当大的偏离，预测曲线仍有一定的
+尺度依赖性。由此我们可以认为，线性分类模型尽管可以给出合理的定性结果，但定量来看预测结果并不理想。
+
+需要指出的是，图~\ref{fig:ising-learning-linear-total} 中，相比其他尺寸，点阵大小 $64 \times 64$
+对应的预测数据有明显偏离。由于训练时间随训练数据大小增加迅速，而软件默认固定训练时间，因此对于
+较大尺寸的点阵，总训练轮次不够，训练不充分，预测结果也不够理想。
 
 \section{神经网络}
 
@@ -194,16 +240,20 @@ $\bm{x}^{(i)}$，标签为 $y^{(i)}$，则损失函数
 
 \section{Ising 模型相变研究（二）：多层神经网络}
 
-接下来我们利用如图~\ref{fig:neural-net} 所示的多层神经网络来对 Ising 模型的相进行分类。所用数据与 \ref{subsec:ising-linear-train-result}~小节中相同。具体训练参数如下：
+接下来我们利用如图~\ref{fig:neural-net} 所示的多层神经网络来对 Ising 模型的相进行分类。所用数据与
+\ref{subsec:ising-linear-train-result}~小节中相同。我们仍然使用 Mathematica 机器学习框架，具体训练
+参数如下：
 
 \begin{itemize}
+  \item 使用线性层 + 逻辑函数层 + 线性层 + 逻辑函数层的网络结构；
   \item 第一线性层神经元数量为原始数据大小的 $1/4$，如对于 $8 \times 8$ 点阵，神经元数量为 16；
-  %\item 
-  %\item 
-  %\item 
-  %\item 
-  %\item 
+  \item 为避免大尺寸下训练不充分的问题，我们在这里指定训练的总轮次：从 $8 \times 8$ 点阵到
+    $64 \times 64$ 点阵，总训练轮次（epoch）依次取为 500、350、160、120、75、40 和 40；
+  \item 其余训练参数取默认值。
 \end{itemize}
+
+由于没有指定训练时间目标，因而训练时间随点阵尺寸大小而增加。在所有数据集上的总训练时间约 20 分钟。
+训练结束后，在测试集上给出预测结果，如图~\ref{fig:ising-learning-net-total} 所示。
 
 \begin{figure}[htb]
   \centering
@@ -220,12 +270,13 @@ $\bm{x}^{(i)}$，标签为 $y^{(i)}$，则损失函数
     \label{fig:ising-learning-net-scaled}
   \end{subfigure}
   \caption{}
-  \label{fig:ising-learning-net}
+  \label{fig:ising-learning-net-total}
 \end{figure}
 
-与线性模型给出的结果图~\ref{fig:ising-learning-linear} 相比，神经网络的效果要好很多，尽管我们只是增加了一层网络。除了 $8 \times 8$ 点阵仍然存在一定误差，其他尺寸下神经网络均可清晰地分辨不同相的存在。图~\ref{fig:ising-learning-net-scaled} 也显示出了做尺度缩放之后的一致性。
-
-利用概率分布曲线，我们可以插值并反解出临界温度的位置（对应概率 $P=0.5$）。关于 $1/L$ 拟合，得到图~\ref{fig:ising-learning-net-fit}。给出的拟合结果为 $T_*/J=\num{2.2488(11)}$，这与理论值相差不大。
+与线性模型给出的结果图~\ref{fig:ising-learning-linear} 相比，神经网络的效果有了显著的改善，
+尽管从网络的结构上说，我们仅仅增加了一层感知机。除了 $8 \times 8$ 点阵仍然存在一定误差，在其他
+点阵尺寸下神经网络均为有序相和无序相划分了清晰的界限。图~\ref{fig:ising-learning-net-scaled}
+也显示出了进行标度变换之后的一致性。
 
 \begin{figure}[htb]
   \centering
@@ -233,3 +284,8 @@ $\bm{x}^{(i)}$，标签为 $y^{(i)}$，则损失函数
   \caption{}
   \label{fig:ising-learning-net-fit}
 \end{figure}
+
+对概率分布曲线进行插值处理后，我们可以反解出临界温度预测值 $T_*$ 的位置（对应概率 $P=0.5$）。
+将 $T_*$ 所得关于 $1/L$ 拟合，得到图~\ref{fig:ising-learning-net-fit}。
+与图~\ref{fig:ising-cv-fit-i} 相同，作延拓 $L\to\infty$ 将得到临界温度 $\Tc$。我们获得的拟合结果
+为 $\hat{\Tc}/J=\num{2.2488(11)}$，这与理论结果 \eqref{eq:ising-Tc}~式相差不大。

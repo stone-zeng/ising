@@ -49,6 +49,7 @@ Boltzmann 分布给出：
 
 二维 Ising 模型的严格解比较复杂。对于正方晶格，可利用对偶变换求出临界温度
 \begin{equation}
+  \label{eq:ising-Tc}
   \frac{\Tc}{J} = \frac{2}{\ln(1+\sqrt{2})} \approx \num{2.2692}.
 \end{equation}
 外场为零时，可以求得（单位自旋的）自由能为
@@ -454,10 +455,14 @@ $128 \times 128$，并采用周期性边界条件。选取温度区间 $T/J \in 
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-cv-fit-i}
+    \phantomcaption{}
+    \label{fig:ising-cv-fit-i}
   \end{subfigure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
     \imageinput{ising-cv-fit-ii}
+    \phantomcaption{}
+    \label{fig:ising-cv-fit-ii}
   \end{subfigure}
   \caption{利用图~\ref{fig:ising-cv-exact} 中热容的精确计算结果关于体系尺度拟合。
     (a)~临界温度随点阵尺度的变化，$x$、$y$ 轴均取对数坐标；

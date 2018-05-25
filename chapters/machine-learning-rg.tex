@@ -294,6 +294,7 @@ $\bm{h}'$，因此
 式中的 $\alpha$ 为学习率。
 
 \section{RBM 的应用：手写数字}
+\label{sec:rbm-mnist}
 
 本节我们将利用 MNIST 数据集训练 RBM，并基于已有数据生成新的数据，即让计算机学会“书写”数字。
 
@@ -391,7 +392,8 @@ RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出�
 \begin{figure}[htb]
   \centering
   \imageinput[width=12cm]{mnist-samples.pdf}
-  \caption{由训练完成的 RBM 生成的数字图像。第一行为原始图像，之后每一行增加 \num{500} 次 Gibbs 采样，到最后一行共进行了 \num{4000} 次采样}
+  \caption{由训练完成的 RBM 生成的数字图像。第一行为原始图像，之后每一行增加 \num{500} 次 Gibbs
+    采样，到最后一行共进行了 \num{4000} 次采样}
   \label{fig:mnist-samples}
 \end{figure}
 
@@ -440,6 +442,51 @@ RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见�
 这说明经由 RBM 获得的概率分布严格等价于原始数据的分布。
 
 \section{利用 RBM 研究 Ising 模型}
+
+鉴于 RBM 与重整化群之间存在一一对应的关系，利用 Ising 模型点阵数据训练 RBM 之后，我们得到的结果
+就相当于进行一次粗粒近似的重整化自旋集团。
+
+为了与 MNIST 数据集保持一致，我们采用由 Metropolis 算法生成的 $28 \times 28$ 点阵。采样温度为
+$\Tc+\num{0.03}$，外磁场为零。我们一共生成了 \num{60000} 组点阵数据，其中前 \num{59000} 组作为
+训练集，其余作为测试集。RBM 的训练参数与 \ref{sec:rbm-mnist}~节中相同，除了训练轮次改为 50
+（为了得到更好的训练结果）。训练结束后，给出权重矩阵（图~\ref{fig:ising-weight}）以及由 RBM 重建
+而成的 Ising 模型点阵（图~\ref{fig:ising-samples}）。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=10cm]{ising-weight.pdf}
+  \caption{训练结束时的权重矩阵}
+  \label{fig:ising-weight}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=12cm]{ising-samples.pdf}
+  \caption{由训练完成的 RBM 重建的 Ising 模型点阵。第一行为原始数据，之后每一行增加 \num{500}
+    次 Gibbs 采样，到最后一行共进行了 \num{4000} 次采样}
+  \label{fig:ising-samples}
+\end{figure}
+
+与 MNIST 数据集上的训练结果类似，权重矩阵给出了数据集的一些特征信息。一些子权重矩阵中出现了明暗相间
+的条纹（如 6 行 8 列、6 行 10 列、8 行 1 列等），这种权重可以识别出不同相的边界；更多的子矩阵中
+则出现了暗点（如 1 行 2 列、3 行 7 列、7 行 5 列等），它们反映了自旋的局域性信息，即在一个自旋集团
+中，只有中心位置的原始自旋会对粗粒近似下的有效自旋产生贡献，而其余位置的原始自旋则贡献很小。由 RBM
+所重建出的 Ising 模型点阵大致刻画了原始点阵的性质。对于明显具有标度变换不变性的结构（如第 6 列），
+重建点阵能够保持住原有的“花斑”图样。但与 MNIST 类似，RBM 的学习效果并不十分理想。例如第 4 列，重建
+点阵中存在明显的斑块，而这在原始数据中是不存在的。
+
+我们还给出了由 RBM 生成的隐藏层（图~\ref{fig:ising-hidden}）。事实上，该图并不能反映出实质性的
+物理信息。根据重整化群的思想，粗粒近似需要不断重复进行直至不动点的产生。因此我们可以推断，单层 RBM
+所揭示的物理图像并不完善，而只有 RBM 组合成多层神经网络［称为深度信念网络（deep belief network,
+DBN）］，才可以比较全面地展现出与重整化群的严格对应关系。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=12cm]{ising-hidden.pdf}
+  \caption{RBM 所给出的隐藏层。这是在图~\ref{fig:ising-samples} （除第一行）的基础上，额外进行一次
+    由可见层 $\bm{v}$ 到隐藏层 $\bm{h}$ 的 Gibbs 采样所得到的结果}
+  \label{fig:ising-hidden}
+\end{figure}
 
 \section{卷积层}
 
