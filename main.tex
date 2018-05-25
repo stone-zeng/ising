@@ -1,5 +1,5 @@
 \PassOptionsToPackage{log-declarations=false}{xparse}
-\PassOptionsToPackage{showframe}{geometry}
+%\PassOptionsToPackage{showframe}{geometry}
 
 \documentclass[oneside]{fduthesis}
 \usepackage{physics,siunitx,enumitem,subcaption}
@@ -7,7 +7,7 @@
 \fdusetup{
   style={
     font=none,
-    cjk-font=none,
+    cjk-font=founder,
     logo={fudan-name.pdf, fudan-emblem-new.pdf},
     footnote-style=xits,
     hyperlink-color=material,
@@ -23,6 +23,7 @@
     supervisor={孔令欣},
     supervisor-title={研究员},
     affiliation={复旦大学},
+    date={2018年5月25日},
     keywords={机器学习, Ising 模型, 神经网络, RBM, 卷积, \AdSCFT{}},
     keywords*={Machine learning, Ising model, Neural network, RBM, Convolution, \AdSCFT{}}
   }
@@ -40,17 +41,21 @@
 \ExplSyntaxOn
 \__fdu_set_math_font:nn
   { XITS~ Math } { math-style = ISO, bold-style = ISO, version = script }
+\cs_set:Npn \mathscript #1 { \mbox { \mathversion { script } #1 } }
 \ExplSyntaxOff
 % CJK fonts
-\setCJKmainfont{Source Han Serif SC}[ItalicFont=FZKai-Z03, BoldItalicFont=FZKai-Z03]
-\setCJKsansfont{Source Han Sans SC Medium}[%
-  BoldFont=Source Han Sans SC Bold, ItalicFont=*, BoldItalicFont=*]
-\setCJKmonofont{FZFangSong-Z02}
-\setCJKfamilyfont{kai}{FZKai-Z03}
+%\setCJKmainfont{FZGFShuSong}[%
+%  BoldFont=FZXiaoBiaoSong-B05,ItalicFont=FZKai-Z03, BoldItalicFont=FZKai-Z03]
+%\setCJKmainfont{Source Han Serif SC}[ItalicFont=FZKai-Z03, BoldItalicFont=FZKai-Z03]
+%\setCJKsansfont{Source Han Sans SC Medium}[%
+%  BoldFont=Source Han Sans SC Bold, ItalicFont=*, BoldItalicFont=*]
+%\setCJKmonofont{FZFangSong-Z02}
+%\setCJKfamilyfont{kai}{FZKai-Z03}
 % https://tex.stackexchange.com/a/11916/136923
-\def\CJKmovesymbol#1{\raise-0.08ex\hbox{#1}}
-\let\CJKsymbol\CJKmovesymbol
-\let\CJKpunctsymbol\CJKmovesymbol
+% Will break spaces between CJK characters.
+%\def\CJKmovesymbol#1{\raise-0.08ex\hbox{#1}}
+%\let\CJKsymbol\CJKmovesymbol
+%\let\CJKpunctsymbol\CJKmovesymbol
 
 \setlist[enumerate]{itemsep=0pt, parsep=\parskip, topsep=0pt}
 \setlist[itemize]{itemsep=0pt, parsep=\parskip, topsep=0pt}
@@ -67,16 +72,16 @@
 \def\opT{{\symbfup{T}}}
 \def\opT{{\symbfup{T}}}
 \def\opO{{\symcal{O}}}
-\def\bigO{\mbox{\mathversion{script}$\symscr{O}$}}
+\def\bigO{\mathscript{$\symscr{O}$}}
 \def\likeL{{\symcal{L}}}
-\newcommand\trR[2][]{\mbox{\mathversion{script}$\symbfscr{R}^{\,#1}_{#2}$}}
-\newcommand\trA[2][]{\mbox{\mathversion{script}$\symbfscr{A}^{\,#1}_{#2}$}}
+\newcommand\trR[2][]{\mathscript{$\symbfscr{R}^{\,#1}_{#2}$}}
+\newcommand\trA[2][]{\mathscript{$\symbfscr{A}^{\,#1}_{#2}$}}
 % Set
 \def\R{{\symbb{R}}}
 \def\Z{{\symbb{Z}}}
 \def\domD{{\symcal{D}}}
 \def\domN{{\symcal{N}}}
-\def\spaceV{\mbox{\mathversion{script}$\symscr{V}$}}
+\def\spaceV{\mathscript{$\symscr{V}$}}
 % Decorations
 \def\bm#1{{\symbf{#1}}}
 \def\nearest#1{\langle#1\rangle}
@@ -94,7 +99,6 @@
 
 \begin{document}
 
-%\maketitle
 \frontmatter
 \tableofcontents
 \begin{abstract}
@@ -105,15 +109,16 @@
 \end{abstract*}
 
 \mainmatter
-\include{chapters/ising}
-\include{chapters/machine-learning}
-\include{chapters/machine-learning-rg}
-\include{chapters/conclusion}
+\input{chapters/ising}
+\input{chapters/machine-learning}
+\input{chapters/machine-learning-rg}
+\input{chapters/conclusion}
 
 \backmatter
 \ctexset{chapter/numbering=false}
-\include{chapters/appendix}
+\input{chapters/appendix}
+\nocite{*}
 \printbibliography
-\include{chapters/acknowledgements}
+\input{chapters/acknowledgements}
 
 \end{document}

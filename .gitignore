@@ -1,4 +1,6 @@
 *.aux
+*.bak
+*.bat
 *.bbl
 *.bcf
 *.blg
@@ -9,6 +11,7 @@
 *.out
 *.pdf
 *.run.xml
+*.sav
 *.synctex.gz
 *.synctex(busy)
 *.thm
