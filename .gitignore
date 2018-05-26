@@ -18,7 +18,9 @@
 *.toc
 *.xdv
 
-fduthesis*
+*.cls
+*.def
+*.sty
 
 .vscode/
 plot.temp/

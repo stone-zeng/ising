@@ -2,15 +2,15 @@
 
 \section{限制 Boltzmann 机（RBM）}
 
-限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络（ generative
-stochastic artificial neural network ），它可以学习到输入数据的概率分布情况
-\cite{hinton2006reducing}。顾名思义，RBM 是 Boltzmann 机加上一定限制所得到的网络。一般的 Boltzmann
-机是一种基于能量的模型（energy-based model）\cite{zhouzhihua,rbmonline}。对于这种模型，我们可以
-赋予它一个能量函数。与物理学中类似，体系的稳定状态将在能量最低时达到，这一稳定状态即对应最优参数。
+限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络（generative
+stochastic neural network），它可以学习到输入数据的概率分布情况 \cite{hinton2006reducing}。
+顾名思义，RBM 是 Boltzmann 机加上一定限制所得到的网络。一般的 Boltzmann 机是一种基于能量的模型
+（energy-based model）\cite{zhouzhihua,rbmonline}。对于这种模型，我们可以赋予它一个能量函数。
+与物理学中类似，体系的稳定状态将在能量最低时达到，这一稳定状态即对应最优参数。
 
 Boltzmann 机的结构如图~\ref{fig:boltzmann-machine} 所示。它共有两层，与数据直接相连的称为可见层
 （visible layer），另一层称为隐藏层（hidden layer）。可见层用于处理输入输出，隐藏层则反应了数据的
-内在结构。无论是可见层还是隐藏层，其中的所有单元均全部连接在一起。Boltzmann 机的能量函数由下式给出
+内在结构。无论是可见层还是隐藏层，所有单元均全部连接在一起。Boltzmann 机的能量函数由下式给出
 \cite{zhouzhihua}：
 \begin{equation}
   E(\bm{s}) = E(\q{s_i}) = - \sum_{i<j} W_{ij} s_i s_j - \sum_i \theta_i s_i.
@@ -89,8 +89,9 @@ RBM 中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以�
 \section{\texorpdfstring{CD\raisebox{0.13ex}{-}\textit{k}}{CD-k} 训练算法}
 \label{sec:CDk-algorithm}
 
-RBM 常采用对比散度算法（contrastive divergence, \CDk）进行训练，它是一种计算极大似然梯度值的
-近似方法 \cite{zhouzhihua,rbmonline,lyy1994rbm,hinton2012practical,hinton2002training}。
+RBM 常采用对比散度算法（contrastive divergence, \CDk）进行训练，它是一种计算极大似然
+（maximum likelihood）梯度值的近似方法
+\cite{zhouzhihua,rbmonline,lyy1994rbm,hinton2012practical,hinton2002training}。
 
 \subsection{损失函数}
 
@@ -167,7 +168,7 @@ $\bm{v}$，则隐藏层分布为
   \bm{v}' \sim P\qty\big(\bm{v}\big|\bm{h}).
 \end{equation}
 式中，符号 $\bm{x}\sim P$ 表示按照概率 $P$ 生成 $\bm{x}$。考虑到 $\bm{v}$ 与 $\bm{h}$ 均为布尔型，
-我们可以近似用概率直接代替 $\bm{v}$ 和 $\bm{h}$。
+我们可以近似用概率（的取整结果）直接代替 $\bm{v}$ 和 $\bm{h}$。
 
 \begin{figure}[htb]
   \centering
@@ -274,8 +275,8 @@ $P(\bm{h}|\bm{v})$。利用乘法公式，有 \cite{zhouzhihua,rbmonline}
 \end{equation}
 此即式~\eqref{eq:rmb-gradient-approx} 中的正相部分。
 
-通过 Gibbs 采样，负相部分的形式与正相部分完全一致，只需把 $\bm{v}$、$\bm{h}$ 换成 $\bm{v}'$、
-$\bm{h}'$，因此
+通过 Gibbs 采样，负相部分的形式与正相部分完全一致，只要把 $\bm{v}$、$\bm{h}$ 换成 $\bm{v}'$、
+$\bm{h}'$，因此有
 \begin{equation}
   \pdv{F(\bm{v}')}{\bm{W}} = - \bm{v}' {\bm{h}'}^\trans \qc
   \pdv{F(\bm{v}')}{\bm{b}} = - \bm{v}' \qc
@@ -328,7 +329,7 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
   \item 可见层单元数量：784（$=28 \times 28$），即把图片压平为一维向量；
   \item 隐藏层单元数量：100；
   \item 批次（batch）大小：64，表示每次同时计算的样本数量；
-  \item 训练轮次（epoch）：20，一个轮次表示将整个数据集训练一遍；
+  \item 训练轮次：20，一个轮次表示将整个数据集训练一遍；
   \item \CDk{} 中的参数 $k=30$；
   \item 学习率 $\alpha=0.1$。
 \end{enumerate}
@@ -339,7 +340,7 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
 \begin{figure}[htb]
   \centering
   \imageinput{learning-curve}
-  \caption{学习曲线。这里的步数等于批次数与训练轮次的乘积，注意取了对数坐标}
+  \caption{学习曲线。这里的步数（steps）等于批次数与训练轮次的乘积，注意取了对数坐标}
   \label{fig:learning-curve}
 \end{figure}
 
@@ -375,7 +376,7 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
 但仍有较大噪音（图~\ref{fig:mnist-weight-epoch-b}）；到第 20 轮即训练结束时，各子权重矩阵均显著
 出现了明暗对比，具有清晰的笔画线条，并且噪音较小（图~\ref{fig:mnist-weight-epoch-c}
 和图~\ref{fig:mnist-weight}）。注意到图~\ref{fig:mnist-weight} 中仍有一些子权重矩阵的训练效果不
-理想，出现了较的涨落。但可以预料，随着训练轮次的持续增加，涨落会逐渐减小。
+理想，出现了较大的涨落。但可以预料，随着训练轮次的继续增加，涨落还会逐渐减小。
 
 \begin{figure}[!htb]
   \centering
@@ -396,7 +397,7 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
 利用 Gibbs 采样生成隐藏层，再以同样方式返回到可见层，以此类推进行迭代，结果见图~%
 \ref{fig:mnist-samples}。经过若干次采样之后，RBM 确实给出了不同于原始图像的分布，即学会了“书写”
 数字。对于笔画比较简单的数字，如 1、7 等，学习效果较好；但对于稍复杂的数字，如 3、6 等，训练后的
-RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出了模糊的阴影，并没有较好地复现原始图像。
+RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出了模糊的阴影，并没有很好地复现原始图像。
 这说明 RBM 训练算法仍有可以提高的余地。
 
 \section{RBM 与重整化群的对应关系}
@@ -409,8 +410,8 @@ RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见�
     \ee^{-H^{\text{RG}}(\bm{h})}
   = \sum_{\bm{v}} \ee^{\opT(\bm{v},\,\bm{h})-H(\bm{v})}.
 \end{equation}
-这里我们已经把自旋 $\sigma_i'$、$\sigma_i'$ 用 RBM 的语言（$\bm{v}$、$\bm{h}$）进行表述，
-并把 $\beta$ 归入了 $H$。下面我们令
+这里我们已经把自旋 $\sigma_i'$、$\sigma_i'$ 用 RBM 的语言 $\bm{v}$、$\bm{h}$ 进行表述，
+并把 $\beta$ 归入了 $H$。接下来我们令
 \begin{equation}
   \opT(\bm{v},\,\bm{h}) = H(\bm{v}) - E(\bm{v},\,\bm{h}).
 \end{equation}
@@ -436,7 +437,7 @@ RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见�
 \end{equation}
 另一方面，给定 $\bm{v}$ 下的条件概率 $P(\bm{h}|\bm{v})$ 满足
 \begin{equation}
-  \sum{\bm{h}} P(\bm{h}|\bm{v}) = 1.
+  \sum_{\bm{h}} P(\bm{h}|\bm{v}) = 1.
 \end{equation}
 这样可以得到
 \begin{equation}
@@ -450,9 +451,9 @@ RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见�
 就相当于进行一次粗粒近似的重整化自旋集团。
 
 为了与 MNIST 数据集保持一致，我们采用由 Metropolis 算法生成的 $28 \times 28$ 点阵。采样温度为
-$\Tc+\num{0.03}$，外磁场为零。我们一共生成了 \num{60000} 组点阵数据，其中前 \num{59000} 组作为
-训练集，其余作为测试集。RBM 的训练参数与 \ref{sec:rbm-mnist}~节中相同，除了训练轮次改为 50
-（为了得到更好的训练结果）。训练结束后，给出权重矩阵（图~\ref{fig:ising-weight}）以及由 RBM 重建
+$\Tc/J+\num{0.03}$，外磁场为零。我们一共生成了 \num{60000} 组点阵数据，其中前 \num{59000} 组作为
+训练集，其余作为测试集。RBM 的训练参数与 \ref{sec:rbm-mnist}~节中相同，除了训练轮次改为 50，
+以得到更好的训练结果。待训练结束后，给出权重矩阵（图~\ref{fig:ising-weight}）以及由 RBM 重建
 而成的 Ising 模型点阵（图~\ref{fig:ising-samples}）。
 
 \begin{figure}[htb]
@@ -606,9 +607,9 @@ $\Delta_i$ 是 $\opO^i$ 的共形维数（conformal dimension）；$K_i(\bm{x},z
   \psi_{\bm{a},\,s}(\bm{x})
   = \frac{1}{z^{d/2}} \psi\qty(\frac{\bm{y}-\bm{x}}{z})
   = \frac{1}{z^{d/2}} \qty(\frac{1}{1-\norm{\frac{\bm{y}-\bm{x}}{z}}^2})^{d-\Delta}
-    \Theta\qty\big(1-\norm{\frac{\bm{y}-\bm{x}}{z}}^2).
+    \Theta\qty(1-\norm{\frac{\bm{y}-\bm{x}}{z}}^2).
 \end{equation}
-立即得到
+这样即可得到
 \begin{equation}
   K(\bm{x},z|\bm{y}) = z^{\Delta-d/2} \psi_{\bm{x},\,z}(\bm{y}).
 \end{equation}
@@ -632,21 +633,21 @@ $K_i$ 的定量结果。
 \subsection{网络构建}
 
 在图~\ref{fig:rbm} 中，我们给出了 RBM 的网络构建。与图~\ref{fig:neural-net} 比较，可以看出二者
-十分相似。事实上，RBM 正是基于线性网络的能量模型，它的核心是在线性映照 $x\to\bm{W}\bm{x}+\bm{b}$
-基础上给出的能量函数 \eqref{eq:rbm-energy}~式。
+十分相似。事实上，RBM 正是基于线性网络的能量模型，它的核心是在线性映照
+$\bm{x}\to\bm{W}\bm{x}+\bm{b}$ 基础上给出的能量函数 \eqref{eq:rbm-energy}~式。
 
 \begin{figure}[htb]
   \centering
   \imageinput{crbm.pdf}
-  \caption{卷积限制 Boltzmann 机示意图。绿色菱形为卷积核，它们作用在可见层（红色圆圈）上，
-    并产生隐藏层（蓝色方块）。与图~\ref{fig:rbm} 这里单元之间的连线并不表示权重。不同深浅的连线
-    展现了卷积核与可见层不同位置的对应。在实际训练中，可见层、隐藏层与卷积核均是二维矩阵，
-    相比该示意图额外还有一个垂直纸面的维度}
+  \caption{卷积限制 Boltzmann 机示意图。绿色菱形表示卷积核，它们作用在可见层（红色圆圈）上，
+    并生成隐藏层（蓝色方块）。与图~\ref{fig:rbm} 不同，这里单元之间的连线并不表示权重。不同深浅的
+    连线展现了卷积核与可见层不同位置的对应。需要注意，可见层、隐藏层与卷积核实际上均是二维矩阵，
+    它们相比该示意图额外还有一个垂直纸面的维度}
   \label{fig:crbm}
 \end{figure}
 
-下面我们需要把线性网络改变成卷积网络，称为卷积 RBM（CRBM），如图~\ref{fig:crbm} 所示。
-线性网络中，可见层与隐藏层之间有如下关系：
+下面我们需要把线性网络改变成卷积网络，称为卷积 RBM（CRBM），如图~\ref{fig:crbm} 所示
+\cite{lee2009convolutional,lee2011unsupervised}。线性网络中，可见层与隐藏层之间有如下关系：
 \begin{equation}
   \bm{h}+\bm{c} \sim \bm{W} (\bm{v}+\bm{b}).
 \end{equation}
@@ -660,7 +661,8 @@ $K_i$ 的定量结果。
   h_{\bm{j}} + c_{\bm{j}} \sim \sum_{\bm{i}} W_{\bm{i}} (v_{\bm{i}+\bm{j}} + b_{\bm{i}+\bm{j}}).
 \end{equation}
 注意这里的指标 $\bm{i}$、$\bm{j}$ 均有两个维度，而不再是一个整数，且求和需要对两个维度分别进行。
-类比 \eqref{eq:rbm-energy}~式，我们可以写出 CRBM 的能量函数：
+类比 \eqref{eq:rbm-energy}~式，我们可以写出 CRBM 的能量函数
+\cite{lee2009convolutional,lee2011unsupervised}：
 \begin{equation}
   E(\bm{v},\,\bm{h})
   = - \sum_{\bm{i},\,\bm{j}} W_{\bm{i}} v_{\bm{i}+\bm{j}} h_{\bm{j}}
