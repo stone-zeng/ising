@@ -1,0 +1,256 @@
+\PassOptionsToPackage{log-declarations=false}{xparse}
+\PassOptionsToPackage{no-math}{fontspec}
+\documentclass[aspectratio=169]{beamer}
+\usepackage{fontspec,amsmath,unicode-math,physics,siunitx,subcaption}
+
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usecolortheme{metropolis}
+\usefonttheme{professionalfonts}
+
+\setbeamerfont{title}{size=\LARGE, series=\bfseries}
+%\setbeamerfont{author}{size=\small}
+%\setbeamerfont{date}{size=\small}
+%\setbeamerfont{section title}{size=\Large, series=\bfseries}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setbeamerfont{caption}{size=\small}
+\setbeamerfont{caption name}{series=\bfseries}
+%\setbeamerfont{alerted text}{series=\bfseries}
+\setbeamertemplate{title page}{
+  \begin{minipage}[b]{\textwidth}
+    \mbox{}\vfill
+    \usebeamertemplate*{title}
+    \usebeamertemplate*{title separator}
+    \usebeamertemplate*{author}
+    \usebeamertemplate*{date}
+    \usebeamertemplate*{institute}
+    \mbox{}\hfill\inserttitlegraphic
+    \vspace{-1.5cm}
+  \end{minipage}
+}
+\setbeamertemplate{section in toc}[sections numbered]
+%\makeatletter
+%\AtBeginSection{
+%  \ifbeamer@inframe
+%    \sectionpage
+%  \else
+%    \frame[plain]{\sectionpage}
+%  \fi
+%}
+%\makeatother
+
+\setsansfont{FiraGO}[BoldFont=* SemiBold]
+\setmathfont{fira-math.otf}[Path=fonts/, BoldFont=*, math-style=ISO, bold-style=ISO, mathrm=sym]
+
+% Constants
+\def\ee{{\symup{e}}}
+\def\ii{{\symup{i}}}
+\def\pp{{\symup{\pi}}}
+\def\kB{k_{\symup{B}}}
+\def\Tc{T_{\!\symup{c}}}
+% Operators
+\def\incr{{\symup{\Delta}}}
+\def\trans{{\symup{T}}}
+\def\opT{{\symbfup{T}}}
+\def\opT{{\symbfup{T}}}
+\def\opO{{\symcal{O}}}
+%\def\bigO{\mathscript{$\symscr{O}$}}
+\def\likeL{{\symcal{L}}}
+\newcommand\trR[2][]{\symbfup{R}^{\,#1}_{#2}}
+%\newcommand\trA[2][]{\mathscript{$\symbfscr{A}^{\,#1}_{#2}$}}
+% Set
+\def\R{{\symbb{R}}}
+\def\Z{{\symbb{Z}}}
+\def\domD{{\symcal{D}}}
+\def\domN{{\symcal{N}}}
+%\def\spaceV{\mathscript{$\symscr{V}$}}
+% Decorations
+\def\bm#1{{\symbf{#1}}}
+\def\nearest#1{\langle#1\rangle}
+\def\q#1{{\{#1\}}}
+% Text
+\def\const{\text{const}}
+
+\newcommand\imageinput[2][]{\includegraphics[#1]{figures/#2}}
+
+\def\CDk{CD-$k$}
+\def\AdSCFT{AdS/CFT}
+
+\title{Machine Learning and Ising Model}
+\date{\today}
+\author{Xiangdong Zeng}
+\institute{Department of Physics, Fudan University}
+\titlegraphic{\includegraphics[height=1.2cm]{figures/fudan-emblem.pdf}}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Table of contents}
+\begin{itemize}
+  \item \textbf{Ising model}
+    \begin{itemize}
+      \item Statistical physics, critical behaviors, etc
+      \item Monte Carlo simulation
+    \end{itemize}
+  \item \textbf{Machine learning}
+    \begin{itemize}
+      \item Basic ideas
+      \item Linear model
+      \item Neural network
+    \end{itemize}
+  \item \textbf{Machine learning and renormalization group (RG)}
+    \begin{itemize}
+      \item Boltzmann machine and restricted Boltzmann machine (RBM)
+      \item \CDk{} algorithm
+      \item RBM for MNIST and Ising model
+      \item Convolution, wavelet transform, etc
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Ising Model}
+
+\begin{frame}{Ising Model}
+\begin{itemize}
+  \item ``Binary'' spins ($+1$ or $-1$) arranged in a lattice
+  \item Simplest model for (anti)-ferromagnetism and phase transition
+  \item Hamiltonian:
+    \[
+      H(\q{\sigma_i}) = -\sum_{\nearest{ij}} J_{ij}\sigma_i\sigma_j - \mu \sum_{i} B_i\sigma_i
+                      = -J \sum_{\nearest{ij}} \sigma_i\sigma_j - \mu B \sum_{i} \sigma_i
+    \]
+  \item Probability of configuration $\q{\sigma_i}$:
+    \[
+      P(\q{\sigma_i}) = \frac{\ee^{-\beta H(\q{\sigma_i})}}{Z_N} \qc
+      Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Exact solutions}
+\begin{itemize}
+  \item One dimension: no phase transition
+  \item Two dimension
+    \begin{itemize}
+      \item Heat capacity (logarithmic divergence):
+        \[ \frac{C}{N} \simeq \num{-0.4945} \ln\abs{1-\frac{T}{\Tc}} + \const \]
+      \item Spontaneous magnetization:
+        \[
+          \frac{\bar{M}}{N\mu} =
+          \begin{cases}
+            \qty(1 - \sinh^{-4} 2\beta J)^{1/8}, & T<\Tc \\
+            0, & T>\Tc
+          \end{cases}
+        \]
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Critical behaviors and RG}
+\begin{itemize}
+  \item Universality: $\xi\to\infty$ at critical point
+  \item Partition function is scale-invariant
+    \begin{itemize}
+      \item Partition function:
+        \[ Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i},\,\bm{K})} \]
+      \item Hamiltonian:
+        \[
+            H(\q{\sigma_i},\,\bm{K})
+          = - \sum_i K^{(1)}_i \sigma_i
+            - \sum_{\nearest{ij}}  K^{(2)}_{ij}  \sigma_i\sigma_j
+            - \sum_{\nearest{ijk}} K^{(3)}_{ijk} \sigma_i\sigma_j\sigma_k - \cdots
+        \]
+      \item Scale transformation:
+        \[ N' = L^{-d} N \qc \xi' = L^{-1} \xi \]
+      \item Summation over Kadanoff's block $\q{\sigma_i'}$:
+        \[
+          Z_{N'}
+          = \sum_\q{\sigma'_i} \ee^{-\beta H^{\text{RG}}(\q{\sigma_i'},\,\bm{K}')}
+          = \sum_\q{\sigma'_i} \sum_\q{\sigma_i}
+            \ee^{-\beta \qty\big[H(\q{\sigma_i},\,\bm{K})
+                 -\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})]} \qc
+          \bm{K}' = \trR{L}(\bm{K})
+        \]
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Monte Carlo simulation}
+\begin{itemize}
+  \item Basic idea: average over samples instead of all configurations
+  \item Distribution evolution:
+    \begin{align*}
+      P\qty\big(\q{\sigma_i},\,t+1) = P\qty\big(\q{\sigma_i},\,t)
+      &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+         \notag \\
+      &- \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+    \end{align*}
+  \item Detailed balance condition:
+    \[
+        P_{\text{eq}}(\q{\sigma_i})  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+      = P_{\text{eq}}(\q{\sigma'_i}) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+    \]
+  \item Metropolis transition rates:
+    \[
+      W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
+      \begin{cases}
+        1, & \incr{E} \leqslant 0 \\
+        \ee^{-\beta \incr{E}}, & \incr{E} > 0
+      \end{cases}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Algorithm}
+\begin{enumerate}
+  \item Initialize all the spins: set spins to be 0 or 1 \emph{randomly}.
+  \item Generate a trial state $\q{\sigma'_i}$ that is near the current state $\q{\sigma_i}$
+    \begin{itemize}
+      \item Usually we can flip a single spin.
+    \end{itemize}
+  \item Calculate $\incr{E}$ and accept probability $P$. If random number $\xi<P$, then flip the
+    corresponding spin.
+  \item Perform step 2 and 3 for all the lattice (one Monte Carlo step, MCS).
+    \begin{itemize}
+      \item To maintain detailed balance, we should choose the spin \emph{randomly}.
+      \item Flipping one-by-one is also acceptable for efficiency.
+    \end{itemize}
+  \item Repeat step 2--4 for some time, then we can measure some thermodynamic observables and
+    calculate their mean values and standard errors.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Simulation results}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-energy}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-magnet}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-cv}
+  \end{subfigure}
+  \caption{(a) Energy; (b) spontaneous magnetization; (c) heat capacity.
+    Sampling density is increased near $\Tc$. Error bar means one $\sigma$.}
+\end{figure}
+\end{frame}
+
+\section{Machine Learning}
+
+\begin{frame}{Machine Learning}
+  
+\end{frame}
+
+\section{Machine Learning and RG}
+
+\begin{frame}{RBM}
+  
+\end{frame}
+
+\end{document}

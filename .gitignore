@@ -1,6 +1,5 @@
 *.aux
 *.bak
-*.bat
 *.bbl
 *.bcf
 *.blg
@@ -8,10 +7,11 @@
 *.fls
 *.fmt
 *.log
+*.nav
 *.out
-*.pdf
 *.run.xml
 *.sav
+*.snm
 *.synctex.gz
 *.synctex(busy)
 *.thm
@@ -22,8 +22,13 @@
 *.def
 *.sty
 
+*.pdf
+
+*.bat
+
 .vscode/
 plot.temp/
 figures/src/@*
+fonts/
 TODO.md
 chapters/acknowledgements.tex
