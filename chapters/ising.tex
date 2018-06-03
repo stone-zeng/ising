@@ -238,8 +238,8 @@ $\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇
     H(\q{\sigma_i})
   = H(\q{\sigma_i},\,\bm{K})
   = - \sum_i K^{(1)}_i \sigma_i
-    - \sum_{\nearest{ij}} K^{(2)}_{ij} \sigma_i\sigma_j
-    - \sum_{\nearest{ijk}} K^{(3)}_{ijk} B_i\sigma_i\sigma_j\sigma_k - \cdots
+    - \sum_{\nearest{ij}}  K^{(2)}_{ij}  \sigma_i\sigma_j
+    - \sum_{\nearest{ijk}} K^{(3)}_{ijk} \sigma_i\sigma_j\sigma_k - \cdots
 \end{equation}
 耦合参数 $\bm{K}$ 可以表征体系中的多种相互作用 \cite{pathria,surukeng}。
 
@@ -379,7 +379,7 @@ $\ee^{-\beta H(\q{\sigma_i})}$，因而有
   W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
   \begin{cases}
     1, & \incr{E} \leqslant 0; \\
-    \ee^{-\beta \incr{E}}, & \incr{E} > 0. \\
+    \ee^{-\beta \incr{E}}, & \incr{E} > 0.
   \end{cases}
 \end{equation}
 
@@ -408,23 +408,23 @@ Metropolis 算法是 Monte Carlo 模拟的一种具体实现，它给出了选�
 \begin{figure}[htb]
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
-    \imageinput{ising-energy}
+    \imageinput{ising-energy.pdf}
     \phantomcaption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
-    \imageinput{ising-magnet}
+    \imageinput{ising-magnet.pdf}
     \phantomcaption{}
   \end{subfigure}
   \\[3ex]
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
-    \imageinput{ising-cv}
+    \imageinput{ising-cv.pdf}
     \phantomcaption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.47\textwidth}
     \hfill
-    \imageinput{ising-cv-exact}
+    \imageinput{ising-cv-exact.pdf}
     \phantomcaption{}
     \label{fig:ising-cv-exact}
   \end{subfigure}
@@ -460,13 +460,13 @@ $128 \times 128$，并采用周期性边界条件。选取温度区间 $T/J \in 
 \begin{figure}[htb]
   \begin{subfigure}[b]{0.48\textwidth}
     \hfill
-    \imageinput{ising-cv-fit-i}
+    \imageinput{ising-cv-fit-i.pdf}
     \phantomcaption{}
     \label{fig:ising-cv-fit-i}
   \end{subfigure}
   \begin{subfigure}[b]{0.48\textwidth}
     \hfill
-    \imageinput{ising-cv-fit-ii}
+    \imageinput{ising-cv-fit-ii.pdf}
     \phantomcaption{}
     \label{fig:ising-cv-fit-ii}
   \end{subfigure}

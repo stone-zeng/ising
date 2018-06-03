@@ -22,13 +22,13 @@ $\theta_i$ 则表示单元 $s_i$ 处的偏差。
   \centering
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \imageinput{boltzmann-machine}
+    \imageinput{boltzmann-machine.pdf}
     \caption{}
     \label{fig:boltzmann-machine}
   \end{subfigure}
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \imageinput{rbm}
+    \imageinput{rbm.pdf}
     \vspace{0.4cm}
     \caption{}
     \label{fig:rbm}
@@ -137,7 +137,7 @@ RBM 所采用的训练数据集只包含了可见层的内容，即
    = \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
      - \frac{1}{Z} \sum_{\bm{v}} \ee^{-F(\bm{v})} \pdv{F(\bm{v})}{\bm{\theta}} \notag \\
   &= \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
-     - \sum_{\bm{v}} P\qty\big(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}.
+     - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}.
 \end{align}
 其中的参数 $\bm{\theta}$ 包含连接权重 $\bm{W}$、可见层偏差 $\bm{b}$ 与隐藏层偏差 $\bm{c}$。
 
@@ -160,19 +160,19 @@ Carlo 方法 \cite{rbmonline}：
 $\bm{v}$，则隐藏层分布为
 \begin{equation}
   \label{eq:hidden-layer-dist}
-  \bm{h} \sim P\qty\big(\bm{h}\big|\bm{v});
+  \bm{h} \sim P(\bm{h}\big|\bm{v});
 \end{equation}
 由此可计算下一组可见层分布
 \begin{equation}
   \label{eq:visible-layer-dist}
-  \bm{v}' \sim P\qty\big(\bm{v}\big|\bm{h}).
+  \bm{v}' \sim P(\bm{v}\big|\bm{h}).
 \end{equation}
 式中，符号 $\bm{x}\sim P$ 表示按照概率 $P$ 生成 $\bm{x}$。考虑到 $\bm{v}$ 与 $\bm{h}$ 均为布尔型，
 我们可以近似用概率（的取整结果）直接代替 $\bm{v}$ 和 $\bm{h}$。
 
 \begin{figure}[htb]
   \centering
-  \imageinput{gibbs-sampling}
+  \imageinput{gibbs-sampling.pdf}
   \caption{Gibbs 采样的示意图。上标代表进行的采样次数}
   \label{fig:gibbs-sampling}
 \end{figure}
@@ -339,7 +339,7 @@ MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手�
 
 \begin{figure}[htb]
   \centering
-  \imageinput{learning-curve}
+  \imageinput{learning-curve.pdf}
   \caption{学习曲线。这里的步数（steps）等于批次数与训练轮次的乘积，注意取了对数坐标}
   \label{fig:learning-curve}
 \end{figure}
@@ -420,7 +420,7 @@ RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见�
   &\mathrel{\phantom{\implies}}
     \frac{1}{Z} \ee^{-H^{\text{RG}}(\bm{h})}
   = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
-  = p(\bm{h})
+  = P(\bm{h})
   = \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})} \notag \\
   &\implies H^{\text{RG}}(\bm{h}) = H^{\text{RBM}}(\bm{h}).
 \end{align}
