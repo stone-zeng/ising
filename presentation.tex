@@ -1,5 +1,6 @@
 \PassOptionsToPackage{log-declarations=false}{xparse}
 \PassOptionsToPackage{no-math}{fontspec}
+%\PassOptionsToPackage{draft}{graphicx}
 \documentclass[aspectratio=169]{beamer}
 \usepackage{fontspec,amsmath,unicode-math,physics,siunitx,subcaption}
 
@@ -9,13 +10,10 @@
 \usefonttheme{professionalfonts}
 
 \setbeamerfont{title}{size=\LARGE, series=\bfseries}
-%\setbeamerfont{author}{size=\small}
-%\setbeamerfont{date}{size=\small}
-%\setbeamerfont{section title}{size=\Large, series=\bfseries}
 \setbeamerfont{frametitle}{series=\bfseries}
-\setbeamerfont{caption}{size=\small}
+\setbeamerfont{caption}{size=\footnotesize}
 \setbeamerfont{caption name}{series=\bfseries}
-%\setbeamerfont{alerted text}{series=\bfseries}
+\setbeamerfont{footnote}{size=\tiny}
 \setbeamertemplate{title page}{
   \begin{minipage}[b]{\textwidth}
     \mbox{}\vfill
@@ -29,18 +27,21 @@
   \end{minipage}
 }
 \setbeamertemplate{section in toc}[sections numbered]
-%\makeatletter
-%\AtBeginSection{
-%  \ifbeamer@inframe
-%    \sectionpage
-%  \else
-%    \frame[plain]{\sectionpage}
-%  \fi
-%}
-%\makeatother
+\makeatletter
+\AtBeginSection{
+  \ifbeamer@inframe
+    \sectionpage
+  \else
+    \frame[plain]{\sectionpage}
+  \fi
+}
+\makeatother
 
 \setsansfont{FiraGO}[BoldFont=* SemiBold]
+\setmonofont{Iosevka}
 \setmathfont{fira-math.otf}[Path=fonts/, BoldFont=*, math-style=ISO, bold-style=ISO, mathrm=sym]
+
+\captionsetup[sub]{font=footnotesize}
 
 % Constants
 \def\ee{{\symup{e}}}
@@ -86,6 +87,7 @@
 
 \maketitle
 
+\iffalse
 \begin{frame}{Table of contents}
 \begin{itemize}
   \item \textbf{Ising model}
@@ -109,9 +111,9 @@
 \end{itemize}
 \end{frame}
 
-\section{Ising Model}
+\section{Part 1. Ising model}
 
-\begin{frame}{Ising Model}
+\begin{frame}{Ising model}
 \begin{itemize}
   \item ``Binary'' spins ($+1$ or $-1$) arranged in a lattice
   \item Simplest model for (anti)-ferromagnetism and phase transition
@@ -177,6 +179,7 @@
 \end{frame}
 
 \begin{frame}{Monte Carlo simulation}
+\small
 \begin{itemize}
   \item Basic idea: average over samples instead of all configurations
   \item Distribution evolution:
@@ -216,12 +219,34 @@
       \item To maintain detailed balance, we should choose the spin \emph{randomly}.
       \item Flipping one-by-one is also acceptable for efficiency.
     \end{itemize}
-  \item Repeat step 2--4 for some time, then we can measure some thermodynamic observables and
+  \item Repeat step 2--4 for some time, then we can measure the thermodynamic observables and
     calculate their mean values and standard errors.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Simulation results}
+\begin{frame}{Simulation results (1)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-1-0.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-2-3.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-3-6.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{$64 \times 64$ Ising lattice at (a) $\Tc/J=1.0$; (b) $\Tc/J=2.3$; (c) $\Tc/J=3.6$.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Simulation results (2)}
 \begin{figure}
   \centering
   \begin{subfigure}[b]{0.32\textwidth}
@@ -241,16 +266,192 @@
 \end{figure}
 \end{frame}
 
-\section{Machine Learning}
+\section{Part 2. Machine learning}
 
-\begin{frame}{Machine Learning}
-  
+\begin{frame}{Basic ideas}
+\begin{itemize}
+  \item Extract features from data, build models, make predictions or decisions with the help of
+    computers
+  \item Give machine the ability to ``learn''
+  \item Categories:
+    \begin{itemize}
+      \item Supervised learning: regression, classification, etc
+      \item Unsupervised learning: clustering, dimensionality reduction, etc
+    \end{itemize}
+  \item Main steps:
+    \begin{enumerate}
+      \item Build a reasonable model based on data's feature;
+      \item Give the \alert{loss function};
+      \item Train on the dataset (training set), find the parameters to minimize the loss function;
+      \item Validate the model and parameters, fine tuning (validation set);
+      \item Test the trained model on \emph{new} dataset (test set).
+    \end{enumerate}
+\end{itemize}  
 \end{frame}
 
-\section{Machine Learning and RG}
+\begin{frame}{Linear regression}
+\begin{itemize}
+  \item Hypothesis:
+    \[ h_\bm{\theta} (\bm{x}) = \sum_{j=0}^n \theta_j x_j = \bm{\theta}^\trans \bm{x} \]
+  \item Loss function:
+    \[
+      L(\bm{\theta})
+      = \frac{1}{2} \sum_{i=1}^m \qty\Big[y^{(i)} - h_\bm{\theta}\qty\big(\bm{x}^{(i)})]^2
+    \]
+  \item Exact solution:
+    \[ \hat{\bm{\theta}} = \qty\big(\bm{X}^\trans\bm{X})^{-1} \bm{X}^\trans \bm{y} \]
+  \item Not realistic with large dataset --- \alert{gradient descent}
+    \[ \bm{\theta} \coloneq \bm{\theta} - \alpha \, \nabla\bm{\theta} \]
+\end{itemize}
+\end{frame}
 
-\begin{frame}{RBM}
-  
+\begin{frame}{Linear classifier (logistic regression)}
+\begin{columns}[t]
+  \begin{column}{0.52\textwidth}
+    \begin{itemize}
+      \item Hypothesis:
+        \[ h_\bm{\theta} (\bm{x}) = \sigma(\bm{\theta}^\trans \bm{x}) \]
+      \item Activation function:
+        \[ \sigma(z) = \frac{1}{1+\ee^{-z}} \]
+      \item Loss function:
+        \[
+          L(\bm{\theta})
+          = \sum_{i=1}^m \log\qty\Big{1+\exp[-y^{(i)} h_\bm{\theta}\qty\big(\bm{x}^{(i)})]}
+        \]
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[width=0.9\textwidth]{linear-layer}
+      \caption{Network structure of the linear classifier}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Neural network}
+\begin{columns}[t]
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=3.8cm]{multipolar-neuron.png}
+      \caption{A multipolar neuron \footnotemark}
+    \end{figure}
+  \end{column}
+  \begin{column}{0.54\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=3.8cm]{neural-net}
+      \caption{A two-layer neural network (perceptron)}
+    \end{figure}
+  \end{column}
+\end{columns}
+\footnotetext{Source: \url{https://en.wikipedia.org/wiki/File:Blausen_0657_MultipolarNeuron.png}}
+\end{frame}
+
+\begin{frame}{Neural network --- details}
+\begin{columns}[t]
+  \makebox[0.52\textwidth][l]{%
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item Loss function (mean squared error):
+          \[ L = \frac{1}{2} \sum_{i=1}^m \qty\big[y^{(i)} - \hat{y}^{(i)}]^2 \]
+        \item Loss function (cross-entropy):
+          \[
+            L = - \frac{1}{m} \sum_{i=1}^m
+                  \qty\Big[y^{(i)}\ln\hat{y}^{(i)}
+                           - \qty\big(1-y^{(i)})\ln\qty\big(1-\hat{y}^{(i)})]^2
+          \]
+        \item Training algorithm: backpropagation
+      \end{itemize}
+    \end{column}}
+  \begin{column}{0.48\textwidth}
+    \begin{itemize}
+      \item Regularization
+        \begin{itemize}
+          \item Prevent overfitting
+          \item A kind of ``penalty'': force the parameters to be sparse
+          \item Weight decay ($L^2$ reg\-u\-lar\-iza\-tion):
+            \[ \frac{\lambda}{2m} \sum_k \norm{\bm{\theta}_k}^2 \]
+        \end{itemize}
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Training results (linear model)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-linear.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-linear-scaled.pdf}
+  \end{subfigure}
+  \caption{Predict results on Ising lattice. (a) Original; (b) after scale transformation.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Training results (neural network)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-net.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-net-scaled.pdf}
+  \end{subfigure}
+  \caption{Predict results on Ising lattice. (a) Original; (b) after scale transformation.}
+\end{figure}
+\end{frame}
+\fi
+
+\section{Part 3. Machine learning and RG}
+
+\begin{frame}{Energy-based model}
+\begin{columns}[t]
+  \makebox[0.42\textwidth][l]{%
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Boltzmann machine
+          \begin{itemize}
+            \item Energy function:
+              \begin{align*}
+                E(\bm{s}) &= E(\q{s_i}) \\
+                          &= - \sum_{i<j} W_{ij} s_i s_j - \sum_i \theta_i s_i
+              \end{align*}
+            \item Structure:
+              \begin{figure}
+                \centering
+                \imageinput[scale=0.6]{boltzmann-machine.pdf}
+              \end{figure}
+          \end{itemize}
+      \end{itemize}
+    \end{column}}
+  \begin{column}{0.56\textwidth}
+    \begin{itemize}
+      \item Restricted Boltzmann machine (RBM)
+        \begin{itemize}
+          \item Energy function:
+            \begin{align*}
+              E(\bm{v},\,\bm{h})
+              &= - \bm{v}^\trans \bm{W} \bm{h} - \bm{b}^\trans \bm{v} - \bm{c}^\trans \bm{h} \\
+              &= - \sum_{i,\,j} W_{ij} v_i h_j - \sum_i b_i v_i - \sum_j c_j h_j
+            \end{align*}
+          \item Structure:
+            \begin{figure}
+              \centering
+              \imageinput[scale=0.6]{rbm.pdf}
+            \end{figure}
+        \end{itemize}
+    \end{itemize}
+  \end{column}
+\end{columns}
 \end{frame}
 
 \end{document}
