@@ -45,26 +45,16 @@
 
 % Constants
 \def\ee{{\symup{e}}}
-\def\ii{{\symup{i}}}
-\def\pp{{\symup{\pi}}}
-\def\kB{k_{\symup{B}}}
 \def\Tc{T_{\!\symup{c}}}
 % Operators
 \def\incr{{\symup{\Delta}}}
 \def\trans{{\symup{T}}}
 \def\opT{{\symbfup{T}}}
-\def\opT{{\symbfup{T}}}
-\def\opO{{\symcal{O}}}
-%\def\bigO{\mathscript{$\symscr{O}$}}
-\def\likeL{{\symcal{L}}}
+\def\opO{O}
 \newcommand\trR[2][]{\symbfup{R}^{\,#1}_{#2}}
-%\newcommand\trA[2][]{\mathscript{$\symbfscr{A}^{\,#1}_{#2}$}}
 % Set
-\def\R{{\symbb{R}}}
-\def\Z{{\symbb{Z}}}
-\def\domD{{\symcal{D}}}
-\def\domN{{\symcal{N}}}
-%\def\spaceV{\mathscript{$\symscr{V}$}}
+\def\domD{D}
+\def\domN{{N_{\symup{s}}}}
 % Decorations
 \def\bm#1{{\symbf{#1}}}
 \def\nearest#1{\langle#1\rangle}
@@ -87,7 +77,6 @@
 
 \maketitle
 
-\iffalse
 \begin{frame}{Table of contents}
 \begin{itemize}
   \item \textbf{Ising model}
@@ -409,7 +398,6 @@
   \caption{Predict results on Ising lattice. (a) Original; (b) after scale transformation.}
 \end{figure}
 \end{frame}
-\fi
 
 \section{Part 3. Machine learning and RG}
 
@@ -452,6 +440,227 @@
     \end{itemize}
   \end{column}
 \end{columns}
+\end{frame}
+
+\begin{frame}{CD-\textit{k} algorithm (1)}
+\begin{itemize}
+  \item Loss function:
+    \[
+      L(\bm{\theta})
+      = - \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD} \ln P\qty\big(\bm{x}^{(i)})
+    \]
+  \item Gradient:
+    \[
+        - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)})
+      = - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+      = \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+      - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+    \]
+    where $F$ is the free energy
+    \[ F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})} \]
+  \item Positive phase and negative phase (difficult)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CD-\textit{k} algorithm (2)}
+\begin{columns}
+  \begin{column}{0.49\textwidth}
+    \begin{itemize}
+      \item Monte Carlo again:
+        \[
+          \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+          \approx \frac{1}{\abs{\domN}} \sum_{\bm{v}\in\domN} \pdv{F(\bm{v})}{\bm{\theta}}
+        \]
+      \item Gibbs sampling:
+        %\[
+        %  \bm{h}  \sim P(\bm{h}\big|\bm{v}) \qc
+        %  \bm{v}' \sim P(\bm{v}\big|\bm{h})
+        %\]
+        \begin{figure}
+          \centering
+          \imageinput[scale=0.64]{gibbs-sampling}
+        \end{figure}
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.49\textwidth}
+    \begin{itemize}
+      \item Gradient:
+        \[
+          - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+          \approx \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+                - \pdv{F({\bm{v}'}^{(i)})}{\bm{\theta}}
+        \]
+      \item Update parameters:
+        \[
+          \left\{
+          \begin{aligned}
+            \bm{W} \! &\gets \bm{W} \! - \alpha \, (  \bm{v} \bm{h}^\trans
+                                                    - \bm{v}' {\bm{h}'}^\trans) \\
+            \bm{b}    &\gets \, \bm{b} - \alpha \, (\bm{v} - \bm{v}') \\
+            \bm{c}    &\gets \, \bm{c} - \alpha \, (\bm{h} - \bm{h}')
+          \end{aligned}
+          \right.
+        \]
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{RBM trained on MNIST}
+\begin{columns}
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{mnist-weight.pdf}
+      \caption{Weight matrix (reshaped)}
+    \end{figure}
+  \end{column}
+  \begin{column}{0.55\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{mnist-samples.pdf}
+      \caption{Reconstructed images}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{RBM trained on Ising lattice}
+\begin{columns}
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{ising-weight-raw.pdf}
+      \caption{Weight matrix (reshaped)}
+    \end{figure}
+  \end{column}
+  \begin{column}{0.55\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{ising-samples.pdf}
+      \caption{Reconstructed images}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Exact mapping between RBM and RG}
+\begin{itemize}
+  \item Partition function under coarse graining:
+    \[
+      Z_{N'}
+      = \sum_\q{\sigma'_i} \ee^{-\beta H^{\text{RG}}(\q{\sigma_i'},\,\bm{K}')}
+      = \sum_\q{\sigma'_i} \sum_\q{\sigma_i}
+        \ee^{-\beta \qty\big[H(\q{\sigma_i},\,\bm{K})
+              -\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})]}
+    \]
+  \item Express in RBM:
+    \[
+        \ee^{-H^{\text{RG}}(\bm{h})}
+      = \sum_{\bm{v}} \ee^{\opT(\bm{v},\,\bm{h})-H(\bm{v})}
+    \]
+  \item Let $\opT(\bm{v},\,\bm{h}) = H(\bm{v}) - E(\bm{v},\,\bm{h})$, then
+    \[
+        \frac{1}{Z} \ee^{-H^{\text{RG}}(\bm{h})}
+      = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
+      = P(\bm{h})
+      = \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})}
+      \implies \alert{H^{\text{RG}}(\bm{h}) = H^{\text{RBM}}(\bm{h})}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Convolution and wavelet transform}
+\begin{itemize}
+  \item Convolution:
+    \[ (f \ast g) (t) = \int_{-\infty}^{+\infty} f(\tau) \, g(t-\tau) \dd{\tau} \]
+  \item A kind of ``weighted average''
+  \item Expand function with \emph{daughter wavelet}:
+    \[ \psi_{\bm{a},\,s}(\bm{x}) = \frac{1}{s^{d/2}} \psi\qty(\frac{\bm{x}-\bm{a}}{s}) \]
+  \item Wavelet transform:
+    \[ W_f(\bm{a},\,s) = \int \dd[d]{x} f(\bm{x}) \psi^\dagger_{\bm{a},\,s}(\bm{x}) \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{\AdSCFT{} and wavelet transform}
+\begin{itemize}
+  \item Reconstruct fields in the bulk from boundary operators:
+    \begingroup\footnotesize
+      \begin{align*}
+           \phi^i(\bm{x},z)
+        &= \int \dd[d]{y} K_i(\bm{x},z|\bm{y}) \opO^i(\bm{y}) \\
+        &+ \sum_{j,k} \frac{\lambda^i_{jk}}{N}
+             \int \dd[d]{x'} \dd{z'} G_i(\bm{x},z|\bm{x}'\!,z')
+             \int \dd[d]{y_1} K_j(\bm{x}'\!,z'|\bm{y}_1) \opO^j(\bm{y}_1)
+             \int \dd[d]{y_2} K_k(\bm{x}'\!,z'|\bm{y}_2) \opO^k(\bm{y}_2) + \cdots
+      \end{align*}
+    \endgroup
+  \item Boundary--bulk kernel:
+    \begingroup\footnotesize
+      \[
+        K_i(\bm{x},z|\bm{y})
+        = \qty[\frac{z}{z^2-\norm{\bm{x}-\bm{y}}^2}]^{d-\Delta_i} \,
+          \Theta\qty\big(z^2-\norm{\bm{x}-\bm{y}}^2)
+      \]
+    \endgroup
+  \item Mother and daughter wavelets:
+    \begingroup\footnotesize
+      \[
+        \psi_\Delta(\bm{x}) = \qty(\frac{1}{1-\norm{\bm{x}}^2})^{d-\Delta} \,
+                              \Theta\qty\big(1-\norm{\bm{x}}^2) \qc
+        \psi_{\bm{a},\,s}(\bm{x})
+        = \frac{1}{z^{d/2}} \psi\qty(\frac{\bm{y}-\bm{x}}{z})
+      \]
+    \endgroup
+  \item Then
+    \begingroup\footnotesize
+      \[ K(\bm{x},z|\bm{y}) = z^{\Delta-d/2} \psi_{\bm{x},\,z}(\bm{y}) \]
+    \endgroup
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Convolutional RBM (CRBM)}
+\begin{columns}[t]
+  \begin{column}{0.68\textwidth}
+    \begin{itemize}
+      \item Linear to convolutional:
+        \[
+          h_j+c_j \sim \sum_i W_{ij} (v_i+b_i) \to
+          h_{\bm{j}} + c_{\bm{j}} \sim
+            \sum_{\bm{i}} W_{\bm{i}} (v_{\bm{i}+\bm{j}} + b_{\bm{i}+\bm{j}})
+        \]
+      \item Energy function:
+        \[
+          E(\bm{v},\,\bm{h})
+          = - \sum_{\bm{i},\,\bm{j}} W_{\bm{i}} v_{\bm{i}+\bm{j}} h_{\bm{j}}
+            - \sum_{\bm{i}} b_{\bm{i}} v_{\bm{i}} - \sum_{\bm{j}} c_{\bm{j}} h_{\bm{j}}
+        \]
+      \item Our conjecture: filter $\bm{W}$ in CRBM is the Green's function $K$ in \AdSCFT{}
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.3\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[width=\textwidth]{crbm.pdf}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Supervised learning can be used to classify phases of Ising model
+  \item RBM can be considered as an implementation of renormalization
+  \item Convolution and wavelet transform that root in \AdSCFT{} can be mapped to
+    machine learning (e.g. CRBM)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[standout]
+\LARGE\itshape
+Thank you!
 \end{frame}
 
 \end{document}
