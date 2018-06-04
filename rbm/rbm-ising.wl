@@ -6,7 +6,7 @@ SetDirectory[NotebookDirectory[]];
 
 
 (* ::Section:: *)
-(*MNIST*)
+(*Ising*)
 
 
 SetDirectory[StringRiffle[StringSplit[NotebookDirectory[], "\\"][[;;-2]], "\\"] <> "\\ising\\data\\lattice-data\\2"]

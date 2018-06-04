@@ -104,12 +104,12 @@ contrastiveDivergence[rbm_, v_, k_] :=
           w$pos$grad = Transpose[v] . h,
           w$neg$grad = Transpose[samples["v"]] . samples["h"]
         },
-Echo[Dimensions@w$pos$grad];
+(*Echo[Dimensions@w$pos$grad];
 Echo[ArrayPlot[ArrayReshape[w$pos$grad\[Transpose][[1]],{28,28}],ImageSize->50]];
 Echo[ArrayPlot[ArrayReshape[w$neg$grad\[Transpose][[1]],{28,28}],ImageSize->50]];
 Echo[samples["v"][[1]]];
 Echo[samples["h"][[1]]];
-(*Echo[ArrayReshape[w$pos$grad\[Transpose]\[LeftDoubleBracket]1\[RightDoubleBracket],{28,28}]//MatrixForm];
+Echo[ArrayReshape[w$pos$grad\[Transpose]\[LeftDoubleBracket]1\[RightDoubleBracket],{28,28}]//MatrixForm];
 Echo[ArrayReshape[w$neg$grad\[Transpose]\[LeftDoubleBracket]1\[RightDoubleBracket],{28,28}]//MatrixForm];*)
         <|
           (*
@@ -250,21 +250,23 @@ imageTestRaw  = importMNIST["t10k-images-idx3-ubyte"];
 Dimensions /@ {imageTrainRaw,  imageTestRaw}
 
 
-imageTrain = Round[Partition[imageTrainRaw, 784] / 255.0][[;;200]];;
+imageTrain = Round[Partition[imageTrainRaw, 784] / 255.0][[;;10000]];
 imageTest  = Round[Partition[imageTestRaw,  784] / 255.0];
 Dimensions /@ {imageTrain, imageTest}
 
 
 (* Parameters *)
 visibleNum   = 784;
-hiddenNum    = 100;
-epochNum     = 5;
+hiddenNum    = 400;
+epochNum     = 10;
 batchSize    = 64;
 kParameter   = 30;
 learningRate = 0.1;
 
 (* Helper function *)
-plotMNIST[data_] := ArrayPlot[ArrayReshape[data, {28, 28}], ImageSize -> 60, Frame -> False]
+plotSample[data_, size_] := ArrayPlot[ArrayReshape[data, {size, size}], ImageSize -> 60, Frame -> False]
+plotVisible[data_] := plotSample[data, Round @ Sqrt @ visibleNum];
+plotHidden[data_]  := plotSample[data, Round @ Sqrt @ hiddenNum];
 
 (* Initialize features *)
 rbm = AssociationThread[{"W", "b", "c"} ->
@@ -274,7 +276,7 @@ rbm = AssociationThread[{"W", "b", "c"} ->
 (* Main training loop *)
 trainingTime = First @ AbsoluteTiming[
   trained = First @ train[imageTrain, rbm, epochNum, batchSize, kParameter, learningRate];];
-(*
+
 (* Training time and cost *)
 Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
 ListLogLogPlot[-trained["cost_list"],
@@ -282,7 +284,7 @@ ListLogLogPlot[-trained["cost_list"],
 
 (* Filters *)
 trainedW = Transpose @ trained["RBM_param"]["W"];
-GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotMNIST, trainedW]
+GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotVisible, trainedW]
 
 (* Generated samples *)
 sample$num   = 20;
@@ -291,14 +293,129 @@ sample$index = RandomSample[Range @ Length @ imageTest, sample$num];
 sample = NestList[
   <|
     "data"  -> sampler[trained["RBM_param"], #["data"], sample$step],
+    "h"     -> sampleHiddenGivenVisible[trained["RBM_param"], #["data"]],
     "index" -> #["index"] + 1
   |> &,
   <|
     "data"  -> imageTest[[sample$index]],
+    "h"     -> {},
     "index" -> 0
   |>, 5];
-Echo[Row[plotMNIST /@ #["data"]],
-  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;*)
+Echo[Row[plotVisible /@ #["data"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;
+Echo[Row[plotHidden /@ #["h"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ Rest @ sample;
 
 
+(* ::Section:: *)
+(*Training Ising*)
 
+
+SetDirectory[StringRiffle[StringSplit[NotebookDirectory[], "\\"][[;;-2]], "\\"] <> "\\ising\\data\\lattice-data\\2"]
+
+
+dataTrainRaw = ToCharacterCode /@ Import["lattice-data-train-t4.dat", "Lines"] - 48;
+dataTestRaw  = ToCharacterCode /@ Import["lattice-data-test-t4.dat",  "Lines"] - 48;
+
+
+partSize = 28;
+dataTrain = Flatten[#[[;;partSize, ;;partSize]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTrainRaw);
+dataTest  = Flatten[#[[;;partSize, ;;partSize]]] & /@ (ArrayReshape[#, {64, 64}] & /@ dataTestRaw);
+Echo[#, "Train data dimension:"] & @ Dimensions[dataTrain];
+Echo[#, "Test data dimension:"] & @ Dimensions[dataTest];
+Echo[Quantity[N @ #, "Megabytes"], "Train data size:"] & @
+  (ByteCount[dataTrain] / 2^20);
+Echo[Quantity[N @ #, "Megabytes"], "Test data size:"] & @
+  (ByteCount[dataTest] / 2^20);
+
+
+(* Another dataset *)
+partSize = 28;
+rawData = Import["E:\\Files\\Programs\\ising\\ising\\data\\lattice-data\\2\\result-2018-05-25.json","RawJSON"][[2]];
+
+
+dataTrain = (Flatten[rawData["latticeData"], {{1}, {2, 3}}][[;;-1001]] + 1) / 2;
+dataTest  = (Flatten[rawData["latticeData"], {{1}, {2, 3}}][[-1000;;]] + 1) / 2;
+Echo[#, "Train data dimension:"] & @ Dimensions[dataTrain];
+Echo[#, "Test data dimension:"]  & @ Dimensions[dataTest];
+Echo[Quantity[N @ #, "Megabytes"], "Train data size:"] & @
+  (ByteCount[dataTrain] / 2^20);
+Echo[Quantity[N @ #, "Megabytes"], "Test data size:"] & @
+  (ByteCount[dataTest] / 2^20);
+
+
+(* Parameters *)
+dataNum      = All;
+visibleNum   = partSize^2;
+hiddenNum    = 100;
+epochNum     = 50;
+batchSize    = 64;
+kParameter   = 30;
+learningRate = 0.1;
+
+(* Helper function *)
+plotSample[data_, size_] := ArrayPlot[ArrayReshape[data, {size, size}], ImageSize -> 60, Frame -> False]
+plotVisible[data_] := plotSample[data, Round @ Sqrt @ visibleNum];
+plotHidden[data_]  := plotSample[data, Round @ Sqrt @ hiddenNum];
+
+(* Initialize features *)
+rbm = AssociationThread[{"W", "b", "c"} ->
+  Evaluate[RandomReal[{0, 1}, #] & /@
+    {{visibleNum, hiddenNum}, visibleNum, hiddenNum}]];
+
+(* Main training loop *)
+trainingTime = First @ AbsoluteTiming[
+  trained = First @ train[dataTrain[[;;dataNum]], rbm, epochNum, batchSize, kParameter, learningRate];];
+
+(* Training time and cost *)
+Echo[#, "Training time:"] & @ Quantity[trainingTime, "Seconds"];
+ListLogLogPlot[-trained["cost_list"],
+  PlotRange -> All, Joined -> True, PlotTheme -> "Detailed", PlotLabel -> "Learning curve"]
+
+(* Filters *)
+trainedW = Transpose @ trained["RBM_param"]["W"];
+GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotVisible, trainedW]
+
+(* Generated samples *)
+sample$num   = 20;
+sample$step  = 100;
+sample$index = RandomSample[Range @ Length @ dataTest, sample$num];
+sample = NestList[
+  <|
+    "data"  -> sampler[trained["RBM_param"], #["data"], sample$step],
+    "h"     -> sampleHiddenGivenVisible[trained["RBM_param"], #["data"]],
+    "index" -> #["index"] + 1
+  |> &,
+  <|
+    "data"  -> dataTest[[sample$index]],
+    "h"     -> {},
+    "index" -> 0
+  |>, 5];
+Echo[Row[plotVisible /@ #["data"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;
+Echo[Row[plotHidden /@ #["h"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ Rest @ sample;
+
+
+(* Generated samples *)
+sample$num   = 20;
+sample$step  = 100;
+sample$index = RandomSample[Range @ Length @ dataTest, sample$num];
+sample = NestList[
+  <|
+    "data"  -> sampler[trained["RBM_param"], #["data"], sample$step],
+    "h"     -> sampleHiddenGivenVisible[trained["RBM_param"], #["data"]],
+    "index" -> #["index"] + 1
+  |> &,
+  <|
+    "data"  -> dataTest[[sample$index]],
+    "h"     -> {},
+    "index" -> 0
+  |>, 5];
+Echo[Row[plotVisible /@ #["data"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ sample;
+Echo[Row[plotHidden /@ #["h"]],
+  "Sample steps: " <> ToString[#["index"] * sample$step]]& /@ Rest @ sample;
+
+
+GraphicsGrid @ Partition[#, 10] & @ ParallelMap[plotVisible, trainedW]
