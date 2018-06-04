@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+  \tikzstyle{visible} = [draw, thick, circle, minimum size=15pt, fill=MaterialRed300]
+  \tikzstyle{hidden}  = [draw, thick, circle, minimum size=15pt, fill=MaterialIndigo300]
+  \tikzstyle{sigmoid} = [draw, thick, minimum size=15pt, fill=MaterialGreen300]
+  \tikzstyle{weight}  = [thick]
+  \node (h2)[hidden]  at (8,0)  {};
+  \node (s2)[sigmoid] at (10,0) {};
+  \draw [weight] (h2) -- (s2);
+  \foreach \x in {0, 1, 2}
+    \node (i\x)[visible] at ($(0,-1.2)!0.5*\x!(0,1.2)$) {};
+  \foreach \y in {0, 1, 2, 3, 4}
+  {
+    \node (h1\y)[hidden]  at ($(3,-2.2)!0.25*\y!(3,2.2)$) {};
+    \node (s1\y)[sigmoid] at ($(5,-2.2)!0.25*\y!(5,2.2)$) {};
+    \draw [weight] (h1\y) -- (s1\y);
+    \draw [weight] (s1\y) -- (h2);
+    \foreach \x in {0, 1, 2}
+      \draw [weight] (i\x) -- (h1\y);
+  }
+  \node at (0, -2)   {Input};
+  \node at (3, -3)   {Linear layer (I)};
+  \node at (5, -3)   {$\sigma$};
+  \node at (8, -1.2) {Linear layer (II)};
+  \node at (10,-1.2) {$\sigma$};
+\end{tikzpicture}

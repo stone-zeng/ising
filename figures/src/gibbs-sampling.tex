@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+  \tikzstyle{visible}   = [draw, thick, circle, minimum size=15pt, fill=MaterialRed300]
+  \tikzstyle{hidden}    = [draw, thick, minimum size=15pt, fill=MaterialIndigo300]
+  \tikzstyle{sampling}  = [thick, -{Stealth[]}]
+  \foreach \x in {0, 1, 2}
+  {
+    \node (v\x)[visible] at ($(0,0)!0.5*\x!(4,0)$)     [label={below:$\bm{v}^{(\x)}$}] {};
+    \node (h\x)[hidden]  at ($(1,1.6)!0.5*\x!(5,1.6)$) [label=$\bm{h}^{(\x)}$]         {};
+    \draw [sampling] (v\x) -- (h\x);
+  }
+  \node (v3)          at (5,0)   {};
+  \node (h3)          at (6,1.6) {};
+  \node (v4)[visible] at (7,0)   [label={below:$\bm{v}^{(k)}$}] {};
+  \node (h4)[hidden]  at (8,1.6) [label=$\bm{h}^{(k)}$]         {};
+  \draw [sampling] (v4) -- (h4);
+  \foreach \x in {0, 1}
+  {
+    \pgfmathtruncatemacro{\y}{\x+1}
+    \draw [sampling] (h\x) -- (v\y);
+  }
+  \node at (6,0.75) {$\cdots$};
+\end{tikzpicture}

@@ -1,0 +1,12 @@
+\begin{tikzpicture}
+  \begin{semilogxaxis}[
+      xlabel={Steps}, ylabel={Cost},
+      ylabel near ticks,
+      xtick={1,10,100,1000,10000},
+      xticklabels={1,10,100,1k,10k},
+      scaled y ticks=manual:{$\times 10^4$}{\pgfmathparse{#1/1e4}},
+      xtick pos=lower, ytick pos=left, grid=major,
+      thick, height=6cm]
+    \addplot [MaterialDeepOrange] table {../data/learning-curve.txt};
+  \end{semilogxaxis}
+\end{tikzpicture}

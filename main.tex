@@ -1,0 +1,123 @@
+\PassOptionsToPackage{log-declarations=false}{xparse}
+%\PassOptionsToPackage{showframe}{geometry}
+
+\documentclass[oneside]{fduthesis}
+\usepackage{physics,siunitx,enumitem,subcaption}
+
+\fdusetup{
+  style={
+    font=none,
+    cjk-font=founder,
+    logo={fudan-name.pdf, fudan-emblem-new.pdf},
+    footnote-style=xits,
+    hyperlink-color=material,
+    bib-backend=bibtex,
+    bib-resource={reference.bib}
+  },
+  info={
+    title={机器学习与 Ising 模型},
+    department={物理系},
+    major={物理学},
+    author={曾祥东},
+    student-id={14307110142},
+    supervisor={孔令欣},
+    supervisor-title={研究员},
+    affiliation={复旦大学物理系},
+    date={2018 年 5 月 26 日},
+    keywords={机器学习, Ising 模型, 神经网络, RBM, 卷积, \AdSCFT{}},
+    keywords*={Machine learning, Ising model, Neural network, RBM, Convolution, \AdSCFT{}}
+  }
+}
+
+% Fonts
+\setmainfont{XITS}[%
+  UprightFeatures={SmallCapsFont=*},
+  BoldFeatures={SmallCapsFont=* Bold},
+  ItalicFeatures={SmallCapsFont=* Italic},
+  BoldItalicFeatures={SmallCapsFont=* Bold Italic}]
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}[Ligatures=CommonOff]
+\setmathfont{XITS Math}[math-style=ISO, bold-style=ISO, StylisticSet=1]
+\ExplSyntaxOn
+\__fdu_set_math_font:nn
+  { XITS~ Math } { math-style = ISO, bold-style = ISO, version = script }
+\cs_set:Npn \mathscript #1 { \mbox { \mathversion { script } #1 } }
+\ExplSyntaxOff
+% CJK fonts
+%\setCJKmainfont{FZGFShuSong}[%
+%  BoldFont=FZXiaoBiaoSong-B05,ItalicFont=FZKai-Z03, BoldItalicFont=FZKai-Z03]
+%\setCJKmainfont{Source Han Serif SC}[ItalicFont=FZKai-Z03, BoldItalicFont=FZKai-Z03]
+%\setCJKsansfont{Source Han Sans SC Medium}[%
+%  BoldFont=Source Han Sans SC Bold, ItalicFont=*, BoldItalicFont=*]
+%\setCJKmonofont{FZFangSong-Z02}
+%\setCJKfamilyfont{kai}{FZKai-Z03}
+% https://tex.stackexchange.com/a/11916/136923
+% Will break spaces between CJK characters.
+%\def\CJKmovesymbol#1{\raise-0.08ex\hbox{#1}}
+%\let\CJKsymbol\CJKmovesymbol
+%\let\CJKpunctsymbol\CJKmovesymbol
+
+\setlist[enumerate]{itemsep=0pt, parsep=\parskip, topsep=0pt}
+\setlist[itemize]{itemsep=0pt, parsep=\parskip, topsep=0pt}
+
+% Constants
+\def\ee{{\symup{e}}}
+\def\ii{{\symup{i}}}
+\def\pp{{\symup{\pi}}}
+\def\kB{k_{\symup{B}}}
+\def\Tc{T_{\symup{c}}}
+% Operators
+\def\incr{{\symup{\Delta}}}
+\def\trans{{\symup{T}}}
+\def\opT{{\symbfup{T}}}
+\def\opO{{\symcal{O}}}
+\def\bigO{\mathscript{$\symscr{O}$}}
+\def\likeL{{\symcal{L}}}
+\newcommand\trR[2][]{\mathscript{$\symbfscr{R}^{\,#1}_{#2}$}}
+\newcommand\trA[2][]{\mathscript{$\symbfscr{A}^{\,#1}_{#2}$}}
+% Set
+\def\R{{\symbb{R}}}
+\def\Z{{\symbb{Z}}}
+\def\domD{{\symcal{D}}}
+\def\domN{{\symcal{N}}}
+\def\spaceV{\mathscript{$\symscr{V}$}}
+% Decorations
+\def\bm#1{{\symbf{#1}}}
+\def\nearest#1{\langle#1\rangle}
+\def\q#1{{\{#1\}}}
+% Text
+\def\const{\text{const}}
+% Math miscellaneous
+\allowdisplaybreaks
+
+\newcommand\imageinput[2][]{\includegraphics[#1]{figures/#2}}
+\def\code#1{\texttt{#1}}
+
+\def\CDk{CD\raisebox{0.13ex}{-}$k$}
+\def\AdSCFT{AdS/CFT}
+
+\begin{document}
+
+\frontmatter
+\tableofcontents
+\begin{abstract}
+  \input{chapters/abstract}
+\end{abstract}
+\begin{abstract*}
+  \input{chapters/abstract-en}
+\end{abstract*}
+
+\mainmatter
+\input{chapters/ising}
+\input{chapters/machine-learning}
+\input{chapters/machine-learning-rg}
+\input{chapters/conclusion}
+
+\backmatter
+\ctexset{chapter/numbering=false}
+\input{chapters/appendix}
+\nocite{*}
+\printbibliography
+\input{chapters/acknowledgements}
+
+\end{document}

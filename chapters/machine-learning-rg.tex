@@ -1,0 +1,704 @@
+\chapter{机器学习与重整化群}
+
+\section{限制 Boltzmann 机（RBM）}
+
+限制 Boltzmann 机（restricted Boltzmann machine, RBM）是一类生成型随机神经网络（generative
+stochastic neural network），它可以学习到输入数据的概率分布情况 \cite{hinton2006reducing}。
+顾名思义，RBM 是 Boltzmann 机加上一定限制所得到的网络。一般的 Boltzmann 机是一种基于能量的模型
+（energy-based model）\cite{zhouzhihua,rbmonline}。对于这种模型，我们可以赋予它一个能量函数。
+与物理学中类似，体系的稳定状态将在能量最低时达到，这一稳定状态即对应最优参数。
+
+Boltzmann 机的结构如图~\ref{fig:boltzmann-machine} 所示。它共有两层，与数据直接相连的称为可见层
+（visible layer），另一层称为隐藏层（hidden layer）。可见层用于处理输入输出，隐藏层则反应了数据的
+内在结构。无论是可见层还是隐藏层，所有单元均全部连接在一起。Boltzmann 机的能量函数由下式给出
+\cite{zhouzhihua}：
+\begin{equation}
+  E(\bm{s}) = E(\q{s_i}) = - \sum_{i<j} W_{ij} s_i s_j - \sum_i \theta_i s_i.
+\end{equation}
+式中，$s_i$ 取为布尔型，即 $s_i\in\q{0,\,1}$。$W_{ij}$ 是单元 $s_i$ 与 $s_j$ 之间的连接权重，
+$\theta_i$ 则表示单元 $s_i$ 处的偏差。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput{boltzmann-machine.pdf}
+    \caption{}
+    \label{fig:boltzmann-machine}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput{rbm.pdf}
+    \vspace{0.4cm}
+    \caption{}
+    \label{fig:rbm}
+  \end{subfigure}
+  \caption{Boltzmann 机和限制 Boltzmann 机的结构示意图。其中红色圆圈表示可见层，蓝色方块表示隐藏层。
+    (a)~Boltzmann 机，所有单元之间均有权重矩阵连接；
+    (b)~限制 Boltzmann 机，只有可见层与隐藏层之间才连接有权重矩阵}
+\end{figure}
+
+与 Ising 模型类似［式~\eqref{eq:ising-probability}］，状态 $\bm{s}=\q{s_i}$ 出现的概率由 Boltzmann
+分布给出 \cite{rbmonline}：
+\begin{equation}
+  \label{eq:boltzmann-machine-probability}
+  P(\bm{s}) = \frac{\ee^{-E(\bm{s})}}{Z},
+\end{equation}
+其中配分函数 $Z$ 的定义为
+\begin{equation}
+  Z = \sum_{\bm{s}} \ee^{-E(\bm{s})}.
+\end{equation}
+Boltzmann 机的训练过程就是最大化训练样本所对应的概率。
+
+由于 Boltzmann 机是全连接的，它的训练效率并不高。我们可以引入限制条件，仅保留可见层与隐藏层之间的
+连接。由此便得到了限制 Boltzmann 机（如图~\ref{fig:rbm}），它的能量函数为
+\cite{exact,rbmonline,chen2018equivalence}
+\begin{equation}
+  \label{eq:rbm-energy}
+  E(\bm{v},\,\bm{h})
+  = - \bm{v}^\trans \bm{W} \bm{h} - \bm{b}^\trans \bm{v} - \bm{c}^\trans \bm{h}
+  = - \sum_{i,\,j} W_{ij} v_i h_j - \sum_i b_i v_i - \sum_j c_j h_j.
+\end{equation}
+式中，$v_i$ 和 $h_j$ 分别代表可见层与隐藏层中的单元，$W_{ij}$ 为两层之间的连接权重，$b_i$ 和 $c_j$
+分别是可见层与隐藏层中单元对应的偏差。
+
+RBM 中，可见层 $\bm{v}$ 与隐藏层 $\bm{h}$ 是彼此分离的，可以视为两个随机变量，因而
+式~\eqref{eq:boltzmann-machine-probability} 即成为 $\bm{v}$ 与 $\bm{h}$ 的联合概率分布：
+\begin{equation}
+  P(\bm{v},\,\bm{h})
+  = \frac{\ee^{-E(\bm{v},\,\bm{h})}}{Z}
+  = \frac{\ee^{-E(\bm{v},\,\bm{h})}}{\sum_{\bm{v},\,\bm{h}}\ee^{-E(\bm{v},\,\bm{h})}}.
+\end{equation}
+对所有的 $\bm{h}$ 进行求和，我们就得到了某一可见层 $\bm{v}$ 对应的边缘概率分布：
+\begin{equation}
+  \label{eq:rbm-probability-v}
+  P(\bm{v}) = \sum_{\bm{h}} P(\bm{v},\,\bm{h})
+            = \frac{1}{Z} \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}
+            \equiv \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{v})};
+\end{equation}
+同理，对所有的 $\bm{v}$ 进行求和，可得到隐藏层 $\bm{h}$ 对应的边缘概率分布：
+\begin{equation}
+  \label{eq:rbm-probability-h}
+  P(\bm{h}) = \sum_{\bm{h}} P(\bm{v},\,\bm{h})
+            = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
+            \equiv \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})}.
+\end{equation}
+这里定义的 $H^{\text{RBM}}(\bm{v})$ 和 $H^{\text{RBM}}(\bm{h})$ 称为变分 Hamilton 量
+（variational Hamiltonian）\cite{exact}。
+
+\section{\texorpdfstring{CD\raisebox{0.13ex}{-}\textit{k}}{CD-k} 训练算法}
+\label{sec:CDk-algorithm}
+
+RBM 常采用对比散度算法（contrastive divergence, \CDk）进行训练，它是一种计算极大似然
+（maximum likelihood）梯度值的近似方法
+\cite{zhouzhihua,rbmonline,lyy1994rbm,hinton2012practical,hinton2002training}。
+
+\subsection{损失函数}
+
+对于一般的基于能量模型，其损失函数由下式给出 \cite{rbmonline}：
+\begin{equation}
+  \label{eq:ebm-loss-function}
+  L(\bm{\theta})
+  = - \likeL(\bm{\theta},\,\domD)
+  = - \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD} \ln P\qty\big(\bm{x}^{(i)}).
+\end{equation}
+式中的 $\domD$ 表示数据集，$\likeL$ 称为对数似然（log-likelihood）。根据梯度下降法的精神，我们需要
+求出损失函数关于参数的导数（即梯度）：
+\begin{equation}
+  \pdv{L(\bm{\theta})}{\bm{\theta}}
+  = \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD}
+    - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)}).
+\end{equation}
+实际上只需计算求和号里面的内容 $-\partial{\ln P\qty\big(\bm{x}^{(i)})}\,/\,\partial{\bm{\theta}}$。
+
+RBM 所采用的训练数据集只包含了可见层的内容，即
+\begin{equation}
+  - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)}) \equiv
+  - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)}).
+\end{equation}
+仿照统计物理的处理方法，引入自由能
+\footnote{在统计物理中，自由能 $F=-T\ln Z$，而配分函数需要对所有可能的状态求和。但在限制
+  Boltzmann 机中，只对隐藏层求和，所以 $F$ 是 $\bm{v}$ 的函数。} \cite{rbmonline}
+\begin{equation}
+  F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})}.
+\end{equation}
+代入式~\eqref{eq:rbm-probability-v}，可有
+\begin{equation}
+  \ln P\qty\big(\bm{v}^{(i)}) = \frac{\ee^{-F(\bm{v}^{(i)})}}{Z} \qc
+  Z = \sum_{\bm{v}} \ee^{-F(\bm{v})}.
+\end{equation}
+于是梯度可以表示为
+\begin{align}
+  \label{eq:rmb-gradient}
+     - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+  &= - \pdv{\bm{\theta}} \qty\Big[-F\qty\big(\bm{v}^{(i)}) - \ln Z]
+     \vphantom{\sum_x} \notag \\
+  &= \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}} + \frac{1}{Z} \pdv{Z}{\bm{\theta}}
+   = \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
+     - \frac{1}{Z} \sum_{\bm{v}} \ee^{-F(\bm{v})} \pdv{F(\bm{v})}{\bm{\theta}} \notag \\
+  &= \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
+     - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}.
+\end{align}
+其中的参数 $\bm{\theta}$ 包含连接权重 $\bm{W}$、可见层偏差 $\bm{b}$ 与隐藏层偏差 $\bm{c}$。
+
+式~\eqref{eq:rmb-gradient} 共包含两项，分别称为正相（positive phase）和负相（negative phase）。
+显然，负相的计算比较困难，这也是 \CDk{} 算法着力需要解决的问题 \cite{rbmonline}。
+
+\subsection{Gibbs 采样}
+
+计算负相的困难之处在于需要对所有可能的可见层 $\bm{v}$ 分布进行求和，而这一分布对应的状态数量极其
+巨大。与我们在处理 Ising 模型的解决方法类似，这里同样可以用一组样本的分布代替整体分布，即 Monte
+Carlo 方法 \cite{rbmonline}：
+\begin{equation}
+  \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+  \approx \frac{1}{\abs{\domN}} \sum_{\bm{v}\in\domN} \pdv{F(\bm{v})}{\bm{\theta}}.
+\end{equation}
+式中的 $\domN$ 表示一组依照概率 $P$ 进行的采样。
+
+由于可见层、隐藏层的层内均没有连接，因此可以在层之间来回“跳转”，并将其视作一条 Markov 链，
+如图~\ref{fig:gibbs-sampling} 所示。“跳转”的具体操作可以借由条件概率获得：设给定可见层分布
+$\bm{v}$，则隐藏层分布为
+\begin{equation}
+  \label{eq:hidden-layer-dist}
+  \bm{h} \sim P(\bm{h}\big|\bm{v});
+\end{equation}
+由此可计算下一组可见层分布
+\begin{equation}
+  \label{eq:visible-layer-dist}
+  \bm{v}' \sim P(\bm{v}\big|\bm{h}).
+\end{equation}
+式中，符号 $\bm{x}\sim P$ 表示按照概率 $P$ 生成 $\bm{x}$。考虑到 $\bm{v}$ 与 $\bm{h}$ 均为布尔型，
+我们可以近似用概率（的取整结果）直接代替 $\bm{v}$ 和 $\bm{h}$。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{gibbs-sampling.pdf}
+  \caption{Gibbs 采样的示意图。上标代表进行的采样次数}
+  \label{fig:gibbs-sampling}
+\end{figure}
+
+以上步骤可以持续进行，这称为 Gibbs 采样（Gibbs sampling），采样次数即为 \CDk{} 算法中的 $k$。
+当 $k\to\infty$ 时，可认为 $\bm{v}^{(k)}$、$\bm{h}^{(k+1)}$
+\footnote{这里的上标 $(k)$ 和 $(k+1)$ 是采样次数，而样本指标 $(i)$ 不同。}
+已经服从所要求的分布 $P(\bm{v})$。显然，$k\to\infty$ 在计算上是不可取的。实践中，往往选择 $k<15$
+以提高计算速度。甚至在大多数情况下，取 $k=1$ 即可满足要求。此时，\eqref{eq:rmb-gradient}~式中的
+梯度近似可以表示为 \cite{rbmonline,hinton2012practical,hinton2002training}
+\begin{equation}
+  \label{eq:rmb-gradient-approx}
+  - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+  \approx \pdv{F\qty\big(\bm{v}^{(i)})}{\bm{\theta}}
+        - \pdv{F\qty\big({\bm{v}'}^{(i)})}{\bm{\theta}}.
+\end{equation}
+其中的 ${\bm{v}'}^{(i)}$ 表示经过 Gibbs 采样生成的可见层单元。
+
+\subsection{梯度的计算}
+
+首先来计算式~\eqref{eq:hidden-layer-dist}、\eqref{eq:visible-layer-dist} 中出现的条件概率
+$P(\bm{h}|\bm{v})$。利用乘法公式，有 \cite{zhouzhihua,rbmonline}
+\begin{align}
+  \label{eq:conditional-probability}
+  P(\bm{h}|\bm{v})
+  &= \frac{P(\bm{v},\,\bm{h})}{P(\bm{v})}
+   = \frac{\ee^{-E(\bm{v},\,\bm{h})}}%
+          {\sum_{\tilde{\bm{h}}} \ee^{-E(\bm{v},\,\tilde{\bm{h}})}} \notag \\
+  &= \frac{\exp\qty\big(\bm{v}^\trans\bm{W}\bm{h} + \bm{b}^\trans\bm{v} + \bm{c}^\trans\bm{h})}%
+          {\sum_{\tilde{\bm{h}}} \exp\qty\big(\bm{v}^\trans\bm{W}\tilde{\bm{h}}
+           + \bm{b}^\trans\bm{v} + \bm{c}^\trans\tilde{\bm{h}})}
+   = \frac{\exp\qty\big[\qty\big(\bm{v}^\trans\bm{W} + \bm{c}^\trans)\bm{h}\,]}%
+          {\sum_{\tilde{\bm{h}}} \exp\qty\big[\qty\big(\bm{v}^\trans\bm{W} + \bm{c}^\trans)
+                                              \tilde{\bm{h}}\,]} \notag \\
+  &= \frac{\exp\qty\big[\,\sum_j h_j \qty\big(c_j + \sum_i W_{ij}v_i)]}%
+          {\sum_{\q{\tilde{h}_i}} \exp\qty\big[\,\sum_j \tilde{h}_j
+                                               \qty\big(c_j + \sum_i W_{ij}v_i)]} \notag \\
+  &= \prod_j \frac{\exp\qty\big[h_j \qty\big(c_j + \sum_i W_{ij}v_i)]}%
+                  {\sum_{\q{\tilde{h}_i}} \exp\qty\big[\tilde{h}_j
+                                               \qty\big(c_j + \sum_i W_{ij}v_i)]}
+   = \prod_j P(h_j|\bm{v}).
+\end{align}
+考虑到 $h_j$ 只能取 0 或 1，又有 \cite{rbmonline,hinton2012practical,andrzejewski2009training}
+\begin{align}
+  P(h_j|\bm{v})
+   = P(h_j=1|\bm{v})
+  &= \frac{\exp 1 \cdot \qty\big(c_j + \sum_i W_{ij}v_i)}%
+          {\exp 0 \cdot \qty\big(c_j + \sum_i W_{ij}v_i)
+           + 1 \cdot \qty\big(c_j + \sum_i W_{ij}v_i)} \notag \\
+  &= \frac{\exp\qty\big(c_j + \sum_i W_{ij}v_i)}{1 + \exp\qty\big(c_j + \sum_i W_{ij}v_i)}
+   = \sigma\qty\big(c_j + \sum_i W_{ij}v_i).
+\end{align}
+同理，
+\begin{equation}
+  P(\bm{v}|\bm{h}) = \prod_i P(v_i=1|\bm{h}) = \prod_i \sigma\qty\big(b_i + \sum_j W_{ij}h_j).
+\end{equation}
+利用概率近似代替生成的 $\bm{h}$ 和 $\bm{v}'$，我们有
+\begin{equation}
+  \label{eq:h-v-approx}
+  h_j  \approx \sigma\qty\big(c_j + \sum_i W_{ij}v_i) \qc
+  v'_i \approx \sigma\qty\big(b_i + \sum_j W_{ij}h_j).
+\end{equation}
+
+接下来计算式~\eqref{eq:rmb-gradient-approx} 中自由能的偏导数。代入 Boltzmann 机的能量函数
+\eqref{eq:rbm-energy}~式，可以把自由能写成
+\begin{align}
+  F(\bm{v})
+  &= - \ln \sum_{\q{h_i}}
+       \exp\qty\Big(\sum_{i,\,j} W_{ij} v_i h_j + \sum_i b_i v_i + \sum_j c_j h_j) \notag \\
+  &= - \sum_i b_i v_i
+     - \ln \sum_{\q{h_i}} \exp\qty\bigg[\sum_j h_j \qty\Big(c_j + \sum_i W_{ij} v_i)] \notag \\
+  &= - \sum_i b_i v_i
+     - \ln \prod_j \sum_{h_j} \exp\qty\bigg[h_j \qty\Big(c_j + \sum_i W_{ij} v_i)] \notag \\
+  &= - \sum_i b_i v_i
+     - \sum_j \ln \sum_{h_j} \ee^{h_j \qty\big(c_j + \sum_i W_{ij} v_i)}.
+\end{align}
+利用 $h_j$ 的布尔特性，可以将上式化简：
+\begin{align}
+  F(\bm{v})
+  &= - \sum_i b_i v_i - \sum_j \ln
+       \qty\bigg[  \ee^{0 \cdot \qty\big(c_j + \sum_i W_{ij} v_i)}
+                 + \ee^{1 \cdot \qty\big(c_j + \sum_i W_{ij} v_i)}] \notag \\
+  &= - \sum_i b_i v_i - \sum_j \ln \qty\Big(1 + \ee^{c_j + \sum_i W_{ij} v_i}).
+\end{align}
+此时可以计算出自由能关于各参量的偏导数 \cite{rbmonline}：
+\begin{align}
+  \pdv{F(\bm{v})}{W_{ij}} &= - \pdv{W_{ij}} \ln \qty\Big(1+\ee^{c_j+\sum_iW_{ij}v_i})
+                           = - v_i \cdot \frac{\ee^{c_j+W_{ij}v_i}}{1+\ee^{c_j+W_{ij}v_i}}
+                           = - v_i \cdot \sigma\qty\Big(c_j+\sum_iW_{ij}v_i); \\
+  \pdv{F(\bm{v})}{b_i}    &= - v_i; \\
+  \pdv{F(\bm{v})}{c_j}    &= - \pdv{c_j} \ln \qty\Big(1+\ee^{c_j+\sum_iW_{ij}v_i})
+                           = - \frac{\ee^{c_j+\sum_iW_{ij}v_i}}{1+\ee^{c_j+\sum_iW_{ij}v_i}}
+                           = - \sigma\qty\Big(c_j+\sum_iW_{ij}v_i).
+\end{align}
+代入式~\eqref{eq:h-v-approx}，并改写成矩阵形式：
+\begin{equation}
+  \pdv{F(\bm{v})}{\bm{W}} = - \bm{v} \bm{h}^\trans \qc
+  \pdv{F(\bm{v})}{\bm{b}} = - \bm{v} \qc
+  \pdv{F(\bm{v})}{\bm{c}} = - \bm{h}.
+\end{equation}
+此即式~\eqref{eq:rmb-gradient-approx} 中的正相部分。
+
+通过 Gibbs 采样，负相部分的形式与正相部分完全一致，只要把 $\bm{v}$、$\bm{h}$ 换成 $\bm{v}'$、
+$\bm{h}'$，因此有
+\begin{equation}
+  \pdv{F(\bm{v}')}{\bm{W}} = - \bm{v}' {\bm{h}'}^\trans \qc
+  \pdv{F(\bm{v}')}{\bm{b}} = - \bm{v}' \qc
+  \pdv{F(\bm{v}')}{\bm{c}} = - \bm{h}'.
+\end{equation}
+至此，我们便得到了梯度下降法所需要的参数更新公式 \cite{zhouzhihua,hinton2012practical}：
+\begin{equation}
+  \left\{
+  \begin{aligned}
+    \bm{W} \! &\gets \bm{W} \! - \alpha \qty\big(\bm{v} \bm{h}^\trans
+                                                 - \bm{v}' {\bm{h}'}^\trans), \\
+    \bm{b} \, &\gets \, \bm{b} - \alpha \qty\big(\bm{v} - \bm{v}'), \\
+    \bm{c} \, &\gets \, \bm{c} - \alpha \qty\big(\bm{h} - \bm{h}').
+  \end{aligned}
+  \right.
+\end{equation}
+式中的 $\alpha$ 为学习率。
+
+\section{RBM 的应用：手写数字}
+\label{sec:rbm-mnist}
+
+本节我们将利用 MNIST 数据集训练 RBM，并基于已有数据生成新的数据，即让计算机学会“书写”数字
+\cite{rbmonline,lyy1994rbm}。
+
+MNIST 数据集 \num{60000} 张灰度图片组成，每张图片表示一个手写数字，其大小被统一为 $28 \times 28$
+像素，并保证数字处于居中位置 \cite{mnist}。RBM 的训练需要使用布尔型数据，我们也据此将图片进行了
+二值化处理，如图~\ref{fig:mnist-image} 所示。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.35\textwidth}
+    \centering
+    \imageinput[width=2cm]{mnist-image.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.35\textwidth}
+    \centering
+    \imageinput[width=2cm]{mnist-image-binary.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{MNIST 数据集中的首张图片，对应数字 5。
+    (a)~原始图像，灰度值从白色到黑色分别对应 0--255；
+    (b)~二值化后的图像，只包含值 0（白色）和 1（黑色）}
+  \label{fig:mnist-image}
+\end{figure}
+
+具体的训练参数如下：
+
+\begin{enumerate}
+  \item 可见层单元数量：784（$=28 \times 28$），即把图片压平为一维向量；
+  \item 隐藏层单元数量：100；
+  \item 批次（batch）大小：64，表示每次同时计算的样本数量；
+  \item 训练轮次：20，一个轮次表示将整个数据集训练一遍；
+  \item \CDk{} 中的参数 $k=30$；
+  \item 学习率 $\alpha=0.1$。
+\end{enumerate}
+
+在训练过程中，我们需要监测损失函数的变化。从图~\ref{fig:learning-curve} 中可以看到，随着步数的
+增加，损失函数迅速下降，并很快趋于平稳。这说明 RBM 的训练情况良好。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{learning-curve.pdf}
+  \caption{学习曲线。这里的步数（steps）等于批次数与训练轮次的乘积，注意取了对数坐标}
+  \label{fig:learning-curve}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{mnist-weight-epoch-1.pdf}
+    \caption{}
+    \label{fig:mnist-weight-epoch-a}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{mnist-weight-epoch-6.pdf}
+    \caption{}
+    \label{fig:mnist-weight-epoch-b}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{mnist-weight-epoch-20.pdf}
+    \caption{}
+    \label{fig:mnist-weight-epoch-c}
+  \end{subfigure}
+  \caption{训练过程中的权重矩阵（部分）。权重矩阵 $\bm{W}$ 的形状为 $100 \times 784$，这里将其
+    变形为 100 个 $28 \times 28$ 的子矩阵，以便更加清晰地呈现出从可见层到隐藏层的映照关系。
+    (a)~第 1 个训练轮次；(b)~第 6 个训练轮次；(c)~第 20 个训练轮次}
+  \label{fig:mnist-weight-epoch}
+\end{figure}
+
+与此同时，我们还需要监测权重矩阵的变化情况 \cite{lyy1994rbm}。初始时，权重矩阵 $\bm{W}$ 中的所有
+元素均取为 0 到 1之间的随机数。经过一个轮次的训练后，$\bm{W}$ 中出现了一些明暗变化（图~%
+\ref{fig:mnist-weight-epoch-a}）；到第 6 个轮次，可以明显地看到 $\bm{W}$ 中的展现出了笔画的特征，
+但仍有较大噪音（图~\ref{fig:mnist-weight-epoch-b}）；到第 20 轮即训练结束时，各子权重矩阵均显著
+出现了明暗对比，具有清晰的笔画线条，并且噪音较小（图~\ref{fig:mnist-weight-epoch-c}
+和图~\ref{fig:mnist-weight}）。注意到图~\ref{fig:mnist-weight} 中仍有一些子权重矩阵的训练效果不
+理想，出现了较大的涨落。但可以预料，随着训练轮次的继续增加，涨落还会逐渐减小。
+
+\begin{figure}[!htb]
+  \centering
+  \imageinput[width=10cm]{mnist-weight.pdf}
+  \caption{最终生成的权重矩阵}
+  \label{fig:mnist-weight}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \imageinput[width=12cm]{mnist-samples.pdf}
+  \caption{由训练完成的 RBM 生成的数字图像。第一行为原始图像，之后每一行增加 \num{500} 次 Gibbs
+    采样，到最后一行共进行了 \num{4000} 次采样}
+  \label{fig:mnist-samples}
+\end{figure}
+
+最后，我们根据训练得到的数据生成新的手写数字。首先从 MNIST 数据集中随机选取一些样本图像作为可见层，
+利用 Gibbs 采样生成隐藏层，再以同样方式返回到可见层，以此类推进行迭代，结果见图~%
+\ref{fig:mnist-samples}。经过若干次采样之后，RBM 确实给出了不同于原始图像的分布，即学会了“书写”
+数字。对于笔画比较简单的数字，如 1、7 等，学习效果较好；但对于稍复杂的数字，如 3、6 等，训练后的
+RBM 给出了错误的结果；另外有些数字，如 5 和 9，RBM 只给出了模糊的阴影，并没有很好地复现原始图像。
+这说明 RBM 训练算法仍有可以提高的余地。
+
+\section{RBM 与重整化群的对应关系}
+
+RBM 的思想与重整化群是十分类似的。在 RBM 中，我们把可见层中的信息编码到了隐藏层中；而在重整化群
+方法中，我们把自旋进行粗粒近似，得到重整化后的 Hamilton 量。如果把 RBM 中的可见层理解为原始自旋
+点阵，而把隐藏层理解为粗粒近似下的 Kadanoff 集团，我们便可以得到 RBM 与重整化群的对应关系。
+在式~\eqref{eq:Z-H-renormalization} 中，我们给出了重整化前后 Hamilton 量的对应关系 \cite{exact}：
+\begin{equation}
+    \ee^{-H^{\text{RG}}(\bm{h})}
+  = \sum_{\bm{v}} \ee^{\opT(\bm{v},\,\bm{h})-H(\bm{v})}.
+\end{equation}
+这里我们已经把自旋 $\sigma_i'$、$\sigma_i'$ 用 RBM 的语言 $\bm{v}$、$\bm{h}$ 进行表述，
+并把 $\beta$ 归入了 $H$。接下来我们令
+\begin{equation}
+  \opT(\bm{v},\,\bm{h}) = H(\bm{v}) - E(\bm{v},\,\bm{h}).
+\end{equation}
+代入 \eqref{eq:rbm-probability-h}~式，可得
+\begin{align}
+  &\mathrel{\phantom{\implies}}
+    \frac{1}{Z} \ee^{-H^{\text{RG}}(\bm{h})}
+  = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
+  = P(\bm{h})
+  = \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})} \notag \\
+  &\implies H^{\text{RG}}(\bm{h}) = H^{\text{RBM}}(\bm{h}).
+\end{align}
+由此就建立了 RBM 与重整化群的严格映照。
+
+利用式~\eqref{eq:rbm-probability-v}、\eqref{eq:conditional-probability} 进行计算，可以证明
+\cite{exact}
+\begin{equation}
+  \ee^{\opT(\bm{v},\,\bm{h})} = P(\bm{h}|\bm{v}) \ee^{H(\bm{v})-H^{\text{RBM}}(\bm{v})}.
+\end{equation}
+当重整化变换 $\opT(\bm{v},\,\bm{h})$ 可以使得自旋集团严格重现原始自旋的自由能时，我们有
+\begin{equation}
+  \sum_{\bm{h}} \ee^{\opT(\bm{v},\,\bm{h})} = 1;
+\end{equation}
+另一方面，给定 $\bm{v}$ 下的条件概率 $P(\bm{h}|\bm{v})$ 满足
+\begin{equation}
+  \sum_{\bm{h}} P(\bm{h}|\bm{v}) = 1.
+\end{equation}
+这样可以得到
+\begin{equation}
+  H^{\text{RBM}}(\bm{v}) = H(\bm{v}),
+\end{equation}
+这说明经由 RBM 获得的概率分布严格等价于原始数据的分布。
+
+\section{利用 RBM 研究 Ising 模型}
+
+鉴于 RBM 与重整化群之间存在一一对应的关系，利用 Ising 模型点阵数据训练 RBM 之后，我们得到的结果
+就相当于进行一次粗粒近似的重整化自旋集团。
+
+为了与 MNIST 数据集保持一致，我们采用由 Metropolis 算法生成的 $28 \times 28$ 点阵。采样温度为
+$\Tc/J+\num{0.03}$，外磁场为零。我们一共生成了 \num{60000} 组点阵数据，其中前 \num{59000} 组作为
+训练集，其余作为测试集。RBM 的训练参数与 \ref{sec:rbm-mnist}~节中相同，除了训练轮次改为 50，
+以得到更好的训练结果。待训练结束后，给出权重矩阵（图~\ref{fig:ising-weight}）以及由 RBM 重建
+而成的 Ising 模型点阵（图~\ref{fig:ising-samples}）。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=10cm]{ising-weight.pdf}
+  \caption{训练结束时的权重矩阵}
+  \label{fig:ising-weight}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=12cm]{ising-samples.pdf}
+  \caption{由训练完成的 RBM 重建的 Ising 模型点阵。第一行为原始数据，之后每一行增加 \num{500}
+    次 Gibbs 采样，到最后一行共进行了 \num{4000} 次采样}
+  \label{fig:ising-samples}
+\end{figure}
+
+与 MNIST 数据集上的训练结果类似，权重矩阵给出了数据集的一些特征信息。一些子权重矩阵中出现了明暗相间
+的条纹（如 6 行 8 列、6 行 10 列、8 行 1 列等），这种权重可以识别出不同相的边界；更多的子矩阵中
+则出现了暗点（如 1 行 2 列、3 行 7 列、7 行 5 列等），它们反映了自旋的局域性信息，即在一个自旋集团
+中，只有中心位置的原始自旋会对粗粒近似下的有效自旋产生贡献，而其余位置的原始自旋则贡献很小。由 RBM
+所重建出的 Ising 模型点阵大致刻画了原始点阵的性质。对于明显具有标度变换不变性的结构（如第 6 列），
+重建点阵能够保持住原有的“花斑”图样。但与 MNIST 类似，RBM 的学习效果并不十分理想。例如第 4 列，重建
+点阵中存在明显的斑块，而这在原始数据中是不存在的。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput[width=12cm]{ising-hidden.pdf}
+  \caption{RBM 所给出的隐藏层。这是在图~\ref{fig:ising-samples} （除第一行）的基础上，额外进行一次
+    由可见层 $\bm{v}$ 到隐藏层 $\bm{h}$ 的 Gibbs 采样所得到的结果}
+  \label{fig:ising-hidden}
+\end{figure}
+
+我们还给出了由 RBM 生成的隐藏层（图~\ref{fig:ising-hidden}）。事实上，该图并不能反映出实质性的
+物理信息。根据重整化群的思想，粗粒近似需要不断重复进行直至不动点的产生。因此我们可以推断，单层 RBM
+所揭示的物理图像并不完善，而只有 RBM 组合成多层神经网络［称为深度信念网络（deep belief network,
+DBN）］\cite{exact}，才可以比较全面地展现出与重整化群的严格对应关系。
+
+\section{卷积层}
+
+\subsection{卷积}
+
+在训练 RBM 的过程中，原始数据中的二维矩阵（MNIST 中的二维图像，或二维 Ising 模型的自旋构型）都被
+压平成了一维向量。因此，原始数据中有关局域性（locality）的信息便会被全部丢失，没有被机器学习
+利用起来。
+
+为了克服这一问题，我们可以引入卷积层（convolution layer）。数学上，一维体系下的卷积可以定义如下
+\cite{wiki:convolution}：
+\begin{equation}
+  \label{eq:convolution-continuous}
+  (f \ast g) (t) = \int_{-\infty}^{+\infty} f(\tau) \, g(t-\tau) \dd{\tau}.
+\end{equation}
+对于离散情况，有
+\begin{equation}
+  (f \ast g) [n] = \sum_{k=-\infty}^{+\infty} f[k] \, g[k-n] \qc n,\,k \in \Z.
+\end{equation}
+
+卷积可以理解为一种“加权平均”。将卷积核 $f$ 与相同长度的“信号” $g$ 的片段逐项相乘，并依次放置在
+相应位置，即完成了 $f$ 与 $g$ 的卷积。
+
+将以上定义推广至高维，可得
+\begin{equation}
+  (f \ast g) [\bm{n}] = \sum_{\bm{k}} f[\bm{k}] \, g[\bm{k}-\bm{n}] \qc
+  n=\mqty[n_1 \\ n_2 \\ \vdots \\ n_N], \, k=\mqty[k_1 \\ k_2 \\ \vdots \\ k_N] \in \Z^N.
+\end{equation}
+对于二维图像处理的问题，可以把卷积核 $f$ 理解为“滤镜”（filter），其过程如图~\ref{fig:convolution}
+所示。事实上，如果取卷积核为 Gauss 函数
+\begin{equation}
+  f(\bm{x}) = \frac{1}{2\pp\sigma^2} \exp(-\frac{\norm{\bm{x}}^2}{2\sigma^2}),
+\end{equation}
+与待处理的图像进行卷积时，每次做“加权平均”，由于 Gauss 函数离中心较远处收敛迅速，所以中心像素
+所占权重最大；而随着到中心的距离增加，各像素贡献也逐渐减小。整体来看，每个像素均用其周围一部分像素
+的加权平均来代替，因而最终的结果就是对原始数据的 Gauss 模糊。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{convolution.pdf}
+  \caption{二维卷积示意图 \cite{liamconvolution}。随着卷积核（“滤镜”）在原始图像上移动，最终得到
+    结果的就是以各像素为中心的局部加权平均}
+  \label{fig:convolution}
+\end{figure}
+
+\subsection{小波变换}
+
+类似于 Fourier 变换，小波变换（wavelet transform）也是一种函数变换。Fourier 变换将函数从时域转化为
+频域（物理上等价于从坐标空间变换到动量空间），即用具有不同频率的基函数（三角函数）将原始函数展开。
+与之类似，小波变换用一组母小波（mother wavelet）来展开原始函数。不同于三角函数，母小波具有收敛
+迅速的特点，因此利用母小波的平移，在给出频域特征的同时还可以保留一定的时域特征 \cite{wiki:wavelet}。
+
+在 $d$ 维空间中，利用母小波 $\psi$ 的缩放和平移可以张成一组基 \cite{wiki:wavelet,padic}：
+\begin{equation}
+  \label{eq:daughter-wavelet}
+  \psi_{\bm{a},\,s}(\bm{x}) = \frac{1}{s^{d/2}} \psi\qty(\frac{\bm{x}-\bm{a}}{s}),
+\end{equation}
+其中的 $s$ 和 $\bm{a}$ 分别表征了 $\psi$ 的缩放和平移。这组基称为子小波（daughter wavelet）。
+任意函数可以利用子小波展开：
+\begin{equation}
+  W_f(\bm{a},\,s) = \int \dd[d]{x} f(\bm{x}) \psi^\dagger_{\bm{a},\,s}(\bm{x}).
+\end{equation}
+这里 $\psi^\dagger$ 是 $\psi$ 的对偶小波。其逆变换为
+\footnote{由于数学上的某些限制，逆变换未必存在。}
+\begin{equation}
+  f(\bm{x}) = \frac{1}{C_\psi} \int_0^\infty \frac{\dd{s}}{s^{d+1}}
+              \int \dd[d]{a} W_f(\bm{a},\,s) \psi_{\bm{a},\,s}(\bm{x}).
+\end{equation}
+式中的 $C_\psi$ 为一系数。
+
+与 \eqref{eq:convolution-continuous}~式进行对照，可以看到由于平移的存在，小波变换也可以理解为
+一种卷积，它同样包括了卷积核（小波基）在原始函数上平移之后求和（积分）的操作。
+
+\subsection{\AdSCFT{} 与小波变换}
+
+在 \AdSCFT{} 中，区块（bulk）中可规范化的局域场 $\phi^i(\bm{x},z)$ 可以利用边界算符
+（boundary operator）进行重建 \cite{padic}：
+\begin{align}
+  &\mathrel{\phantom{=}} \phi^i(\bm{x},z) \notag \\
+  &= \int \dd[d]{y} K_i(\bm{x},z|\bm{y})  \opO^i(\bm{y}) \notag \\
+  &+ \sum_{j,k} \frac{\lambda^i_{jk}}{N}
+       \int \dd[d]{x'} \dd{z'} G_i(\bm{x},z|\bm{x}'\!,z')
+       \int \dd[d]{y_1} K_j(\bm{x}'\!,z'|\bm{y}_1)  \opO^j(\bm{y}_1)
+       \int \dd[d]{y_2} K_k(\bm{x}'\!,z'|\bm{y}_2)  \opO^k(\bm{y}_2) \notag \\
+  &+ \bigO\qty(\frac{\lambda^2}{N^2}) \int \cdots
+\end{align}
+其中的 $\opO^i$ 是与区块中场 $\phi^i$ 对偶的边界算符：
+\begin{equation}
+  \lim_{z \to 0} \phi^i(\bm{x},z) = z^{-\Delta_i} \opO^i(\bm{x}),
+\end{equation}
+$\Delta_i$ 是 $\opO^i$ 的共形维数（conformal dimension）；$K_i(\bm{x},z|\bm{y})$ 是 $\opO^i$
+的边界—区块核（boundary--bulk kernel），称为模糊函数（smearing function），其定义为
+\begin{equation}
+  \label{eq:boundary-bulk-kernel}
+  K_i(\bm{x},z|\bm{y})
+  = \qty[\frac{z}{z^2-\norm{\bm{x}-\bm{y}}^2}]^{d-\Delta_i} \,
+    \Theta\qty\big(z^2-\norm{\bm{x}-\bm{y}}^2);
+\end{equation}
+其中的 $\Theta$ 表示阶跃函数；$G_i(\bm{x},z|\bm{x}'\!,z')$ 是区块—区块核。
+边界—区块核与区块—区块核有如下关系：
+\begin{equation}
+  \lim_{z' \to 0} {z'}^{\Delta_i-d} G_i(\bm{x},z|\bm{x}'\!,z') \sim K_i(\bm{x},z|\bm{x}').
+\end{equation}
+以上 $G^i$、$K_i$ 均可理解为传播子（propagator），或 Green 函数。
+
+注意到式~\eqref{eq:boundary-bulk-kernel} 中 $K_i$ 的形式与小波变换非常类似 \cite{padic}。
+我们取母小波为
+\begin{equation}
+  \psi_\Delta(\bm{x}) = \qty(\frac{1}{1-\norm{\bm{x}}^2})^{d-\Delta} \,
+                        \Theta\qty\big(1-\norm{\bm{x}}^2)
+\end{equation}
+根据式~\eqref{eq:daughter-wavelet} 生成子小波，有
+\begin{equation}
+  \psi_{\bm{a},\,s}(\bm{x})
+  = \frac{1}{z^{d/2}} \psi\qty(\frac{\bm{y}-\bm{x}}{z})
+  = \frac{1}{z^{d/2}} \qty(\frac{1}{1-\norm{\frac{\bm{y}-\bm{x}}{z}}^2})^{d-\Delta}
+    \Theta\qty(1-\norm{\frac{\bm{y}-\bm{x}}{z}}^2).
+\end{equation}
+这样即可得到
+\begin{equation}
+  K(\bm{x},z|\bm{y}) = z^{\Delta-d/2} \psi_{\bm{x},\,z}(\bm{y}).
+\end{equation}
+
+场 $\phi^i(\bm{x},z)$ 同样可由边界算符 $\opO_\Delta$ 的小波变换表示：
+\begin{equation}
+  \phi^i(\bm{x},z) = z^{\Delta-d/2} W_{\opO}(\bm{x},z).
+\end{equation}
+此处，Poincaré 坐标中的 $z$ 由缩放参数决定。
+
+\section{卷积限制 Boltzmann 机（CRBM）}
+
+利用 RBM 处理 Ising 模型，只能给出与重整化群相对应的定性关系，而不能给出具有较为深刻物理背景的
+定量结果。考虑到 Ising 模型作为二维共形场论中最简单的最小模型（minimal model），我们可以从
+\AdSCFT{} 的角度出发做一点讨论。
+
+前面已经指出，\AdSCFT{} 提供了传播子 $K_i$ 与小波变换的对应关系，而小波变换则有可以被理解为某种
+形式的卷积。因此我们认为，利用卷积网络处理 Ising 模型，则机器所学习到的卷积核就可以给出传播子
+$K_i$ 的定量结果。
+
+\subsection{网络构建}
+
+在图~\ref{fig:rbm} 中，我们给出了 RBM 的网络构建。与图~\ref{fig:neural-net} 比较，可以看出二者
+十分相似。事实上，RBM 正是基于线性网络的能量模型，它的核心是在线性映照
+$\bm{x}\to\bm{W}\bm{x}+\bm{b}$ 基础上给出的能量函数 \eqref{eq:rbm-energy}~式。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{crbm.pdf}
+  \caption{卷积限制 Boltzmann 机示意图。绿色菱形表示卷积核，它们作用在可见层（红色圆圈）上，
+    并生成隐藏层（蓝色方块）。与图~\ref{fig:rbm} 不同，这里单元之间的连线并不表示权重。不同深浅的
+    连线展现了卷积核与可见层不同位置的对应。需要注意，可见层、隐藏层与卷积核实际上均是二维矩阵，
+    它们相比该示意图额外还有一个垂直纸面的维度}
+  \label{fig:crbm}
+\end{figure}
+
+下面我们需要把线性网络改变成卷积网络，称为卷积 RBM（CRBM），如图~\ref{fig:crbm} 所示
+\cite{lee2009convolutional,lee2011unsupervised}。线性网络中，可见层与隐藏层之间有如下关系：
+\begin{equation}
+  \bm{h}+\bm{c} \sim \bm{W} (\bm{v}+\bm{b}).
+\end{equation}
+写出分量形式，为
+\begin{equation}
+  h_j+c_j \sim \sum_i W_{ij} (v_i+b_i).
+\end{equation}
+这里用“$\sim$”表示其间还可以增加激活函数，如 $\sigma$ 函数等。在卷积网络中，可见层与隐藏层
+则通过下式相连接：
+\begin{equation}
+  h_{\bm{j}} + c_{\bm{j}} \sim \sum_{\bm{i}} W_{\bm{i}} (v_{\bm{i}+\bm{j}} + b_{\bm{i}+\bm{j}}).
+\end{equation}
+注意这里的指标 $\bm{i}$、$\bm{j}$ 均有两个维度，而不再是一个整数，且求和需要对两个维度分别进行。
+类比 \eqref{eq:rbm-energy}~式，我们可以写出 CRBM 的能量函数
+\cite{lee2009convolutional,lee2011unsupervised}：
+\begin{equation}
+  E(\bm{v},\,\bm{h})
+  = - \sum_{\bm{i},\,\bm{j}} W_{\bm{i}} v_{\bm{i}+\bm{j}} h_{\bm{j}}
+    - \sum_{\bm{i}} b_{\bm{i}} v_{\bm{i}} - \sum_{\bm{j}} c_{\bm{j}} h_{\bm{j}}.
+\end{equation}
+除了第一项，CRBM 与 RBM 的能量函数在形式上几乎完全一致。但由于参数空间增加了一个维度，这种改变
+实际上是非平庸的。
+
+\subsection{训练方法}
+
+CRBM 的损失函数仍采用 \eqref{eq:ebm-loss-function}~式的形式，因此与 RBM 相同，也可以使用 \CDk{}
+算法训练。仿照 \ref{sec:CDk-algorithm}~节的推导过程，我们可以计算得到 CRBM 的参数更新公式
+\cite{lee2009convolutional,lee2011unsupervised}：
+\begin{equation}
+  \label{eq:crbm-parameters-update}
+  \left\{
+  \begin{aligned}
+    W_{\bm{i}}    &\gets W_{\bm{i}} - \alpha
+                         \qty\Big(  \sum_{\bm{j}} v_{\bm{i}+\bm{j}} h_{\bm{j}}
+                                  - \sum_{\bm{j}} v'_{\bm{i}+\bm{j}} h'_{\bm{j}}), \\
+    b_{\bm{i}} \! &\gets \! b_{\bm{i}} - \alpha \qty\big(v_{\bm{i}} - v'_{\bm{i}}),   \\
+    c_{\bm{j}} \! &\gets \! c_{\bm{j}} - \alpha \qty\big(h_{\bm{j}} - h'_{\bm{j}}).
+  \end{aligned}
+  \right.
+\end{equation}
+式中的 $\alpha$ 为学习率。利用梯度下降法，即可据此进行训练。
+
+由于参数空间提高到了二维，训练参数的数目大大增加。根据 \ref{subsec:regularization}~小节中的讨论，
+为了缓解过拟合问题，我们有必要在损失函数中引入正则项。一种有效的手段是强制参数稀疏化，它只需要修改
+式~\eqref{eq:crbm-parameters-update} 中参数 $\bm{b}$ 的更新规则
+\cite{lee2009convolutional,lee2011unsupervised}：
+\begin{equation}
+  \incr{b_{\bm{i}}} = \incr{b_{\bm{i}}}^0 + \incr{b}^{\text{sparsity}},
+\end{equation}
+其中 $\incr{b_{\bm{i}}}^0$ 仍按式~\eqref{eq:crbm-parameters-update} 选取，而稀疏化项则为
+\begin{equation}
+  \incr{b}^{\text{sparsity}}
+  \propto p - \frac{1}{N_{\text{hidden}}} \sum_{\bm{j}} P\qty\big(h_{\bm{j}}=1|\bm{v}).
+\end{equation}

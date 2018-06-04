@@ -1,0 +1,477 @@
+\chapter{Ising 模型}
+
+\section{Ising 模型的统计物理}
+\label{sec:ising-physics}
+
+Ising 模型是统计物理中描述铁磁系统的一种简单模型。Ising 模型由一系列自旋排列而成的点阵构成，其中的每
+个自旋只有两种取向，即 $+1$ 或 $-1$。自旋与自旋之间的相互作用可以导致相变的出现，最典型的例子是二维
+正方晶格的 Ising 模型，其严格解由 Onsager 给出
+\cite{pathria,linzonghan,surukeng,onsager1944crystal}。
+
+Ising 模型的 Hamilton 量为 \cite{pathria,linzonghan}：
+\begin{equation}
+  H(\q{\sigma_i}) = -\sum_{\nearest{ij}} J_{ij}\sigma_i\sigma_j - \mu \sum_{i} B_i\sigma_i.
+\end{equation}
+式中，“$\nearest{ij}$” 表示相邻的自旋。$J_{ij}$ 是耦合常数，通常情况下与自旋位置无关，即
+$J_{ij}=J$，因而可以放在求和号外部。$J>0$ 时，代表体系处于铁磁态；$J<0$ 时，则代表处于反铁磁态。
+$B_i$ 是外磁场，对于匀强磁场，有 $B_i=B$，即同样与位置无关。$\mu$ 是对应的磁矩。由于体系关于
+$\sigma_i$ 的正负是对称的，方便起见不妨认为 $B \geqslant 0$。此时，我们有
+\begin{equation}
+  H(\q{\sigma_i}) = -J \sum_{\nearest{ij}} \sigma_i\sigma_j - \mu B \sum_{i} \sigma_i.
+\end{equation}
+
+我们可以为某一特定的自旋构型引入概率。温度 $T$ 时，构型 $\q{\sigma_i}$ 在平衡态中出现的概率由
+Boltzmann 分布给出 \cite{exact}：
+\begin{equation}
+  \label{eq:ising-probability}
+  P(\q{\sigma_i}) = \frac{\ee^{-\beta H(\q{\sigma_i})}}{Z_N}.
+\end{equation}
+其中的 $\beta=1/T$。而 $Z_N$ 称为配分函数，它使得概率 $P$ 满足归一化条件
+\begin{equation}
+  \sum_\q{\sigma_i} P(\q{\sigma_i}) = 1
+  \implies Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})}.
+\end{equation}
+配分函数等价于体系的自由能。在温度 $T$、外磁场 $B$ 作为变量的情况下，自由能是体系的特性函数，故可以
+通过自由能计算出各物理量，包括内能、热容、磁化强度等。因此求解 Ising 模型实际上就是求出体系的配分函
+数（自由能）。
+
+一维 Ising 模型的严格解可利用转移矩阵的手段求出。热力学极限下（自旋数目 $N\to\infty$），自由能为
+\begin{equation}
+  F = - \frac{\ln Z_N}{\beta}
+    = - N J - \frac{N}{\beta}
+              \ln\qty[\cosh(\beta\mu B) + \sqrt{\ee^{-4\beta J} + \sinh^2(\beta\mu B)}].
+\end{equation}
+磁化强度为
+\begin{equation}
+  \frac{\bar{M}}{N\mu} = \frac{\sinh{\beta\mu B}}{\sqrt{\ee^{-4\beta J} + \sinh^2(\beta\mu B)}}.
+\end{equation}
+显然，只要 $\beta<\infty$，当 $B\to 0$ 时，$\bar{M}\to 0$；而当 $\beta\to 0$ 时，$\bar{M}\to N\mu$。
+这说明一维 Ising 模型的临界温度 $\Tc=0$，事实上不存在有限温度下的相变 \cite{linzonghan,pathria}。
+
+二维 Ising 模型的严格解比较复杂。对于正方晶格，可利用对偶变换求出临界温度
+\cite{pathria}
+\begin{equation}
+  \label{eq:ising-Tc}
+  \frac{\Tc}{J} = \frac{2}{\ln(1+\sqrt{2})} \approx \num{2.2692}.
+\end{equation}
+外场为零时，可以求得（单位自旋的）自由能为
+\cite{pathria,onsager1944crystal}
+\begin{equation}
+  \frac{\beta F}{N}
+  = - \frac{\ln Z_N}{N}
+  = - \frac{\ln 2}{2} - \ln\cosh 2\beta J
+    - \frac{1}{2\pp} \int_0^\pp \ln\qty[1+\sqrt{1-\kappa^2\sin^2\theta}] \dd{\theta},
+\end{equation}
+其中
+\begin{equation}
+  \kappa = \frac{2\sinh 2\beta J}{\cosh^2 2\beta J}.
+\end{equation}
+进而可以求得热容 \cite{pathria}：
+\begin{align}
+  \label{eq:ising-specific-heat}
+  \frac{C}{N}
+  & \simeq -\frac{2}{\pp} \ln^2 \qty(1+\sqrt{2}) \ln\abs{1-\frac{T}{\Tc}} + \const \notag \\
+  & \simeq \num{-0.4945} \ln\abs{1-\frac{T}{\Tc}} + \const.
+\end{align}
+可以看到热容在临界温度处呈现出对数发散行为。
+
+磁化强度的计算结果由杨振宁首次给出 \cite{pathria,yang1952spontaneous}：
+\begin{equation}
+  \label{eq:ising-magnetization}
+  \frac{\bar{M}}{N\mu} =
+  \begin{cases}
+    \qty(1 - \sinh^{-4} 2\beta J)^{1/8}, & T<\Tc; \\
+    0, & T>\Tc.
+  \end{cases}
+\end{equation}
+
+\section{临界行为与重整化群}
+
+\subsection{临界指数}
+
+一般而言，在接近临界点处，热力学量 $f$ 可按约化温度 $t=T/\Tc-1$ 展开：
+\begin{equation}
+  f(t) = A t^\lambda \qty\big(1 + B t^y + \cdots),
+\end{equation}
+式中 $y>0$。定义临界指数 $\lambda$ 为 \cite{surukeng}
+\begin{equation}
+  \lambda = \lim_{t \to 0} \frac{\ln f(t)}{\ln t}.
+\end{equation}
+它刻画了热力学量 $f$ 的临界行为：
+\begin{equation}
+  \lim_{t \to 0} f(t) =
+  \begin{cases}
+    0,      & \lambda > 0; \\
+    \const, & \lambda = 0; \\
+    \infty, & \lambda < 0.
+  \end{cases}
+\end{equation}
+注意当 $f(t) \sim \ln t$ 时，同样有
+\begin{equation}
+  \lambda =    \lim_{t \to 0} \frac{\ln f(t)}{\ln t}
+          \sim \lim_{t \to 0} \frac{\ln \ln t}{\ln t} = 0.
+\end{equation}
+
+取 $f$ 为热容 $C$，则定义了临界指数 $\alpha$。对于 Ising 模型，根据
+式~\eqref{eq:ising-specific-heat}，可有
+\begin{equation}
+  \alpha = 0.
+\end{equation}
+取 $f$ 为序参量，即磁化强度 $\bar{M}$，则定义了临界指数 $\beta$。根据
+式~\eqref{eq:ising-magnetization}，有
+\begin{equation}
+  \beta = \frac{1}{8}.
+\end{equation}
+
+临界指数的存在具有普适性。对于不同的系统，如铁磁系统、van der Waals 气液相变、超导体系等，均可以
+得到完全相同的临界指数。这种普适性的根源是关联长度 $\xi$ 在临界点处的发散性为。在临界点处，
+$\xi\to\infty$，其他的特征长度则保持不变，因此热力学量的奇异性仅依赖于 $\xi$ 的奇异性，而与体系的
+具体特征无关 \cite{linzonghan,surukeng}。
+
+%以铁磁系统为例，设单位自旋的自由能 $f$ 是约化温度、约化磁场
+%\begin{equation}
+%  t = \frac{T}{\Tc} - 1 \qc
+%  b = \frac{\mu B}{\Tc}
+%\end{equation}
+%的函数。将其分解为奇异部分 $f_{\symup{s}}$ 和非奇异部分 $f_{\symup{r}}$：
+%\begin{equation}
+%  f(t,\,b) = f_{\symup{s}}(t,\,b) + f_{\symup{r}}(t,\,b).
+%\end{equation}
+%在临界点附近，只有奇异部分 $f_{\symup{s}}$ 需要考虑。
+%
+%标度变换可以视为对晶格的某种“缩放”。经过一次标度变换后，设体系的晶格常数由 $a$ 变成了 $a'=La$。
+%相应地，有
+%\begin{equation}
+%  \label{eq:transform-relation-t-b}
+%  t' = L^x t \qc b' = L^y b.
+%\end{equation}
+%体系总的自由能（配分函数）在标度变换下保持不变，但自旋数目发生了变化：$N \to N'=L^{-d} N$，$d$
+%为体系的维度。因而有
+%\begin{equation}
+%  N f_{\symup{s}} (t,\,b) = N' f_{\symup{s}} (t',\,b'),
+%\end{equation}
+%即
+%\begin{equation}
+%  f_{\symup{s}} (t,\,b) = L^{-d} f_{\symup{s}} (L^x t, \, L^y b).
+%\end{equation}
+%取 $L^x t=1$，则有
+%\begin{equation}
+%  f_{\symup{s}} (t,\,b) = t^{d/x} f_{\symup{s}} (1, \, L^y b).
+%\end{equation}
+%考虑到热容 $C$ 正比于自由能对温度的二阶导数，可得
+%\begin{equation}
+%  C \sim \pdv[2]{f_{\symup{s}}}{t} \sim t^{d/x-2},
+%\end{equation}
+%即临界指数
+%\begin{equation}
+%  \alpha = 2 - \frac{d}{x}.
+%\end{equation}
+%类似地，可以计算出其他临界指数满足的条件：
+%\begin{equation}
+%  \beta  = \frac{d-y}{x}  \qc
+%  \gamma = \frac{2y-d}{x} \qc
+%  \delta = \frac{y}{d-y}.
+%\end{equation}
+%消去 $x$ 、$y$，即得到标度律
+%\begin{equation}
+%  \label{eq:scaling-relation-i-ii}
+%  \alpha + 2\beta + \gamma = 2 \qc
+%  \gamma = \beta (\delta - 1).
+%\end{equation}
+%
+%另一方面，关联长度满足变换关系 $\xi\to\xi'=L^{-1}\xi$。代入式~\eqref{eq:transform-relation-t-b}，得
+%\begin{equation}
+%  \frac{\xi'}{\xi} = \qty(\frac{t'}{t})^{-\nu} = L^{x\nu} = L^{-1}
+%  \implies \nu = \frac{1}{x}.
+%\end{equation}
+%因此得到另一条标度律
+%\begin{equation}
+%  \label{eq:scaling-relation-iii}
+%  \nu d = 2 - \alpha.
+%\end{equation}
+%
+%如果定义关联函数
+%\begin{equation}
+%  g(\bm{r}_{ij}) = \overline{(\sigma_i-\bar{\sigma_i})(\sigma_j-\bar{\sigma_j})},
+%\end{equation}
+%则有另一个临界指数 $\eta$ 与之关联：
+%\begin{equation}
+%  g(\bm{r}) \sim r^{2-d-\eta}.
+%\end{equation}
+%并同样有标度律
+%\begin{equation}
+%  \label{eq:scaling-relation-iv}
+%  \eta = 2 + d - 2y \implies \gamma = (2-\eta) \nu.
+%\end{equation}
+%
+%这样，利用四条标度律 \eqref{eq:scaling-relation-i-ii}、\eqref{eq:scaling-relation-iii} 和
+%\eqref{eq:scaling-relation-iv}~式，
+
+利用自由能（配分函数）在标度变换下的形式不变性，可以得到临界指数所满足的标度律
+\cite{pathria,linzonghan}
+\begin{equation}
+  \alpha + 2\beta + \gamma = 2 \qc
+  \gamma = \beta (\delta - 1)  \qc
+  \nu d = 2 - \alpha           \qc
+  \gamma = (2-\eta) \nu.
+\end{equation}
+利用它们可以计算得到 Ising 模型的其他几个临界指数 \cite{pathria,linzonghan}：
+\begin{equation}
+  \gamma = \frac{7}{4} \qc
+  \delta = 15          \qc
+  \nu    = 1           \qc
+  \eta   = \frac{1}{4}.
+\end{equation}
+
+\subsection{重整化群}
+
+前面已经指出，在相变临界点处关联长度 $\xi$ 会出现发散。因此，$\xi$ 在任意尺度变换下均是不变的，
+即对应变换的不动点。根据这一观点，我们可以直接计算出临界指数而无需严格求解配分函数，这称为
+重整化群方法 \cite{linzonghan}。
+
+一般而言，体系的配分函数总可以写成
+\begin{equation}
+  Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})},
+\end{equation}
+其中，体系的 Hamilton 量为
+\begin{equation}
+    H(\q{\sigma_i})
+  = H(\q{\sigma_i},\,\bm{K})
+  = - \sum_i K^{(1)}_i \sigma_i
+    - \sum_{\nearest{ij}}  K^{(2)}_{ij}  \sigma_i\sigma_j
+    - \sum_{\nearest{ijk}} K^{(3)}_{ijk} \sigma_i\sigma_j\sigma_k - \cdots
+\end{equation}
+耦合参数 $\bm{K}$ 可以表征体系中的多种相互作用 \cite{pathria,surukeng}。
+
+接下来对体系进行一次标度变换，即粗粒近似。此时，多个自旋被统一处理，视作一个 Kadanoff 集团。
+自旋数目（即体系自由度）$N$ 和关联长度 $\xi$ 分别变为
+\begin{equation}
+  \label{eq:N-xi-renormalization}
+  N' = L^{-d} N \qc \xi' = L^{-1} \xi.
+\end{equation}
+其中 $L>1$ 为缩放系数，$d$ 则为体系的维度。经过一次粗粒近似后，体系的配分函数数值上应当保持不变，
+但形式上需要变为对 Kadanoff 集团 $\q{\sigma_i'}$ 的求和 \cite{pathria,exact}：
+\begin{equation}
+  \label{eq:Z-H-renormalization}
+  Z_{N'}
+  = \sum_\q{\sigma'_i} \ee^{-\beta H^{\text{RG}}(\q{\sigma_i'},\,\bm{K}')}
+  = \sum_\q{\sigma'_i} \sum_\q{\sigma_i}
+    \ee^{-\beta \qty\big[H(\q{\sigma_i},\,\bm{K})-\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})]}.
+\end{equation}
+式中的 $\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})$ 刻画了从单个自旋 $\q{\sigma_i}$ 到自旋集团
+$\q{\sigma_i'}$ 的变换，而 $\bm{K}'$ 为变换后的耦合参数，它满足
+\begin{equation}
+  \label{eq:K-renormalization}
+  \bm{K}' = \trR{L}(\bm{K}).
+\end{equation}
+耦合参数 $\bm{K}$ 作为向量可以张成一个向量空间 $\spaceV$，因而我们可以把 $\trR{L}$ 理解为 $\spaceV$
+上的一个算子（未必要求线性）。在不动点 $\bm{K}^*$ 附近做展开，可以得到 $\trR{L}$ 的线性近似
+$\trA[*]{L}$。计算矩阵 $\trA[*]{L}$ 的本征值，就可以直接给出临界指数的具体数值，而无需再对
+配分函数进行严格求解 \cite{pathria,surukeng}。
+
+%粗粒近似可以重复进行，即
+%\begin{equation}
+%  \bm{K} \to \bm{K}' = \trR{L}(\bm{K}) \to \cdots \to \bm{K}^{(n)} = \trR[n]{L}(\bm{K}).
+%\end{equation}
+%可见 $\trR[k]{L}$ 连同恒等变换构成一个半群（不存在逆变换）。根据重整化群理论的精神，重整化变换
+%$\trR{L}$ 存在不动点 $\bm{K}^*$，满足
+%\begin{equation}
+%  \trR{L}(\bm{K}^*) = \bm{K}^*.
+%\end{equation}
+%在不动点附近分别展开 $\bm{K}$ 和 $\bm{K}'$，得到
+%\begin{equation}
+%  \bm{K}  = \bm{K}^* + \delta{\bm{K}} \qc
+%  \bm{K}' = \bm{K}^* + \delta{\bm{K}'}.
+%\end{equation}
+%代入 \eqref{eq:K-renormalization}~式，有
+%\begin{align}
+%  &\mathrel{\phantom{\implies}}
+%    \bm{K}^* + \delta{\bm{K}'}
+%  = \trR{L}(\bm{K}^* + \delta{\bm{K}})
+%  = \trR{L}(\bm{K}^*) + \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}} \notag \\
+%  &\implies
+%    \delta{\bm{K}'}
+%  = \eval{\pdv{\trR{L}}{\bm{K}}}_{\bm{K}^*} \delta{\bm{K}}
+%  = \trA[*]{L} \delta{\bm{K}}.
+%\end{align}
+%式中，$\trA[*]{L}$ 是 $\trR{L}$ 在 $\bm{K}^*$ 处的线性近似。设 $\trA[*]{L}$ 的本征值与
+%本征向量分别为 $\lambda_i$ 和 $\bm{\phi}_i$，则可将 $\delta{\bm{K}}$ 和 $\delta{\bm{K}'}$ 展开：
+%\begin{equation}
+%  \delta{\bm{K}}  = \sum_i u_i  \bm{\phi}_i \qc
+%  \delta{\bm{K}'} = \sum_i u'_i \bm{\phi}_i.
+%\end{equation}
+%两边作用 $\trA[*]{L}$，可得到系数满足的关系
+%\begin{equation}
+%  u_i' = \lambda_i u_i.
+%\end{equation}
+%同理，作用 $n$ 次 $\trA[*]{L}$，即 $\qty\big(\trA[*]{L})^n$，可有
+%\begin{equation}
+%  u_i^{(n)} = \lambda_i^n u_i^{(0)}.
+%\end{equation}
+%显然，若本征值 $\lambda_i>1$，则随着 $n$ 的增加，$u_i^{(n)}$ 的权重越来越大，因此决定了体系的
+%临界行为，对应的参数 $u_i$ 称为相关变量；反之，若本征值 $\lambda_i<1$，则 $u_i^{(n)}$ 的权重随着
+%$n$ 的增加越来越小，故对应的 $u_i$ 称为无关变量。$\lambda_i=1$ 对应的 $u_i^{(n)}$ 会保持定常行为，
+%能够带来介于以上二者之间的影响，如幂律行为中的对数项。
+%
+%对于 Ising 模型，可以给出两个相关变量，它们分别与约化温度和约化磁场关联：
+%\begin{equation}
+%  u_1 \propto t \qc u_2 \propto b.
+%\end{equation}
+%根据式~\eqref{eq:N-xi-renormalization}，我们有
+%\begin{equation}
+%  \xi' = L^{-1} \xi \implies \xi^{(n)} = L^{-n} \xi^{(0)}.
+%\end{equation}
+%关联长度 $\xi$ 是 $u_i$ 的函数，因此
+%\begin{equation}
+%  \xi^{(n)} = \xi\qty\big(\q{u_i^{(n)}}) = \xi\qty\big(\q{\lambda_i^n u_i^{(0)}}) \qc
+%  \xi^{(0)} = \xi\qty\big(\q{u_i^{(0)}}).
+%\end{equation}
+%根据临界指数 $\nu$ 的定义，有
+%\begin{equation}
+%  \xi \propto t^{-\nu} \propto u_1^{-\nu}.
+%\end{equation}
+%联立以上三式，我们有
+%\begin{equation}
+%  \xi^{(n)} \propto \lambda_1^{-n\nu} u_1^{-\nu} \qc
+%  \xi^{(0)} \propto u_1^{-\nu}
+%  \implies \frac{\xi^{(n)}}{\xi^{(0)}} = \lambda_1^{-n\nu} = L^{-n}
+%  \implies \nu = \frac{\ln L}{\ln \lambda_1}.
+%\end{equation}
+%这样，我们就利用重整化群方法计算得到了临界指数 $\nu$。一旦给定了具体的重整化变换 $\trR{L}$，
+%就立刻可以给出 $\nu$ 的数值，而无需对配分函数进行严格求解。
+%
+%\section{Ising 模型与 \AdSCFT{}}
+
+\section{Ising 模型的 Monte Carlo 模拟}
+
+\subsection{Metropolis 算法}
+
+在 \eqref{eq:ising-probability}~式中，我们给出了构型 $\q{\sigma_i}$ 在平衡态中出现的概率。严格
+计算这一概率，需要对所有可能的构型进行求和。设自旋数目为 $N$，则构型数正比于 $N!$，可见直接对它们
+进行求和是不现实的。为了回避过于巨大的计算开销，Monte Carlo 算法给出了另外一种方案，即以按照一定
+概率的抽样，代替对全部构型的平均。
+
+考虑自旋构型 $\q{\sigma_i}$ 随时间的演化。设在 $t$ 时刻，构型 $\q{\sigma_i}$ 对应的概率为
+$P\qty\big(\q{\sigma_i},\,t)$，则 \cite{pathria,landau2005guide}
+\begin{align}
+  P\qty\big(\q{\sigma_i},\,t+1) = P\qty\big(\q{\sigma_i},\,t)
+  &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+     \notag \\
+  &- \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}).
+\end{align}
+式中，$W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})$ 表示从 $\q{\sigma_i}$ 到 $\q{\sigma'_i}$ 的
+转移概率，需要满足细致平衡条件 \cite{pathria,landau2005guide}：
+\begin{equation}
+  \label{eq:detailed-balance}
+    P_{\text{eq}}(\q{\sigma_i})  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+  = P_{\text{eq}}(\q{\sigma'_i}) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i}).
+\end{equation}
+平衡态下，构型 $\q{\sigma_i}$ 对应的概率可由式~\eqref{eq:ising-probability} 获得，它正比于
+$\ee^{-\beta H(\q{\sigma_i})}$，因而有
+\begin{equation}
+    \frac{W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})}{W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})}
+  = \frac{\ee^{-\beta H(\q{\sigma'_i})}}{\ee^{-\beta H(\q{\sigma_i})}}
+  = \ee^{-\beta \incr{E}}.
+\end{equation}
+其中的 $\incr{E}$ 表示两构型间的能量差。考虑到概率的有效取值范围为 $[0,\,1]$，我们令
+\begin{equation}
+  \label{eq:metropolis-probability}
+  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
+  \begin{cases}
+    1, & \incr{E} \leqslant 0; \\
+    \ee^{-\beta \incr{E}}, & \incr{E} > 0.
+  \end{cases}
+\end{equation}
+
+Metropolis 算法是 Monte Carlo 模拟的一种具体实现，它给出了选取下一时刻自旋构型的方案。
+具体步骤可以表述如下 \cite{pathria,landau2005guide,binder2010monte}：
+
+\begin{enumerate}
+  \item 初始化所有自旋，可以随机取为 0 或 1。但如果初始时就令自旋（近似）满足一定的概率分布，
+    可以使得算法更为高效。
+  \item 在自旋构型 $\q{\sigma_i}$ 的基础上，随机生成一个与之相差不大的构型 $\q{\sigma'_i}$。
+    通常做法是翻转某一个自旋。
+  \item 计算能量差 $\incr{E}$，按照式~\eqref{eq:metropolis-probability} 获得接受概率 $P$。生成一个
+    区间 $(0,\,1)$ 内的随机数 $\xi$，若 $\xi<P$，则接受构型 $\q{\sigma'_i}$（即翻转相应自旋）；
+    否则不进行操作。
+  \item 遍历整个点阵，即完成一个 Monte Carlo 步（Monte Carlo sweep, MCS）。为满足细致平衡条件
+    \eqref{eq:detailed-balance}~式，原则上需在点阵中随机选取自旋，并计算接受概率、决定是否翻转；
+    但出于效率的考虑，也常常直接按次序遍历整个点阵。
+  \item 重复进行 2--4 步，测量各物理量，并计算它们的统计平均值及标准误差。
+\end{enumerate}
+
+\subsection{模拟结果}
+
+在后文中，机器学习所用到的 Ising 模型训练数据集均利用上面介绍的 Metropolis 算法生成。为了文章的
+完整性，这里我们也顺带给出 Ising 模型的 Monte Carlo 模拟结果。
+
+\begin{figure}[htb]
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-energy.pdf}
+    \phantomcaption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-magnet.pdf}
+    \phantomcaption{}
+  \end{subfigure}
+  \\[3ex]
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-cv.pdf}
+    \phantomcaption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \hfill
+    \imageinput{ising-cv-exact.pdf}
+    \phantomcaption{}
+    \label{fig:ising-cv-exact}
+  \end{subfigure}
+  \caption{Ising 模型各物理量随温度的变化曲线。为了更清晰地反映出相变的临界情况，我们在临界点附近
+    增大了采样密度。图中还用灰线标出了临界温度 $\Tc$ 的位置。误差棒代表正负一个标准差。
+    (a)~能量；(b)~自发磁化；(c)~热容，注意到在较小的点阵中存在巨大的涨落 \protect\footnotemark{}；
+    (d)~热容的精确计算结果 \cite{pathria}，额外给出了 $4 \times 4$、$8 \times 8$ 和
+    $256 \times 256$ 点阵中的情形}
+  \label{fig:ising-observables}
+\end{figure}
+
+\footnotetext{不确定度（标准差）在 $T/J=\num{1.8}$ 和 \num{2.8} 处的突变来自于采样的不均匀。为了
+  提高临界点附近的精度，区间 $[1.8,\,2.8]$ 之内温度采样间隔为 \num{0.02}，之外则为 \num{0.1}。}
+
+以下结果中，Ising 点阵大小分别为 $16 \times 16$、$32 \times 32$、$64 \times 64$ 和
+$128 \times 128$，并采用周期性边界条件。选取温度区间 $T/J \in [1,\,3.6]$，外磁场为零。进行
+\num{900} MCS 之后，认为体系达到平衡态。之后再进行 \num{100} MCS，并在其中取系综平均计算各物理量。
+每个温度下，重复模拟 50 次，统计各物理量的平均值及标准差（作为不确定度）。模拟结果见
+图~\ref{fig:ising-observables}。
+
+根据模拟结果，我们发现随着体系尺度的增加，临界行为逐渐接近 \ref{sec:ising-physics}~节中给出的
+严格计算结果，如自发磁矩的 $1/8$ 幂律发散、热容的对数发散等。
+
+为了与模拟结果进行对照，我们还给出了有限体系热容的精确结果，见图~\ref{fig:ising-cv-exact}。
+可以看到，随着尺度的增加，热容的极大值逐渐增大，极值点出现的位置也向 $\Tc$ 靠近。事实上，将极值点
+位置 $T_*$ 和热容极大值 $C_*$ 关于体系尺度 $L$ 分别进行拟合，可以得到如下关系 \cite{pathria}：
+\begin{equation}
+  T_* - \Tc \propto L^{-1} \qc
+  C_*       \propto \ln L.
+\end{equation}
+结果见图~\ref{fig:ising-fit}。
+
+\begin{figure}[htb]
+  \begin{subfigure}[b]{0.48\textwidth}
+    \hfill
+    \imageinput{ising-cv-fit-i.pdf}
+    \phantomcaption{}
+    \label{fig:ising-cv-fit-i}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \hfill
+    \imageinput{ising-cv-fit-ii.pdf}
+    \phantomcaption{}
+    \label{fig:ising-cv-fit-ii}
+  \end{subfigure}
+  \caption{利用图~\ref{fig:ising-cv-exact} 中热容的精确计算结果关于体系尺度拟合。
+    (a)~临界温度随点阵尺度的变化，$x$、$y$ 轴均取对数坐标；
+    (b)~热容极大值随点阵尺度的变化，只有 $x$ 轴取对数坐标}
+  \label{fig:ising-fit}
+\end{figure}

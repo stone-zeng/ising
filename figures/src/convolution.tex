@@ -1,0 +1,48 @@
+% See https://liam0205.me/2017/08/10/importing-animate-in-LaTeX/.
+\begin{tikzpicture}[
+    on grid,
+    global yslant/.style={
+      yslant=#1,
+      every node/.append style={yslant=#1}}]
+  \newcommand\twodimdrawcontent[2]%
+    {
+      % Kernel
+      \begin{scope}[global yslant = -0.5, xscale=0.9, xshift = 1cm, thick]%, yshift = -1.5cm]
+        \node (A1) at (0,0) {};
+        \node (A2) at (3,0) {};
+        \node (A3) at (3,3) {};
+        \node (A4) at (0,3) {};
+        \draw (0,0) grid (3,3);
+      \end{scope}
+      % Input
+      \begin{scope}[global yslant = -0.5, xscale=0.9, xshift = 4.5cm, yshift = 1cm, thick]
+        \node (mnist) at (3,3) {\includegraphics[width=6cm]{../mnist-image-no-frame.pdf}};
+        \node (B1) at (0cm + #1cm, 3cm - #2cm) {};
+        \node (B2) at (3cm + #1cm, 3cm - #2cm) {};
+        \node (B3) at (3cm + #1cm, 6cm - #2cm) {};
+        \node (B4) at (0cm + #1cm, 6cm - #2cm) {};
+        \fill[MaterialIndigo200, opacity=0.5]
+          (0cm + #1cm, 3cm - #2cm) rectangle (3cm + #1cm, 6cm - #2cm);
+        \fill[MaterialIndigo, opacity=0.5]
+          (1cm + #1cm, 4cm - #2cm) rectangle (2cm + #1cm, 5cm - #2cm);
+        \draw (0,0) grid (6,6);
+      \end{scope}
+      % Output
+      \begin{scope}[global yslant = -0.5, xscale=0.9, xshift = 11cm, yshift = 4cm, thick]
+        \node (I) at (0.5cm + #1cm, 3.5cm - #2cm) {};
+        \fill[MaterialRed200]
+          (0cm + #1cm, 3cm - #2cm) rectangle (1cm + #1cm, 4cm - #2cm);
+        \draw (0,0) grid (4,4);
+      \end{scope}
+      % Connections
+      \foreach \x in {1, 2, 3, 4}
+      {
+        \draw[dashed, thick, MaterialIndigo] (A\x.center) -- (B\x.center);
+        \draw[dashed, thick, MaterialRed]    (B\x.center) -- (I.center);
+      }
+    }
+  \twodimdrawcontent{0}{0}
+  \node at (2.2, -2) {Kernel};
+  \node at (6.7, -3) {Input};
+  \node at (11.5, -2.5) {Output};
+\end{tikzpicture}

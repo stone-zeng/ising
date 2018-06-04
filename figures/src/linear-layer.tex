@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+  \tikzstyle{visible} = [draw, thick, circle, minimum size=15pt, fill=MaterialRed300]
+  \tikzstyle{hidden}  = [draw, thick, circle, minimum size=15pt, fill=MaterialIndigo300]
+  \tikzstyle{sigmoid} = [draw, thick, minimum size=15pt, fill=MaterialGreen300]
+  \tikzstyle{weight}  = [thick]
+  \node (h)[hidden]  at (4,0) {};
+  \node (s)[sigmoid] at (6,0) {};
+  \draw [weight] (h) -- (s);
+  \foreach \x in {0, 1, 2}
+  {
+    \node (i\x)[visible] at ($(0,-1.2)!0.5*\x!(0,1.2)$) {};
+    \draw [weight] (i\x) -- (h);
+  }
+  \node at (0,-2)   {Input};
+  \node at (4,-0.8) {Linear layer};
+  \node at (6,-0.8) {$\sigma$};
+\end{tikzpicture}

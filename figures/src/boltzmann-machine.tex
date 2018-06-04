@@ -1,0 +1,18 @@
+\begin{tikzpicture}
+  \tikzstyle{visible} = [draw, thick, circle, minimum size=15pt, fill=MaterialRed300]
+  \tikzstyle{hidden}  = [draw, thick, minimum size=15pt, fill=MaterialIndigo300]
+  \tikzstyle{weight}  = [thick]
+  \foreach \x in {0, 1, 2, 3, 4}
+    \node (v\x)[visible] at ($(-180+45*\x:1.8)$) {};
+  \foreach \y in {0, 1, 2}
+    \node (h\y)[hidden] at ($(45+45*\y:1.8)$) {};
+  \foreach \x in {0, 1, 2, 3, 4}
+    \foreach \y in {0, 1, 2}
+      \draw [weight] (v\x) -- (h\y);
+  \foreach \x in {0, 1, 2, 3, 4}
+    \foreach \y in {\x, ..., 4}
+      \draw [weight] (v\x) -- (v\y);
+  \foreach \x in {0, 1, 2}
+    \foreach \y in {\x, ..., 2}
+      \draw [weight] (h\x) -- (h\y);
+\end{tikzpicture}

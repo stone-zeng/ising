@@ -1,0 +1,305 @@
+\chapter{机器学习简介}
+
+\section{机器学习有关思想方法}
+
+机器学习是当今计算机科学的重要分支。它可以利用计算机的强大计算能力，从大量数据中提取特征，并构建
+相应的模型。生成的模型还可以用来进行预测 \cite{zhouzhihua,wiki:ml}。
+
+考虑最简单的回归模型。假设我们给定了一些数据点 $(\bm{x}^{(i)}, \, y^{(i)})$，其中 $\bm{x}^{(i)}$
+称为特征（feature），$y^{(i)}\in\R$ 称为标签（label）。训练样本的数量为 $m$，即
+$i=1,\,2,\,\ldots,\,m$。特征的数量为 $n$，但按照惯例，取 $x_0=0$，故有 $\bm{x}^{(i)}\in\R^{n+1}$。
+一般而言，特征反映了样本的各种性质（如图片中的像素点），而标签则是需要预测的内容（如图片对应的
+物体类别）。为了学习样本数据，我们需要给出一个目标函数 $h_\bm{\theta}: \R^{n+1}\to\R$，使得
+$h_\bm{\theta}(\hat{\bm{x}})=\hat{y}$。这里的 $\bm{\theta}$ 称为参数（parameter），它包含了模型的
+全部训练信息 \cite{zhouzhihua,tensorflow}。
+
+显然，学习效果越好，就要求预测值 $\hat{y}$ 与真实值 $y$ 的差距越小。为此，我们需要定义
+损失函数（loss function）$L$，并使 $L$ 关于参数 $\bm{\theta}$ 取最小值。如果数据规模较小、模型比较
+简单，$L$ 的最小值可以解析求得。例如线性回归模型，即
+\begin{equation}
+  h_\bm{\theta} (\bm{x})
+  = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \cdots + \theta_n x_n
+  = \sum_{j=0}^n \theta_j x_j,
+\end{equation}
+我们取损失函数为
+\begin{equation}
+  \label{eq:loss-function-linear}
+  L(\bm{\theta})
+  = \frac{1}{2} \sum_{i=1}^m \qty\Big[y^{(i)} - h_\bm{\theta}\qty\big(\bm{x}^{(i)})]^2
+  = \frac{1}{2} \norm{\bm{y} - \bm{X}\bm{\theta}}^2 \in \R.
+\end{equation}
+式中 $\bm{X}\in\R^{m\times(n+1)}$，且有 $X_{ij} = x^{(i)}_j$。利用最小二乘估计，可以求得最优解
+\cite{zhouzhihua}
+\begin{equation}
+  \hat{\bm{\theta}} = \qty\big(\bm{X}^\trans\bm{X})^{-1} \bm{X}^\trans \bm{y}.
+\end{equation}
+
+然而，当数据规模很大时，可以发现矩阵 $\bm{X}^\trans\bm{X}$ 的阶数也会很大，导致求其逆阵的开销无法
+接受。因此可以改换思路，利用梯度下降法逼近损失函数的最小值。对于一般的多元函数，梯度给出了其在某一点
+处变化率最大的方向。因而沿着梯度方向不断改变 $\bm{\theta}$ 的值，就可以逐步趋近最小值。我们可以令
+\begin{equation}
+  \bm{\theta} \coloneq \bm{\theta} - \alpha\nabla\bm{\theta},
+\end{equation}
+并不断迭代，直至收敛。式中 $\alpha$ 称为学习率，用来调节每次下降的“步幅”。
+
+在回归模型中，我们对每一组数据都给出了对应的标签。这称之为监督学习（supervised learning）。与之
+相对应，另外还有无监督学习（unsupervised learning），指的是不需要为数据提供标签。无监督学习要求机器
+从数据本身归纳出相关信息，因此相比监督学习更为困难。除了回归（regression）问题（物理学中一般称为
+拟合），监督学习还包括分类（classification）等。无监督学习主要包括聚类（clustering）、降维
+（dimensionality reduction）等 \cite{zhouzhihua,wiki:ml}。
+
+一般来说，机器学习的思路可以概括如下：
+
+\begin{enumerate}
+  \item 根据数据的具体类型、特性构建相应的模型；
+  \item 给出模型的损失函数；
+  \item 在数据集上进行训练，找出能使损失函数取最小值的参数；
+  \item 验证模型及参数的有效性，进行参数微调；
+  \item 在新的数据集上测试训练好的模型。
+\end{enumerate}
+
+\section{Ising 模型相变研究（一）：线性模型}
+
+在给定的温度下，我们可以利用 Monte Carlo 算法生成一系列 Ising 模型的自旋构型（configuration）。
+不妨把构型作为前文所述的特征 $\bm{x}^{(i)}$，温度作为标签 $y^{(i)}$。对大量数据样本进行训练后，
+给定某一自旋构型，即可以利用机器学习的手段获知其所对应的温度。对于二维正方晶格的 Ising 模型，
+其相变临界点是已知的，由此还可以知道该自旋构型处于有序态（铁磁）或是无序态（顺磁）。
+
+\subsection{训练模型}
+
+下面我们利用线性分类模型分析由 Monte Carlo 算法生成的 Ising 自旋构型。Ising 自旋构型是一个
+$N\times N$ 的矩阵，每一个矩阵元仅可取 1 或 0。这称为布尔型（binary）数据。接下来把该矩阵
+压平为一维向量，即 $\bm{x}^{(i)}\in\R^{N^2}$。对于标签 $y^{(i)}$，我们同样进行二值化，即令
+\begin{equation}
+  y^{(i)}(T) =
+  \begin{cases}
+    0, & T <         \Tc; \\
+    1, & T \geqslant \Tc.
+  \end{cases}
+\end{equation}
+压平与二值化处理都是为了训练的方便，本质上并不改变模型的结构。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{linear-layer.pdf}
+  \caption{线性分类模型示意图}
+  \label{fig:linear-layer}
+\end{figure}
+
+如图~\ref{fig:linear-layer}，二值化的线性分类模型可以用下式表示：
+\begin{equation}
+  y = \sigma(\bm{W}^\trans \bm{x} + b).
+\end{equation}
+式中，$\bm{W}\in\R^{N^2}$ 称为权重（weight），$b\in\R$ 称为偏差（bias）。注意到前文的
+$\bm{\theta}$ 相当于这里 $\bm{W}$ 和 $b$ 的组合，并有 $b=\theta_0$。$\sigma$ 称为激活函数
+（activation function），其作用是将线性模型给出的结果映照到 $\q{0,\,1}$ 上。为了计算的方便，常把
+激活函数取为逻辑函数（logistics sigmoid function），它是一个光滑函数，并满足
+\begin{equation}
+  \sigma(z) = \frac{1}{1+\ee^{-z}}.
+\end{equation}
+注意到逻辑函数 $\sigma$ 的值域为连续区间 $(0,\,1)$，我们把这一结果结果理解为 $y$ 属于类别 1
+的概率 $P(y=1)$。
+
+\subsection{训练结果}
+\label{subsec:ising-linear-train-result}
+
+下面我们来介绍具体的训练过程。所用点阵大小分别为 $8 \times 8$、$12 \times 12$、$16 \times 16$、
+$24 \times 24$、$32 \times 32$、$48 \times 48$ 和 $64 \times 64$。数据由 Metropolis 算法生成，
+选取温度区间 $T/J \in [1.0,\,3.6]$，间隔为 0.1；外磁场为零。进行 \num{1000} MCS 之后，认为体系
+达到平衡态，点阵数据即在此时抓取，如图~\ref{fig:ising-lattice} 所示。每个温度下重复独立运行
+\num{100} 组，因而对每个大小的点阵，一共有 \num{2700} 组训练数据。按之前所述，数据的特征向量
+$\bm{x}^{(i)}$ 取为点阵压平而成的一维向量，标签 $y^{(i)}$ 则依据温度进行选取：大于 $\Tc$ 为 1，
+小于 $\Tc$ 为 0。
+
+训练使用 Mathematica 软件提供的机器学习框架 \cite{nettrain}。选择线性层（\code{LinearLayer}）+
+逻辑函数层（\code{LogisticSigmoid}）的网络结构，其余参数均采用默认值。对于每个大小的点阵，训练
+大约需要半分钟。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-1-0.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-2-3.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-3-6.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{训练所用的 Ising 模型点阵数据，大小为 $64 \times 64$。
+    (a)~$\Tc/J=1.0$，为典型的低温有序相；
+    (b)~$\Tc/J=2.3$，处于临界温度附近，呈现出“花斑”图样，具有标度变换下的不变性；
+    (c)~$\Tc/J=3.6$，为高温无序相}
+  \label{fig:ising-lattice}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-linear.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-linear}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-linear-scaled.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-linear-scaled}
+  \end{subfigure}
+  \caption{线性模型在 Ising 模型点阵数据上给出的预测结果。灰线表示临界温度 $\Tc/J$。
+    (a)~数据标签的期望值与温度、点阵尺寸的关系，误差棒代表正负一个标准差；
+    (b)~对点阵进行标度变换后的结果}
+  \label{fig:ising-learning-linear-total}
+\end{figure}
+
+训练结束后，在测试集
+\footnote{原则上讲，测试集应当与训练集选取不同的数据样本 \cite{zhouzhihua}，但这里方便起见，
+  这里直接采用训练集作为测试集。}
+上给出预测结果，如图~\ref{fig:ising-learning-linear} 所示。最终给出的预测结果 $P$ 是数据标签的
+期望值，它等价于对应点阵样本属于无序相的概率。从图中可以看出，线性分类模型大致可以区分无序相和
+有序相，但预测效果不好，误差较大，尤其是较小点阵。
+
+按照标度变换的原理，我们对点阵大小按温度进行缩放。可以证明 \cite{phase}，当横坐标取为
+\begin{equation}
+  tL^{1/\nu} = \frac{T-\Tc}{\Tc} L^{1/\nu}
+\end{equation}
+时，$P$ 曲线将与点阵大小无关，即各大小点阵对应的预测曲线完全重合。然而，
+图~\ref{fig:ising-learning-linear-scaled} 显示出了与理论结果相当大的偏离，预测曲线仍有一定的
+尺度依赖性。由此我们可以认为，线性分类模型尽管可以给出合理的定性结果，但定量来看预测结果并不理想。
+
+需要指出的是，图~\ref{fig:ising-learning-linear-total} 中，相比其他尺寸，点阵大小 $64 \times 64$
+对应的预测数据有明显偏离。由于训练时间随训练数据大小增加迅速，而软件默认固定训练时间，因此对于
+较大尺寸的点阵，总训练轮次（epoch）不够，训练不充分，预测结果也不够理想。
+
+\section{神经网络}
+
+\subsection{网络结构与损失函数}
+
+对于线性可分的问题（即可以用数据空间中的单一平面划分不同类别），简单的线性模型就能够取得较好的
+训练结果。但实际问题往往要复杂得多，且单纯增加参数的数量并不能显著改善结果。上一节中我们所研究的
+Ising 模型相的分类问题，就显示出了线性模型的局限性。
+
+一种比较好的解决方案是将多层线性模型组合起来。在每一个线性层之后，都额外作用激活函数
+\cite{zhouzhihua}。激活函数具有非线性效应，因此多层线性模型的组合并不等同于参数更多的单个线性层。
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{neural-net.pdf}
+  \caption{具有两层的神经网络。注意实际训练中所用的网络，其隐藏层单元数目未必大于训练数据单元数目}
+  \label{fig:neural-net}
+\end{figure}
+
+在如图~\ref{fig:neural-net} 这样的网络中，每一个节点都可以类比为生物神经网络中的神经元（neuron），
+因此这种网络称为人工神经网络（artificial neural network）。神经元能够从“树突”（dendrite）接受上一层
+的信息，经过简单处理后，又从“轴突”（axon）将信息传递给下一层。一个线性层神经元和一个激活函数神经元
+$\sigma$ 组成了一个感知机（perceptron）\cite{zhouzhihua,nielsen2015neural}。与线性模型类似，
+每个感知机均有两组参数：连接权重 $\bm{W}$ 和偏差 $b$。神经网络的训练，就是对每一个感知机找到合适的
+$\bm{W}$ 与 $b$，使得损失函数尽可能减小 \cite{zhouzhihua}。
+
+类比式~\eqref{eq:loss-function-linear}，神经网络的损失函数同样可以用均方差表示。设数据样本的特征为
+$\bm{x}^{(i)}$，标签为 $y^{(i)}$，则损失函数 \cite{zhouzhihua,nielsen2015neural}
+\begin{equation}
+  L = \frac{1}{2} \sum_{i=1}^m \qty\big[y^{(i)} - \hat{y}^{(i)}]^2,
+\end{equation}
+其中 $\hat{y}^{(i)}$ 是神经网络对特征 $\bm{x}^{(i)}$ 给出的预测值。损失函数的另一种选择是交叉熵
+（cross-entropy） \cite{nielsen2015neural,goodfellow2016deep}。交叉熵刻画了两个概率分布之间的
+相关性。对于离散概率分布 $f$ 和 $g$，其定义为
+\begin{equation}
+  H(p,\,q) = - \sum_x p(x) \ln q(x).
+\end{equation}
+对于布尔型数据，$x$ 只能取 0 或 1，因此可以给出损失函数 \cite{nielsen2015neural}
+\begin{equation}
+  L = - \frac{1}{m} \sum_{i=1}^m
+        \qty\Big[y^{(i)}\ln\hat{y}^{(i)} - \qty\big(1-y^{(i)})\ln\qty\big(1-\hat{y}^{(i)})]^2.
+\end{equation}
+
+神经网络可以利用反向传播算法（backpropagation）训练，它同样是一种梯度下降策略
+\cite{zhouzhihua,nielsen2015neural,lecun2015deep}。具体来说，首先
+利用初始化后的权重和偏差给出预测值，之后自顶向下（对应到图~\ref{fig:neural-net} 中为从右向左）逐层
+计算梯度，并据此更新权重和偏差。以此类推，重复训练直至达到稳定。
+
+常用的机器学习框架，如 TensorFlow \cite{tensorflow}、PyTorch \cite{pytorch} 等都会提供反向传播算法
+的高效实现，此处不再赘述。
+
+\subsection{正则化}
+\label{subsec:regularization}
+
+神经网络中参数数目极其巨大，但实际问题的刻画往往并不需要如此多的参数。因此，神经网络的训练常会出现
+过拟合（overfitting）的问题，使得数据样本中的冗余信息也被神经网络所习得。过拟合的后果往往是模型在
+训练数据集上表现良好，但缺乏泛化（generalization）能力，一旦在其他数据集上测试时效果很差
+\cite{zhouzhihua}。
+
+使用大规模数据集在一定程度上可以缓解过拟合。但在实际情况下，大规模的数据样本不易获得。我们的解决
+手段是在损失函数中引入正则化（regularization）项。一种常用正则化方案是权重衰减（weight decay），
+或 $L_2$ 正则化 \cite{goodfellow2016deep}。它在损失函数中引入额外一项
+\begin{equation}
+  \frac{\lambda}{2m} \sum_k \norm{\bm{\theta}_k}^2,
+\end{equation}
+式中 $\lambda>0$ 称为正则化参数，求和对所有参数进行，而 $L_2$ 范数 $\norm{\cdot}$ 定义为
+\begin{equation}
+  \norm{\bm{\theta}} = \qty(\sum_i \theta_i^2)^{1/2}.
+\end{equation}
+正则化项的存在可以理解为一种“惩罚”机制。当参数中存在大量非零值，则正则化项会较大，进而使得损失函数
+也随之增大。因此，正则化可以使得参数中的绝大部分变为零（成为稀疏矩阵），降低参数自由度，从而缓解
+过拟合问题 \cite{goodfellow2016deep,zhouzhihua}。
+
+\section{Ising 模型相变研究（二）：多层神经网络}
+
+接下来我们利用如图~\ref{fig:neural-net} 所示的多层神经网络来对 Ising 模型的相进行分类。所用数据与
+\ref{subsec:ising-linear-train-result}~小节中相同。仍然使用 Mathematica 软件提供的机器学习框架，
+具体训练参数如下：
+
+\begin{itemize}
+  \item 选择线性层 + 逻辑函数层 + 线性层 + 逻辑函数层的网络结构；
+  \item 第一线性层神经元数量为原始数据大小的 $1/4$，如对于 $8 \times 8$ 点阵，神经元数量为 16；
+  \item 为避免大尺寸下训练不充分的问题，我们在这里指定训练的总轮次：从 $8 \times 8$ 点阵到
+    $64 \times 64$ 点阵，训练轮次依次取为 500、350、160、120、75、40 和 40；
+  \item 其余训练参数仍取默认值。
+\end{itemize}
+
+由于没有指定训练时间目标，训练时间随点阵尺寸大小而迅速增加。在所有数据集上的总训练时间约 20 分钟。
+训练结束后，在测试集上给出预测结果，如图~\ref{fig:ising-learning-net-total} 所示。
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-net.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-net}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \imageinput{ising-learning-net-scaled.pdf}
+    \phantomcaption{}
+    \label{fig:ising-learning-net-scaled}
+  \end{subfigure}
+  \caption{神经网络在 Ising 模型点阵数据上的预测结果。灰线表示临界温度 $\Tc/J$。
+    (a)~数据标签的期望值与温度、点阵尺寸的关系，误差棒代表正负一个标准差；
+    (b)~对点阵进行标度变换后的结果}
+  \label{fig:ising-learning-net-total}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \imageinput{ising-learning-net-fit.pdf}
+  \caption{临界温度预测值关于点阵尺寸的拟合结果}
+  \label{fig:ising-learning-net-fit}
+\end{figure}
+
+与线性模型给出的结果图~\ref{fig:ising-learning-linear} 相比，神经网络的效果有了显著的改善，
+尽管从网络的结构上说，我们仅仅增加了一层感知机。除了 $8 \times 8$ 点阵仍然存在一定误差，在其他
+点阵尺寸下神经网络均为有序相和无序相划分了明确、清晰的界限。图~\ref{fig:ising-learning-net-scaled}
+也显示出了进行标度变换之后概率的一致性。
+
+对概率分布曲线进行插值处理后，我们可以反解出临界温度预测值 $T_*$ 的位置（对应概率 $P=0.5$）
+\cite{phase}。 将 $T_*$ 所得关于 $1/L$ 拟合，得到图~\ref{fig:ising-learning-net-fit}。
+与图~\ref{fig:ising-cv-fit-i} 相同，作延拓 $L\to\infty$ 将得到临界温度 $\Tc$。我们获得的拟合结果
+为 $\hat{\Tc}/J=\num{2.2488(11)}$，这与理论结果 \eqref{eq:ising-Tc}~式相差不大。

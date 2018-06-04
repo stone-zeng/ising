@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Binary files
 Debug/
 Release/
@@ -39,3 +40,40 @@ ising-sync/
 *.pdf
 cloc.bat
 tensorflow/*.jl
+=======
+*.aux
+*.bak
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.fmt
+*.log
+*.nav
+*.out
+*.run.xml
+*.sav
+*.snm
+*.synctex.gz
+*.synctex(busy)
+*.thm
+*.toc
+*.xdv
+
+*.cls
+*.def
+*.sty
+
+*.png
+*.pdf
+
+*.bat
+
+.vscode/
+plot.temp/
+figures/src/@*
+fonts/
+TODO.md
+chapters/acknowledgements.tex
+>>>>>>> docs/master

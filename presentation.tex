@@ -1,0 +1,669 @@
+\PassOptionsToPackage{log-declarations=false}{xparse}
+\PassOptionsToPackage{no-math}{fontspec}
+%\PassOptionsToPackage{draft}{graphicx}
+\documentclass[aspectratio=169]{beamer}
+\usepackage{fontspec,amsmath,unicode-math,physics,siunitx,subcaption}
+
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usecolortheme{metropolis}
+\usefonttheme{professionalfonts}
+
+\setbeamerfont{title}{size=\LARGE, series=\bfseries}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setbeamerfont{caption}{size=\footnotesize}
+\setbeamerfont{caption name}{series=\bfseries}
+\setbeamerfont{footnote}{size=\tiny}
+\setbeamertemplate{title page}{
+  \begin{minipage}[b]{\textwidth}
+    \mbox{}\vfill
+    \usebeamertemplate*{title}
+    \usebeamertemplate*{title separator}
+    \usebeamertemplate*{author}
+    \usebeamertemplate*{date}
+    \usebeamertemplate*{institute}
+    \mbox{}\hfill\inserttitlegraphic
+    \vspace{-1.5cm}
+  \end{minipage}
+}
+\setbeamertemplate{section in toc}[sections numbered]
+\makeatletter
+\AtBeginSection{
+  \ifbeamer@inframe
+    \sectionpage
+  \else
+    \frame[plain]{\sectionpage}
+  \fi
+}
+\makeatother
+
+\setsansfont{FiraGO}[BoldFont=* SemiBold]
+\setmonofont{Iosevka}
+\setmathfont{fira-math.otf}[Path=fonts/, BoldFont=*, math-style=ISO, bold-style=ISO, mathrm=sym]
+
+\captionsetup[sub]{font=footnotesize}
+
+% Constants
+\def\ee{{\symup{e}}}
+\def\Tc{T_{\!\symup{c}}}
+% Operators
+\def\incr{{\symup{\Delta}}}
+\def\trans{{\symup{T}}}
+\def\opT{{\symbfup{T}}}
+\def\opO{O}
+\newcommand\trR[2][]{\symbfup{R}^{\,#1}_{#2}}
+% Set
+\def\domD{D}
+\def\domN{{N_{\symup{s}}}}
+% Decorations
+\def\bm#1{{\symbf{#1}}}
+\def\nearest#1{\langle#1\rangle}
+\def\q#1{{\{#1\}}}
+% Text
+\def\const{\text{const}}
+
+\newcommand\imageinput[2][]{\includegraphics[#1]{figures/#2}}
+
+\def\CDk{CD-$k$}
+\def\AdSCFT{AdS/CFT}
+
+\title{Machine Learning and Ising Model}
+\date{\today}
+\author{Xiangdong Zeng}
+\institute{Department of Physics, Fudan University}
+\titlegraphic{\includegraphics[height=1.2cm]{figures/fudan-emblem.pdf}}
+\date{June 4, 2018}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Table of contents}
+\begin{itemize}
+  \item \textbf{Ising model}
+    \begin{itemize}
+      \item Statistical physics, critical behaviors, etc
+      \item Monte Carlo simulation
+    \end{itemize}
+  \item \textbf{Machine learning}
+    \begin{itemize}
+      \item Basic ideas
+      \item Linear model
+      \item Neural network
+    \end{itemize}
+  \item \textbf{Machine learning and renormalization group (RG)}
+    \begin{itemize}
+      \item Boltzmann machine and restricted Boltzmann machine (RBM)
+      \item Contrastive divergence (\CDk{}) algorithm
+      \item RBM for MNIST and Ising model
+      \item Convolution, wavelet transform, etc
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Part 1. Ising model}
+
+\begin{frame}{Ising model}
+\begin{itemize}
+  \item ``Binary'' spins ($+1$ or $-1$) arranged in a lattice
+  \item Simplest model for (anti)-ferromagnetism and phase transition
+  \item Hamiltonian:
+    \[
+      H(\q{\sigma_i}) = -\sum_{\nearest{ij}} J_{ij}\sigma_i\sigma_j - \mu \sum_{i} B_i\sigma_i
+                      = -J \sum_{\nearest{ij}} \sigma_i\sigma_j - \mu B \sum_{i} \sigma_i
+    \]
+  \item Probability of configuration $\q{\sigma_i}$:
+    \[
+      P(\q{\sigma_i}) = \frac{\ee^{-\beta H(\q{\sigma_i})}}{Z_N} \qc
+      Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Exact solutions}
+\begin{itemize}
+  \item One dimension: no phase transition
+  \item Two dimension
+    \begin{itemize}
+      \item Critical temperature:
+        \[ \frac{\Tc}{J} = \frac{2}{\ln(1+\sqrt{2})} \approx \num{2.2692} \]
+      \item Heat capacity (logarithmic divergence):
+        \[ \frac{C}{N} \simeq \num{-0.4945} \ln\abs{1-\frac{T}{\Tc}} + \const \]
+      \item Spontaneous magnetization:
+        \[
+          \frac{\bar{M}}{N\mu} =
+          \begin{cases}
+            \qty(1 - \sinh^{-4} 2\beta J)^{1/8}, & T<\Tc \\
+            0, & T>\Tc
+          \end{cases}
+        \]
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Critical behaviors and RG}
+\begin{itemize}
+  \item Universality: $\xi\to\infty$ at critical point
+  \item Partition function is scale-invariant
+    \begin{itemize}
+      \item Partition function:
+        \[ Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i},\,\bm{K})} \]
+      \item Hamiltonian:
+        \[
+            H(\q{\sigma_i},\,\bm{K})
+          = - \sum_i K^{(1)}_i \sigma_i
+            - \sum_{\nearest{ij}}  K^{(2)}_{ij}  \sigma_i\sigma_j
+            - \sum_{\nearest{ijk}} K^{(3)}_{ijk} \sigma_i\sigma_j\sigma_k - \cdots
+        \]
+      \item Scale transformation:
+        \[ N' = L^{-d} N \qc \xi' = L^{-1} \xi \]
+      \item Summation over Kadanoff's block $\q{\sigma_i'}$:
+        \[
+          Z_{N'}
+          = \sum_\q{\sigma'_i} \ee^{-\beta H^{\text{RG}}(\q{\sigma_i'},\,\bm{K}')}
+          = \sum_\q{\sigma'_i} \sum_\q{\sigma_i}
+            \ee^{-\beta \qty\big[H(\q{\sigma_i},\,\bm{K})
+                 -\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})]} \qc
+          \bm{K}' = \trR{L}(\bm{K})
+        \]
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Monte Carlo simulation}
+\small
+\begin{itemize}
+  \item Basic idea: average over samples instead of all configurations
+  \item Distribution evolution:
+    \begin{align*}
+      P\qty\big(\q{\sigma_i},\,t+1) = P\qty\big(\q{\sigma_i},\,t)
+      &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+         \notag \\
+      &- \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+    \end{align*}
+  \item Detailed balance condition:
+    \[
+        P_{\text{eq}}(\q{\sigma_i})  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+      = P_{\text{eq}}(\q{\sigma'_i}) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+    \]
+  \item Metropolis transition rates:
+    \[
+      W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
+      \begin{cases}
+        1, & \incr{E} \leqslant 0 \\
+        \ee^{-\beta \incr{E}}, & \incr{E} > 0
+      \end{cases}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Algorithm}
+\begin{enumerate}
+  \item Initialize all the spins: set spins to be 0 or 1 \emph{randomly}.
+  \item Generate a trial state $\q{\sigma'_i}$ that is near the current state $\q{\sigma_i}$
+    \begin{itemize}
+      \item Usually we can flip a single spin.
+    \end{itemize}
+  \item Calculate $\incr{E}$ and accept probability $P$. If random number $\xi<P$, then flip the
+    corresponding spin.
+  \item Perform step 2 and 3 for all the lattice (one Monte Carlo step, MCS).
+    \begin{itemize}
+      \item To maintain detailed balance, we should choose the spin \emph{randomly}.
+      \item Flipping one-by-one is also acceptable for efficiency.
+    \end{itemize}
+  \item Repeat step 2--4 for some time, then we can measure the thermodynamic observables and
+    calculate their mean values and standard errors.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Simulation results (1)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-1-0.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-2-3.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-3-6.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{$64 \times 64$ Ising lattice at (a) $\Tc/J=1.0$; (b) $\Tc/J=2.3$; (c) $\Tc/J=3.6$.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Simulation results (2)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-energy.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-magnet.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-cv.pdf}
+  \end{subfigure}
+  \caption{(a) Energy; (b) spontaneous magnetization; (c) heat capacity.
+    Sampling density is increased near $\Tc$. Error bar means one $\sigma$.}
+\end{figure}
+\end{frame}
+
+\section{Part 2. Machine learning}
+
+\begin{frame}{Basic ideas}
+\begin{itemize}
+  \item Extract features from data, build models, make predictions or decisions with the help of
+    computers
+  \item Give machine the ability to ``learn''
+  \item Categories:
+    \begin{itemize}
+      \item Supervised learning: regression, classification, etc
+      \item Unsupervised learning: clustering, dimensionality reduction, etc
+    \end{itemize}
+  \item Main steps:
+    \begin{enumerate}
+      \item Build a reasonable model based on data's feature;
+      \item Give the \alert{loss function};
+      \item Train on the dataset (training set), find the parameters to minimize the loss function;
+      \item Validate the model and parameters, fine tuning (validation set);
+      \item Test the trained model on \emph{new} dataset (test set).
+    \end{enumerate}
+\end{itemize}  
+\end{frame}
+
+\begin{frame}{Linear regression}
+\begin{itemize}
+  \item Hypothesis:
+    \[ h_\bm{\theta} (\bm{x}) = \sum_{j=0}^n \theta_j x_j = \bm{\theta}^\trans \bm{x} \]
+  \item Loss function:
+    \[
+      L(\bm{\theta})
+      = \frac{1}{2} \sum_{i=1}^m \qty\Big[y^{(i)} - h_\bm{\theta}\qty\big(\bm{x}^{(i)})]^2
+    \]
+  \item Exact solution:
+    \[ \hat{\bm{\theta}} = \qty\big(\bm{X}^\trans\bm{X})^{-1} \bm{X}^\trans \bm{y} \]
+  \item Not realistic with large dataset --- \alert{gradient descent}
+    \[ \bm{\theta} \coloneq \bm{\theta} - \alpha \, \nabla\bm{\theta} \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Linear classifier (logistic regression)}
+\begin{columns}[t]
+  \begin{column}{0.52\textwidth}
+    \begin{itemize}
+      \item Hypothesis:
+        \[ h_\bm{\theta} (\bm{x}) = \sigma(\bm{\theta}^\trans \bm{x}) \]
+      \item Activation function:
+        \[ \sigma(z) = \frac{1}{1+\ee^{-z}} \]
+      \item Loss function:
+        \[
+          L(\bm{\theta})
+          = \sum_{i=1}^m \log\qty\Big{1+\exp[-y^{(i)} h_\bm{\theta}\qty\big(\bm{x}^{(i)})]}
+        \]
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[width=0.9\textwidth]{linear-layer.pdf}
+      \caption{Network structure of the linear classifier}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Neural network}
+\begin{columns}[t]
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=3.8cm]{multipolar-neuron.png}
+      \caption{A multipolar neuron \footnotemark}
+    \end{figure}
+  \end{column}
+  \begin{column}{0.54\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=3.8cm]{neural-net.pdf}
+      \caption{A two-layer neural network (perceptron)}
+    \end{figure}
+  \end{column}
+\end{columns}
+\footnotetext{Source: \url{https://en.wikipedia.org/wiki/File:Blausen_0657_MultipolarNeuron.png}}
+\end{frame}
+
+\begin{frame}{Neural network --- details}
+\begin{columns}[t]
+  \makebox[0.52\textwidth][l]{%
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item Loss function (mean squared error):
+          \[ L = \frac{1}{2} \sum_{i=1}^m \qty\big[y^{(i)} - \hat{y}^{(i)}]^2 \]
+        \item Loss function (cross-entropy):
+          \[
+            L = - \frac{1}{m} \sum_{i=1}^m
+                  \qty\Big[y^{(i)}\ln\hat{y}^{(i)}
+                           - \qty\big(1-y^{(i)})\ln\qty\big(1-\hat{y}^{(i)})]^2
+          \]
+        \item Training algorithm: backpropagation
+      \end{itemize}
+    \end{column}}
+  \begin{column}{0.48\textwidth}
+    \begin{itemize}
+      \item Regularization
+        \begin{itemize}
+          \item Prevent overfitting
+          \item A kind of ``penalty'': force the parameters to be sparse
+          \item Weight decay ($L^2$ reg\-u\-lar\-iza\-tion):
+            \[ \frac{\lambda}{2m} \sum_k \norm{\bm{\theta}_k}^2 \]
+        \end{itemize}
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Training results (linear model)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-linear.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-linear-scaled.pdf}
+  \end{subfigure}
+  \caption{Predict results on Ising lattice. (a) Original; (b) after scale transformation.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Training results (neural network)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-net.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \imageinput[width=4.5cm]{ising-learning-net-scaled.pdf}
+  \end{subfigure}
+  \caption{Predict results on Ising lattice. (a) Original; (b) after scale transformation.}
+\end{figure}
+\end{frame}
+
+\section{Part 3. Machine learning and RG}
+
+\begin{frame}{Energy-based model}
+\begin{columns}[t]
+  \makebox[0.42\textwidth][l]{%
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Boltzmann machine
+          \begin{itemize}
+            \item Energy function:
+              \begin{align*}
+                E(\bm{s}) &= E(\q{s_i}) \\
+                          &= - \sum_{i<j} W_{ij} s_i s_j - \sum_i \theta_i s_i
+              \end{align*}
+            \item Structure:
+              \begin{figure}
+                \centering
+                \imageinput[scale=0.6]{boltzmann-machine.pdf}
+              \end{figure}
+          \end{itemize}
+      \end{itemize}
+    \end{column}}
+  \begin{column}{0.56\textwidth}
+    \begin{itemize}
+      \item Restricted Boltzmann machine (RBM)
+        \begin{itemize}
+          \item Energy function:
+            \begin{align*}
+              E(\bm{v},\,\bm{h})
+              &= - \bm{v}^\trans \bm{W} \bm{h} - \bm{b}^\trans \bm{v} - \bm{c}^\trans \bm{h} \\
+              &= - \sum_{i,\,j} W_{ij} v_i h_j - \sum_i b_i v_i - \sum_j c_j h_j
+            \end{align*}
+          \item Structure:
+            \begin{figure}
+              \centering
+              \imageinput[scale=0.6]{rbm.pdf}
+            \end{figure}
+        \end{itemize}
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{CD-\textit{k} algorithm (1)}
+\begin{itemize}
+  \item Loss function:
+    \[
+      L(\bm{\theta})
+      = - \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD} \ln P\qty\big(\bm{x}^{(i)})
+    \]
+  \item Gradient:
+    \[
+        - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)})
+      = - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+      = \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+      - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+    \]
+    where $F$ is the free energy
+    \[ F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})} \]
+  \item Positive phase and negative phase (difficult)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CD-\textit{k} algorithm (2)}
+\begin{columns}
+  \begin{column}{0.49\textwidth}
+    \begin{itemize}
+      \item Monte Carlo again:
+        \[
+          \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+          \approx \frac{1}{\abs{\domN}} \sum_{\bm{v}\in\domN} \pdv{F(\bm{v})}{\bm{\theta}}
+        \]
+      \item Gibbs sampling:
+        %\[
+        %  \bm{h}  \sim P(\bm{h}\big|\bm{v}) \qc
+        %  \bm{v}' \sim P(\bm{v}\big|\bm{h})
+        %\]
+        \begin{figure}
+          \centering
+          \imageinput[scale=0.64]{gibbs-sampling.pdf}
+        \end{figure}
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.49\textwidth}
+    \begin{itemize}
+      \item Gradient:
+        \[
+          - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+          \approx \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+                - \pdv{F({\bm{v}'}^{(i)})}{\bm{\theta}}
+        \]
+      \item Update parameters:
+        \[
+          \left\{
+          \begin{aligned}
+            \bm{W} \! &\gets \bm{W} \! - \alpha \, (  \bm{v} \bm{h}^\trans
+                                                    - \bm{v}' {\bm{h}'}^\trans) \\
+            \bm{b}    &\gets \, \bm{b} - \alpha \, (\bm{v} - \bm{v}') \\
+            \bm{c}    &\gets \, \bm{c} - \alpha \, (\bm{h} - \bm{h}')
+          \end{aligned}
+          \right.
+        \]
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{RBM trained on MNIST}
+\begin{columns}
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{mnist-weight.pdf}
+      \caption{Weight matrix (reshaped)}
+    \end{figure}
+  \end{column}
+  \begin{column}{0.55\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{mnist-samples.pdf}
+      \caption{Reconstructed images}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{RBM trained on Ising lattice}
+\begin{columns}
+  \begin{column}{0.44\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{ising-weight-raw.pdf}
+      \caption{Weight matrix (reshaped)}
+    \end{figure}
+  \end{column}
+  \begin{column}{0.55\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[height=5.2cm]{ising-samples.pdf}
+      \caption{Reconstructed images}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Exact mapping between RBM and RG}
+\begin{itemize}
+  \item Partition function under coarse graining:
+    \[
+      Z_{N'}
+      = \sum_\q{\sigma'_i} \ee^{-\beta H^{\text{RG}}(\q{\sigma_i'},\,\bm{K}')}
+      = \sum_\q{\sigma'_i} \sum_\q{\sigma_i}
+        \ee^{-\beta \qty\big[H(\q{\sigma_i},\,\bm{K})
+              -\opT_\lambda(\q{\sigma_i},\,\q{\sigma_i'})]}
+    \]
+  \item Express in RBM:
+    \[
+        \ee^{-H^{\text{RG}}(\bm{h})}
+      = \sum_{\bm{v}} \ee^{\opT(\bm{v},\,\bm{h})-H(\bm{v})}
+    \]
+  \item Let $\opT(\bm{v},\,\bm{h}) = H(\bm{v}) - E(\bm{v},\,\bm{h})$, then
+    \[
+        \frac{1}{Z} \ee^{-H^{\text{RG}}(\bm{h})}
+      = \frac{1}{Z} \sum_{\bm{v}} \ee^{-E(\bm{v},\,\bm{h})}
+      = P(\bm{h})
+      = \frac{1}{Z} \ee^{-H^{\text{RBM}}(\bm{h})}
+      \implies \alert{H^{\text{RG}}(\bm{h}) = H^{\text{RBM}}(\bm{h})}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Convolution and wavelet transform}
+\begin{itemize}
+  \item Convolution:
+    \[ (f \ast g) (t) = \int_{-\infty}^{+\infty} f(\tau) \, g(t-\tau) \dd{\tau} \]
+  \item A kind of ``weighted average''
+  \item Expand function with \emph{daughter wavelet}:
+    \[ \psi_{\bm{a},\,s}(\bm{x}) = \frac{1}{s^{d/2}} \psi\qty(\frac{\bm{x}-\bm{a}}{s}) \]
+  \item Wavelet transform:
+    \[ W_f(\bm{a},\,s) = \int \dd[d]{x} f(\bm{x}) \psi^\dagger_{\bm{a},\,s}(\bm{x}) \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{\AdSCFT{} and wavelet transform}
+\begin{itemize}
+  \item Reconstruct fields in the bulk from boundary operators:
+    \begingroup\footnotesize
+      \begin{align*}
+           \phi^i(\bm{x},z)
+        &= \int \dd[d]{y} K_i(\bm{x},z|\bm{y}) \opO^i(\bm{y}) \\
+        &+ \sum_{j,k} \frac{\lambda^i_{jk}}{N}
+             \int \dd[d]{x'} \dd{z'} G_i(\bm{x},z|\bm{x}'\!,z')
+             \int \dd[d]{y_1} K_j(\bm{x}'\!,z'|\bm{y}_1) \opO^j(\bm{y}_1)
+             \int \dd[d]{y_2} K_k(\bm{x}'\!,z'|\bm{y}_2) \opO^k(\bm{y}_2) + \cdots
+      \end{align*}
+    \endgroup
+  \item Boundary--bulk kernel:
+    \begingroup\footnotesize
+      \[
+        K_i(\bm{x},z|\bm{y})
+        = \qty[\frac{z}{z^2-\norm{\bm{x}-\bm{y}}^2}]^{d-\Delta_i} \,
+          \Theta\qty\big(z^2-\norm{\bm{x}-\bm{y}}^2)
+      \]
+    \endgroup
+  \item Mother and daughter wavelets:
+    \begingroup\footnotesize
+      \[
+        \psi_\Delta(\bm{x}) = \qty(\frac{1}{1-\norm{\bm{x}}^2})^{d-\Delta} \,
+                              \Theta\qty\big(1-\norm{\bm{x}}^2) \qc
+        \psi_{\bm{a},\,s}(\bm{x})
+        = \frac{1}{z^{d/2}} \psi\qty(\frac{\bm{y}-\bm{x}}{z})
+      \]
+    \endgroup
+  \item Then
+    \begingroup\footnotesize
+      \[ K(\bm{x},z|\bm{y}) = z^{\Delta-d/2} \psi_{\bm{x},\,z}(\bm{y}) \]
+    \endgroup
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Convolutional RBM (CRBM)}
+\begin{columns}[t]
+  \begin{column}{0.68\textwidth}
+    \begin{itemize}
+      \item Linear to convolutional:
+        \[
+          h_j+c_j \sim \sum_i W_{ij} (v_i+b_i) \to
+          h_{\bm{j}} + c_{\bm{j}} \sim
+            \sum_{\bm{i}} W_{\bm{i}} (v_{\bm{i}+\bm{j}} + b_{\bm{i}+\bm{j}})
+        \]
+      \item Energy function:
+        \[
+          E(\bm{v},\,\bm{h})
+          = - \sum_{\bm{i},\,\bm{j}} W_{\bm{i}} v_{\bm{i}+\bm{j}} h_{\bm{j}}
+            - \sum_{\bm{i}} b_{\bm{i}} v_{\bm{i}} - \sum_{\bm{j}} c_{\bm{j}} h_{\bm{j}}
+        \]
+      \item Our conjecture: filter $\bm{W}$ in CRBM is the Green's function $K$ in \AdSCFT{}
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.3\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[width=\textwidth]{crbm.pdf}
+    \end{figure}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Supervised learning can be used to classify phases of Ising model
+  \item RBM can be considered as an implementation of renormalization
+  \item Convolution and wavelet transform that root in \AdSCFT{} can be mapped to
+    machine learning (e.g. CRBM)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[standout]
+\LARGE\itshape
+Thank you!
+\end{frame}
+
+\end{document}
