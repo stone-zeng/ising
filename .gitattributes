@@ -1,2 +1,15 @@
-# Set the default behavior, in case people don't have core.autocrlf set.
+# Set the default behavior, in case people don't have core.
 * text eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+
+# Declare files that will always have LF line endings on checkout.
+*.sh  text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout.
+*.bat text eol=crlf
+*.wl  text eol=crlf
+
+# Mark documentation
+docs/* linguist-documentation=false

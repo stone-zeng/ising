@@ -1,0 +1,22 @@
+@echo off
+
+del *.aux
+del *.bak
+del *.bbl
+del *.bcf
+del *.blg
+del *.fdb_latexmk
+del *.fls
+del *.fmt
+del *.log
+del *.nav
+del *.out
+del *.run.xml
+del *.sav
+del *.snm
+del *.synctex.gz
+del *.synctex(busy)
+del *.thm
+del *.toc
+del *.xdv
+del chapters\*.aux

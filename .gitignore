@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Binary files
 Debug/
 Release/
@@ -19,12 +18,6 @@ temp*/
 logs/
 samples/
 
-# Other folders
-data/
-docs/
-ising-exact/
-ising-sync/
-
 # Visual Studio profiles
 *.hint
 *.vcxproj.user
@@ -34,13 +27,7 @@ ising-sync/
 *.dat
 *.json
 
-# Other files
-*.ipynb
-*.nb
-*.pdf
-cloc.bat
-tensorflow/*.jl
-=======
+# TeX auxiliary files
 *.aux
 *.bak
 *.bbl
@@ -61,19 +48,24 @@ tensorflow/*.jl
 *.toc
 *.xdv
 
+# LaTeX packages
 *.cls
 *.def
 *.sty
 
+# Other folders
+docs/plot.temp/
+docs/fonts/
+ising/data/
+ising-exact/
+ising-sync/
+
+# Other files
+*.ipynb
+*.nb
 *.png
 *.pdf
-
-*.bat
-
-.vscode/
-plot.temp/
-figures/src/@*
-fonts/
-TODO.md
-chapters/acknowledgements.tex
->>>>>>> docs/master
+cloc.bat
+docs/chapters/acknowledgements.tex
+docs/figures/src/@*
+tensorflow/*.jl
