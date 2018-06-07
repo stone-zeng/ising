@@ -2,7 +2,7 @@
 \PassOptionsToPackage{no-math}{fontspec}
 %\PassOptionsToPackage{draft}{graphicx}
 \documentclass[aspectratio=169]{beamer}
-\usepackage{fontspec,amsmath,unicode-math,physics,siunitx,subcaption}
+\usepackage{fontspec,amsmath,unicode-math,physics,siunitx,subcaption,appendixnumberbeamer}
 
 \useoutertheme{metropolis}
 \useinnertheme{metropolis}
@@ -69,10 +69,10 @@
 
 \title{Machine Learning and Ising Model}
 \date{\today}
-\author{Xiangdong Zeng}
+\author{Xiangdong Zeng (supervised by Ling-Yan Hung)}
 \institute{Department of Physics, Fudan University}
 \titlegraphic{\includegraphics[height=1.2cm]{figures/fudan-emblem.pdf}}
-\date{June 4, 2018}
+\date{June 8, 2018}
 
 \begin{document}
 
@@ -83,7 +83,7 @@
   \item \textbf{Ising model}
     \begin{itemize}
       \item Statistical physics, critical behaviors, etc
-      \item Monte Carlo simulation
+      \item \textcolor{lightgray}{Monte Carlo simulation}
     \end{itemize}
   \item \textbf{Machine learning}
     \begin{itemize}
@@ -94,7 +94,7 @@
   \item \textbf{Machine learning and renormalization group (RG)}
     \begin{itemize}
       \item Boltzmann machine and restricted Boltzmann machine (RBM)
-      \item Contrastive divergence (\CDk{}) algorithm
+      \item \textcolor{lightgray}{Contrastive divergence (\CDk{}) algorithm}
       \item RBM for MNIST and Ising model
       \item Convolution, wavelet transform, etc
     \end{itemize}
@@ -117,27 +117,6 @@
       P(\q{\sigma_i}) = \frac{\ee^{-\beta H(\q{\sigma_i})}}{Z_N} \qc
       Z_N = \sum_\q{\sigma_i} \ee^{-\beta H(\q{\sigma_i})}
     \]
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Exact solutions}
-\begin{itemize}
-  \item One dimension: no phase transition
-  \item Two dimension
-    \begin{itemize}
-      \item Critical temperature:
-        \[ \frac{\Tc}{J} = \frac{2}{\ln(1+\sqrt{2})} \approx \num{2.2692} \]
-      \item Heat capacity (logarithmic divergence):
-        \[ \frac{C}{N} \simeq \num{-0.4945} \ln\abs{1-\frac{T}{\Tc}} + \const \]
-      \item Spontaneous magnetization:
-        \[
-          \frac{\bar{M}}{N\mu} =
-          \begin{cases}
-            \qty(1 - \sinh^{-4} 2\beta J)^{1/8}, & T<\Tc \\
-            0, & T>\Tc
-          \end{cases}
-        \]
-    \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -170,94 +149,6 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Monte Carlo simulation}
-\small
-\begin{itemize}
-  \item Basic idea: average over samples instead of all configurations
-  \item Distribution evolution:
-    \begin{align*}
-      P\qty\big(\q{\sigma_i},\,t+1) = P\qty\big(\q{\sigma_i},\,t)
-      &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
-         \notag \\
-      &- \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
-    \end{align*}
-  \item Detailed balance condition:
-    \[
-        P_{\text{eq}}(\q{\sigma_i})  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
-      = P_{\text{eq}}(\q{\sigma'_i}) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
-    \]
-  \item Metropolis transition rates:
-    \[
-      W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
-      \begin{cases}
-        1, & \incr{E} \leqslant 0 \\
-        \ee^{-\beta \incr{E}}, & \incr{E} > 0
-      \end{cases}
-    \]
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Algorithm}
-\begin{enumerate}
-  \item Initialize all the spins: set spins to be 0 or 1 \emph{randomly}.
-  \item Generate a trial state $\q{\sigma'_i}$ that is near the current state $\q{\sigma_i}$
-    \begin{itemize}
-      \item Usually we can flip a single spin.
-    \end{itemize}
-  \item Calculate $\incr{E}$ and accept probability $P$. If random number $\xi<P$, then flip the
-    corresponding spin.
-  \item Perform step 2 and 3 for all the lattice (one Monte Carlo step, MCS).
-    \begin{itemize}
-      \item To maintain detailed balance, we should choose the spin \emph{randomly}.
-      \item Flipping one-by-one is also acceptable for efficiency.
-    \end{itemize}
-  \item Repeat step 2--4 for some time, then we can measure the thermodynamic observables and
-    calculate their mean values and standard errors.
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Simulation results (1)}
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \imageinput[width=3cm]{ising-lattice-1-0.pdf}
-    \caption{}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \imageinput[width=3cm]{ising-lattice-2-3.pdf}
-    \caption{}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \imageinput[width=3cm]{ising-lattice-3-6.pdf}
-    \caption{}
-  \end{subfigure}
-  \caption{$64 \times 64$ Ising lattice at (a) $\Tc/J=1.0$; (b) $\Tc/J=2.3$; (c) $\Tc/J=3.6$.}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Simulation results (2)}
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \imageinput[height=3.4cm]{ising-energy.pdf}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \imageinput[height=3.4cm]{ising-magnet.pdf}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \imageinput[height=3.4cm]{ising-cv.pdf}
-  \end{subfigure}
-  \caption{(a) Energy; (b) spontaneous magnetization; (c) heat capacity.
-    Sampling density is increased near $\Tc$. Error bar means one $\sigma$.}
-\end{figure}
-\end{frame}
-
 \section{Part 2. Machine learning}
 
 \begin{frame}{Basic ideas}
@@ -278,22 +169,6 @@
       \item Validate the model and parameters, fine tuning (validation set);
       \item Test the trained model on \emph{new} dataset (test set).
     \end{enumerate}
-\end{itemize}  
-\end{frame}
-
-\begin{frame}{Linear regression}
-\begin{itemize}
-  \item Hypothesis:
-    \[ h_\bm{\theta} (\bm{x}) = \sum_{j=0}^n \theta_j x_j = \bm{\theta}^\trans \bm{x} \]
-  \item Loss function:
-    \[
-      L(\bm{\theta})
-      = \frac{1}{2} \sum_{i=1}^m \qty\Big[y^{(i)} - h_\bm{\theta}\qty\big(\bm{x}^{(i)})]^2
-    \]
-  \item Exact solution:
-    \[ \hat{\bm{\theta}} = \qty\big(\bm{X}^\trans\bm{X})^{-1} \bm{X}^\trans \bm{y} \]
-  \item Not realistic with large dataset --- \alert{gradient descent}
-    \[ \bm{\theta} \coloneq \bm{\theta} - \alpha \, \nabla\bm{\theta} \]
 \end{itemize}
 \end{frame}
 
@@ -340,36 +215,6 @@
   \end{column}
 \end{columns}
 \footnotetext{Source: \url{https://en.wikipedia.org/wiki/File:Blausen_0657_MultipolarNeuron.png}}
-\end{frame}
-
-\begin{frame}{Neural network --- details}
-\begin{columns}[t]
-  \makebox[0.52\textwidth][l]{%
-    \begin{column}{0.6\textwidth}
-      \begin{itemize}
-        \item Loss function (mean squared error):
-          \[ L = \frac{1}{2} \sum_{i=1}^m \qty\big[y^{(i)} - \hat{y}^{(i)}]^2 \]
-        \item Loss function (cross-entropy):
-          \[
-            L = - \frac{1}{m} \sum_{i=1}^m
-                  \qty\Big[y^{(i)}\ln\hat{y}^{(i)}
-                           - \qty\big(1-y^{(i)})\ln\qty\big(1-\hat{y}^{(i)})]^2
-          \]
-        \item Training algorithm: backpropagation
-      \end{itemize}
-    \end{column}}
-  \begin{column}{0.48\textwidth}
-    \begin{itemize}
-      \item Regularization
-        \begin{itemize}
-          \item Prevent overfitting
-          \item A kind of ``penalty'': force the parameters to be sparse
-          \item Weight decay ($L^2$ reg\-u\-lar\-iza\-tion):
-            \[ \frac{\lambda}{2m} \sum_k \norm{\bm{\theta}_k}^2 \]
-        \end{itemize}
-    \end{itemize}
-  \end{column}
-\end{columns}
 \end{frame}
 
 \begin{frame}{Training results (linear model)}
@@ -440,70 +285,6 @@
               \imageinput[scale=0.6]{rbm.pdf}
             \end{figure}
         \end{itemize}
-    \end{itemize}
-  \end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{CD-\textit{k} algorithm (1)}
-\begin{itemize}
-  \item Loss function:
-    \[
-      L(\bm{\theta})
-      = - \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD} \ln P\qty\big(\bm{x}^{(i)})
-    \]
-  \item Gradient:
-    \[
-        - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)})
-      = - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
-      = \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
-      - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
-    \]
-    where $F$ is the free energy
-    \[ F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})} \]
-  \item Positive phase and negative phase (difficult)
-\end{itemize}
-\end{frame}
-
-\begin{frame}{CD-\textit{k} algorithm (2)}
-\begin{columns}
-  \begin{column}{0.49\textwidth}
-    \begin{itemize}
-      \item Monte Carlo again:
-        \[
-          \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
-          \approx \frac{1}{\abs{\domN}} \sum_{\bm{v}\in\domN} \pdv{F(\bm{v})}{\bm{\theta}}
-        \]
-      \item Gibbs sampling:
-        %\[
-        %  \bm{h}  \sim P(\bm{h}\big|\bm{v}) \qc
-        %  \bm{v}' \sim P(\bm{v}\big|\bm{h})
-        %\]
-        \begin{figure}
-          \centering
-          \imageinput[scale=0.64]{gibbs-sampling.pdf}
-        \end{figure}
-    \end{itemize}
-  \end{column}
-  \begin{column}{0.49\textwidth}
-    \begin{itemize}
-      \item Gradient:
-        \[
-          - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
-          \approx \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
-                - \pdv{F({\bm{v}'}^{(i)})}{\bm{\theta}}
-        \]
-      \item Update parameters:
-        \[
-          \left\{
-          \begin{aligned}
-            \bm{W} \! &\gets \bm{W} \! - \alpha \, (  \bm{v} \bm{h}^\trans
-                                                    - \bm{v}' {\bm{h}'}^\trans) \\
-            \bm{b}    &\gets \, \bm{b} - \alpha \, (\bm{v} - \bm{v}') \\
-            \bm{c}    &\gets \, \bm{c} - \alpha \, (\bm{h} - \bm{h}')
-          \end{aligned}
-          \right.
-        \]
     \end{itemize}
   \end{column}
 \end{columns}
@@ -664,6 +445,250 @@
 \begin{frame}[standout]
 \LARGE\itshape
 Thank you!
+\end{frame}
+
+\appendix
+
+\begin{frame}{Exact solutions}
+\begin{itemize}
+  \item One dimension: no phase transition
+  \item Two dimension
+    \begin{itemize}
+      \item Critical temperature:
+        \[ \frac{\Tc}{J} = \frac{2}{\ln(1+\sqrt{2})} \approx \num{2.2692} \]
+      \item Heat capacity (logarithmic divergence):
+        \[ \frac{C}{N} \simeq \num{-0.4945} \ln\abs{1-\frac{T}{\Tc}} + \const \]
+      \item Spontaneous magnetization:
+        \[
+          \frac{\bar{M}}{N\mu} =
+          \begin{cases}
+            \qty(1 - \sinh^{-4} 2\beta J)^{1/8}, & T<\Tc \\
+            0, & T>\Tc
+          \end{cases}
+        \]
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Monte Carlo simulation}
+\small
+\begin{itemize}
+  \item Basic idea: average over samples instead of all configurations
+  \item Distribution evolution:
+    \begin{align*}
+      P\qty\big(\q{\sigma_i},\,t+1) = P\qty\big(\q{\sigma_i},\,t)
+      &+ \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma'_i},\,t) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+         \notag \\
+      &- \sum_{\q{\sigma'_i}} P\qty\big(\q{\sigma_i},\,t)  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+    \end{align*}
+  \item Detailed balance condition:
+    \[
+        P_{\text{eq}}(\q{\sigma_i})  W\qty\big(\q{\sigma_i}\to\q{\sigma'_i})
+      = P_{\text{eq}}(\q{\sigma'_i}) W\qty\big(\q{\sigma'_i}\to\q{\sigma_i})
+    \]
+  \item Metropolis transition rates:
+    \[
+      W\qty\big(\q{\sigma_i}\to\q{\sigma'_i}) =
+      \begin{cases}
+        1, & \incr{E} \leqslant 0 \\
+        \ee^{-\beta \incr{E}}, & \incr{E} > 0
+      \end{cases}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Algorithm}
+\begin{enumerate}
+  \item Initialize all the spins: set spins to be 0 or 1 \emph{randomly}.
+  \item Generate a trial state $\q{\sigma'_i}$ that is near the current state $\q{\sigma_i}$
+    \begin{itemize}
+      \item Usually we can flip a single spin.
+    \end{itemize}
+  \item Calculate $\incr{E}$ and accept probability $P$. If random number $\xi<P$, then flip the
+    corresponding spin.
+  \item Perform step 2 and 3 for all the lattice (one Monte Carlo step, MCS).
+    \begin{itemize}
+      \item To maintain detailed balance, we should choose the spin \emph{randomly}.
+      \item Flipping one-by-one is also acceptable for efficiency.
+    \end{itemize}
+  \item Repeat step 2--4 for some time, then we can measure the thermodynamic observables and
+    calculate their mean values and standard errors.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Simulation results (1)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-1-0.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-2-3.pdf}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[width=3cm]{ising-lattice-3-6.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{$64 \times 64$ Ising lattice at (a) $\Tc/J=1.0$; (b) $\Tc/J=2.3$; (c) $\Tc/J=3.6$.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Simulation results (2)}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-energy.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-magnet.pdf}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \imageinput[height=3.4cm]{ising-cv.pdf}
+  \end{subfigure}
+  \caption{(a) Energy; (b) spontaneous magnetization; (c) heat capacity.
+    Sampling density is increased near $\Tc$. Error bar means one $\sigma$.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Linear regression}
+\begin{itemize}
+  \item Hypothesis:
+    \[ h_\bm{\theta} (\bm{x}) = \sum_{j=0}^n \theta_j x_j = \bm{\theta}^\trans \bm{x} \]
+  \item Loss function:
+    \[
+      L(\bm{\theta})
+      = \frac{1}{2} \sum_{i=1}^m \qty\Big[y^{(i)} - h_\bm{\theta}\qty\big(\bm{x}^{(i)})]^2
+    \]
+  \item Exact solution:
+    \[ \hat{\bm{\theta}} = \qty\big(\bm{X}^\trans\bm{X})^{-1} \bm{X}^\trans \bm{y} \]
+  \item Not realistic with large dataset --- \alert{gradient descent}
+    \[ \bm{\theta} \coloneq \bm{\theta} - \alpha \, \nabla\bm{\theta} \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Neural network --- details}
+\begin{columns}[t]
+  \makebox[0.52\textwidth][l]{%
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item Loss function (mean squared error):
+          \[ L = \frac{1}{2} \sum_{i=1}^m \qty\big[y^{(i)} - \hat{y}^{(i)}]^2 \]
+        \item Loss function (cross-entropy):
+          \[
+            L = - \frac{1}{m} \sum_{i=1}^m
+                  \qty\Big[y^{(i)}\ln\hat{y}^{(i)}
+                           - \qty\big(1-y^{(i)})\ln\qty\big(1-\hat{y}^{(i)})]^2
+          \]
+        \item Training algorithm: backpropagation
+      \end{itemize}
+    \end{column}}
+  \begin{column}{0.48\textwidth}
+    \begin{itemize}
+      \item Regularization
+        \begin{itemize}
+          \item Prevent overfitting
+          \item A kind of ``penalty'': force the parameters to be sparse
+          \item Weight decay ($L^2$ reg\-u\-lar\-iza\-tion):
+            \[ \frac{\lambda}{2m} \sum_k \norm{\bm{\theta}_k}^2 \]
+        \end{itemize}
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{CD-\textit{k} algorithm (1)}
+\begin{itemize}
+  \item Loss function:
+    \[
+      L(\bm{\theta})
+      = - \frac{1}{\abs{\domD}} \sum_{\bm{x}^{(i)}\in\domD} \ln P\qty\big(\bm{x}^{(i)})
+    \]
+  \item Gradient:
+    \[
+        - \pdv{\bm{\theta}} \ln P\qty\big(\bm{x}^{(i)})
+      = - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+      = \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+      - \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+    \]
+    where $F$ is the free energy
+    \[ F(\bm{v}) = - \ln \sum_{\bm{h}} \ee^{-E(\bm{v},\,\bm{h})} \]
+  \item Positive phase and negative phase (difficult)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CD-\textit{k} algorithm (2)}
+\begin{columns}
+  \begin{column}{0.49\textwidth}
+    \begin{itemize}
+      \item Monte Carlo again:
+        \[
+          \sum_{\bm{v}} P(\bm{v}) \pdv{F(\bm{v})}{\bm{\theta}}
+          \approx \frac{1}{\abs{\domN}} \sum_{\bm{v}\in\domN} \pdv{F(\bm{v})}{\bm{\theta}}
+        \]
+      \item Gibbs sampling:
+        %\[
+        %  \bm{h}  \sim P(\bm{h}\big|\bm{v}) \qc
+        %  \bm{v}' \sim P(\bm{v}\big|\bm{h})
+        %\]
+        \begin{figure}
+          \centering
+          \imageinput[scale=0.64]{gibbs-sampling.pdf}
+        \end{figure}
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.49\textwidth}
+    \begin{itemize}
+      \item Gradient:
+        \[
+          - \pdv{\bm{\theta}} \ln P\qty\big(\bm{v}^{(i)})
+          \approx \pdv{F(\bm{v}^{(i)})}{\bm{\theta}}
+                - \pdv{F({\bm{v}'}^{(i)})}{\bm{\theta}}
+        \]
+      \item Update parameters:
+        \[
+          \left\{
+          \begin{aligned}
+            \bm{W} \! &\gets \bm{W} \! - \alpha \, (  \bm{v} \bm{h}^\trans
+                                                    - \bm{v}' {\bm{h}'}^\trans) \\
+            \bm{b}    &\gets \, \bm{b} - \alpha \, (\bm{v} - \bm{v}') \\
+            \bm{c}    &\gets \, \bm{c} - \alpha \, (\bm{h} - \bm{h}')
+          \end{aligned}
+          \right.
+        \]
+    \end{itemize}
+  \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Basic of \AdSCFT{}}
+\begin{columns}
+  \begin{column}{0.68\textwidth}
+    \begin{itemize}
+      \item Anti-de Sitter space:
+        \[ \dd{s}^2 = \sum_i \dd{x_i}^2 - \sum_j \dd{t_j}^2 \]
+      \item Conformal field theory: QFT with conformal symmetry
+      \item Ising model: one of a minimal model in 2D CFT
+      \item Holographic duality:
+        \[ \text{quantum gravity in $M$} \simeq \text{a QFT in $\partial{M}$}\]
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.31\textwidth}
+    \begin{figure}
+      \centering
+      \imageinput[width=\textwidth]{hyperbolic-plane.png}
+      \caption{Hyperbolic plane \footnotemark}
+    \end{figure}
+  \end{column}
+\end{columns}
+\footnotetext{Source: \url{https://en.wikipedia.org/wiki/File:Uniform_tiling_433-t0.png}}
 \end{frame}
 
 \end{document}
