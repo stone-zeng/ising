@@ -4,6 +4,7 @@
 import struct
 import numpy as np
 
+
 class MNIST:
     """
     Loading MNIST dataset.
@@ -30,7 +31,7 @@ class MNIST:
     + `data_size`: Size of the dataset. Default value `None` means using all data in MNIST.
     + `batch_size`: Size of the mini-batch. Default value `None` means using the whole dataset as
     a mini-batch.
-    + `binarify`: Whether to binarify the images (using 0 and 1 values). Default value is True.
+    + `binarize`: Whether to binarize the images (using 0 and 1 values). Default value is True.
     + `reshape`: Whether to reshape the images into 2D arrays. Default value is False.
     + `one_hot`: whether to use one-hot encoding for labels (e.g. using vector
     `[1, 0, 0, 0, 0, 0, 0, 0, 0, 0]` for 0). Default value is False.
@@ -47,13 +48,13 @@ class MNIST:
     def __init__(self, data_type: str, path: str,
                  data_size: int = None,
                  batch_size: int = None,
-                 binarify=True,
+                 binarize=True,
                  reshape=False,
                  one_hot=False):
         self.data_type = data_type
         self.path = path
         # Options
-        self.binarify = binarify
+        self.binarize = binarize
         self.reshape = reshape
         self.one_hot = one_hot
         # Data buffer
@@ -74,9 +75,6 @@ class MNIST:
                 raise ValueError("batch size larger than data size")
         self.batch_num = self.data_size // self.batch_size
         # Data
-        ####if binarify:
-        ####    self._images = self._image_binarify(self._get_image(image_buf))
-        ####else:
         self._images = self._get_image(image_buf)
         self._labels = self._get_label(label_buf)
 
@@ -84,9 +82,11 @@ class MNIST:
         if self.data_type == "test":
             image_file_name = self.path + "t10k-images-idx3-ubyte"
             label_file_name = self.path + "t10k-labels-idx1-ubyte"
-        if self.data_type == "train":
+        elif self.data_type == "train":
             image_file_name = self.path + "train-images-idx3-ubyte"
             label_file_name = self.path + "train-labels-idx1-ubyte"
+        else:
+            raise ValueError("only type \"test\" and \"train\" are available")
         # "rb" means reading + binary mode
         with open(image_file_name, "rb") as image_file:
             image_buf = image_file.read()
@@ -97,7 +97,7 @@ class MNIST:
     def _get_image(self, image_buf):
         """Get an image array from `image_buf`.
 
-        This is the stucture of the image file (training set):
+        This is the structure of the image file (training set):
 
             [offset] [type]          [value]          [description]
             0000     32 bit integer  0x00000803(2051) magic number
@@ -114,7 +114,7 @@ class MNIST:
         image_arr = []
         while image_offset < image_buf_len:
             temp = struct.unpack_from(self._IMAGE_SIZE_FMT, image_buf, image_offset)
-            if self.binarify:
+            if self.binarize:
                 temp = np.vectorize(lambda x: 0 if x <= 127 else 1)(temp)
             if self.reshape:
                 temp = np.reshape(temp, self.IMAGE_SHAPE)
@@ -125,7 +125,7 @@ class MNIST:
     def _get_label(self, label_buf):
         """Get an label array from `label_buf`.
 
-        This is the stucture of the label file (training set):
+        This is the structure of the label file (training set):
 
             [offset] [type]          [value]          [description]
             0000     32 bit integer  0x00000801(2049) magic number (MSB first)
@@ -137,17 +137,17 @@ class MNIST:
         """
         label_buf_len = self.data_size * self.LABEL_SIZE + 8
         label_offset = 8
-        lable_arr = []
+        label_arr = []
         while label_offset < label_buf_len:
             temp = struct.unpack_from(self._LABEL_SIZE_FMT, label_buf, label_offset)[0]
             if self.one_hot:
                 vec = np.zeros(10)
                 vec[temp] = 1
-                lable_arr.append(vec)
+                label_arr.append(vec)
             else:
-                lable_arr.append(temp)
+                label_arr.append(temp)
             label_offset += self.LABEL_SIZE
-        return lable_arr
+        return label_arr
 
     def next_batch(self):
         """Increase `batch_index` by 1, then return a mini-batch of (image, label) tuples."""
@@ -171,10 +171,11 @@ class MNIST:
         else:
             raise IndexError("batch index out of range")
 
+
 def _test():
     data = MNIST("train", "./mnist/",
                  data_size=200, batch_size=8,
-                 reshape=True, one_hot=False, binarify=False)
+                 reshape=True, one_hot=False, binarize=False)
     print("Meta-data:")
     print("\tDataset size:", data.data_size)
     print("\tBatch size:", data.batch_size)
@@ -186,6 +187,7 @@ def _test():
     _test_random_batch(data, col_num, row_num)
     _test_next_batch(data, col_num, row_num)
 
+
 def _test_random_images(data, col_num, row_num):
     images = []
     labels = []
@@ -196,15 +198,18 @@ def _test_random_images(data, col_num, row_num):
         labels.append(label)
     _plot(images, labels, col_num=col_num, row_num=row_num)
 
+
 def _test_random_batch(data, col_num, row_num):
     index = random.randrange(data.batch_num)
     images, labels = data.batch(index)
     _plot(images, labels, col_num=col_num, row_num=row_num)
 
+
 def _test_next_batch(data, col_num, row_num):
     for _ in range(3):
         images, labels = data.next_batch()
         _plot(images, labels, col_num=col_num, row_num=row_num)
+
 
 def _plot(images, labels, col_num, row_num):
     for i, (image, label) in enumerate(zip(images, labels)):
@@ -213,6 +218,7 @@ def _plot(images, labels, col_num, row_num):
         plt.axis('off')
         plt.title(str(label))
     plt.show()
+
 
 if __name__ == "__main__":
     import random
