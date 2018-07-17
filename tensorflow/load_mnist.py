@@ -20,21 +20,23 @@ class MNIST:
     Functions
     ---------
 
-    + `next_batch()`
-    + `sample_batch()`
+        next_batch()
+        image_pair(index: int)
+        sample_batch(batch_index: int)
+        to_ndarray()
 
     Attributes
     ----------
 
-    + `data_type`: Can be either `"test"` or `"train"`.
-    + `path`: Path for MNIST data.
-    + `data_size`: Size of the dataset. Default value `None` means using all data in MNIST.
-    + `batch_size`: Size of the mini-batch. Default value `None` means using the whole dataset as
-    a mini-batch.
-    + `binarize`: Whether to binarize the images (using 0 and 1 values). Default value is True.
-    + `reshape`: Whether to reshape the images into 2D arrays. Default value is False.
-    + `one_hot`: whether to use one-hot encoding for labels (e.g. using vector
-    `[1, 0, 0, 0, 0, 0, 0, 0, 0, 0]` for 0). Default value is False.
+        data_type: Can be either `"test"` or `"train"`.
+        path: Path for MNIST data.
+        data_size: Size of the dataset. Default value `None` means using all data in MNIST.
+        batch_size: Size of the mini-batch. Default value `None` means using the whole dataset as
+            a mini-batch.
+        binarize: Whether to binarize the images (using 0 and 1 values). Default value is True.
+        reshape: Whether to reshape the images into 2D arrays. Default value is False.
+        one_hot: whether to use one-hot encoding for labels (e.g. using vector
+            `[1, 0, 0, 0, 0, 0, 0, 0, 0, 0]` for 0). Default value is False.
     """
 
     IMAGE_SIZE = 784
@@ -155,12 +157,11 @@ class MNIST:
         self.batch_index = (self.batch_index + 1) % self.batch_num
         return this_batch
 
-    def image(self, index: int):
+    def image_pair(self, index: int):
         """Return a (image, label) tuple at `index`."""
         if index < self.data_size:
             return self._images[index], self._labels[index]
-        else:
-            raise IndexError("image index out of range")
+        raise IndexError("image index out of range")
 
     def batch(self, batch_index: int):
         """Return a mini-batch of (image, label) tuples at `batch_index`."""
@@ -168,12 +169,22 @@ class MNIST:
             begin = batch_index * self.batch_size
             end = (batch_index + 1) * self.batch_size
             return self._images[begin:end], self._labels[begin:end]
-        else:
-            raise IndexError("batch index out of range")
+        raise IndexError("batch index out of range")
+
+    def to_ndarray(self):
+        """Return the raw data tuple `(images, labels)` as `np.ndarray`.
+        """
+        images = []
+        labels = []
+        for i in range(self.batch_num):
+            image, label = self.batch(i)
+            images.append(image)
+            labels.append(label)
+        return np.asarray(images), np.asarray(labels)
 
 
 def _test():
-    data = MNIST("train", "./mnist/",
+    data = MNIST("train", MNIST_PATH,
                  data_size=200, batch_size=8,
                  reshape=True, one_hot=False, binarize=False)
     print("Meta-data:")
@@ -193,7 +204,7 @@ def _test_random_images(data, col_num, row_num):
     labels = []
     for _ in range(10):
         index = random.randrange(data.data_size)
-        image, label = data.image(index)
+        image, label = data.image_pair(index)
         images.append(image)
         labels.append(label)
     _plot(images, labels, col_num=col_num, row_num=row_num)
@@ -220,7 +231,22 @@ def _plot(images, labels, col_num, row_num):
     plt.show()
 
 
+def _test_numpy():
+    images, labels = MNIST("train", MNIST_PATH,
+                           data_size=200, batch_size=8,
+                           reshape=False, one_hot=False, binarize=False).to_ndarray()
+    print(images.shape)                      # shape = (num_batches, batch_size, num_visible)
+    print(np.moveaxis(images, 0, -1).shape)  # shape = (batch_size, num_visible, num_batches)
+    print(labels.shape)  # shape = (num_batches, batch_size)
+    print(labels)
+
+
 if __name__ == "__main__":
     import random
     import matplotlib.pyplot as plt
+
+    # Local MNIST data
+    MNIST_PATH = "../machine-learning/data/mnist/"
+
     _test()
+    _test_numpy()
