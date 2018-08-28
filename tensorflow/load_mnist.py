@@ -238,7 +238,6 @@ def _test_numpy():
     print(images.shape)                      # shape = (num_batches, batch_size, num_visible)
     print(np.moveaxis(images, 0, -1).shape)  # shape = (batch_size, num_visible, num_batches)
     print(labels.shape)  # shape = (num_batches, batch_size)
-    print(labels)
 
 
 if __name__ == "__main__":
