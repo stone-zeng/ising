@@ -68,4 +68,4 @@ ising-sync/
 cloc.bat
 docs/chapters/acknowledgements.tex
 docs/figures/src/@*
-tensorflow/*.jl
+tensorflow/**/*.jl

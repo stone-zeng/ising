@@ -1,184 +1,159 @@
-import os
+"""Training Restricted Boltzmann Machine (RBM).
 
-import imageio
-import matplotlib.pyplot as plt
+See http://www.cs.toronto.edu/~hinton/MatlabForSciencePaper.html.
+"""
+
+# import tensorflow as tf
 import numpy as np
-import tensorflow as tf
+import utils
 
-import load_mnist as mnist
-
-# See http://lyy1994.github.io/machine-learning/2017/04/17/RBM-tensorflow-implementation.html
-
-def weight(shape, name='weights'):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1), name=name)
-def bias(shape, name='biases'):
-    return tf.Variable(tf.constant(0.1, shape=shape), name=name)
 
 class RBM:
-    i = 0 # fliping index for computing pseudo likelihood
+    """Training Restricted Boltzmann Machine (RBM).
 
-    def __init__(self, n_visible=784, n_hidden=500, k=30, momentum=False):
-        self.n_visible = n_visible
-        self.n_hidden = n_hidden
-        self.k = k
+    Arguments are directly from the original MATLAB code:
 
-        self.lr = tf.placeholder(tf.float32)
-        if momentum:
-            self.momentum = tf.placeholder(tf.float32)
-        else:
-            self.momentum = 0.0
-        self.w = weight([n_visible, n_hidden], 'w')
-        self.hb = bias([n_hidden], 'hb')
-        self.vb = bias([n_visible], 'vb')
+    Constants:
+        `_num_visible` -> `numdims`
+        `_num_hidden`  -> `numhid`
+        `_num_batches` -> `numbatches`
+        `_batch_size`  -> `numcases`
 
-        self.w_v = tf.Variable(tf.zeros([n_visible, n_hidden]), dtype=tf.float32)
-        self.hb_v = tf.Variable(tf.zeros([n_hidden]), dtype=tf.float32)
-        self.vb_v = tf.Variable(tf.zeros([n_visible]), dtype=tf.float32)
-
-    def propup(self, visible):
-        pre_sigmoid_activation = tf.matmul(visible, self.w) + self.hb
-        return tf.nn.sigmoid(pre_sigmoid_activation)
-
-    def propdown(self, hidden):
-        pre_sigmoid_activation = tf.matmul(hidden, tf.transpose(self.w)) + self.vb
-        return tf.nn.sigmoid(pre_sigmoid_activation)
-
-    def sample_h_given_v(self, v_sample):
-        h_props = self.propup(v_sample)
-        h_sample = tf.nn.relu(tf.sign(h_props - tf.random_uniform(tf.shape(h_props))))
-        return h_sample
-
-    def sample_v_given_h(self, h_sample):
-        v_props = self.propdown(h_sample)
-        v_sample = tf.nn.relu(tf.sign(v_props - tf.random_uniform(tf.shape(v_props))))
-        return v_sample
-
-    def CD_k(self, visibles):
-        # k steps gibbs sampling
-        v_samples = visibles
-        h_samples = self.sample_h_given_v(v_samples)
-        for _ in range(self.k):
-            v_samples = self.sample_v_given_h(h_samples)
-            h_samples = self.sample_h_given_v(v_samples)
-
-        h0_props = self.propup(visibles)
-        w_positive_grad = tf.matmul(tf.transpose(visibles), h0_props)
-        w_negative_grad = tf.matmul(tf.transpose(v_samples), h_samples)
-        w_grad = (w_positive_grad - w_negative_grad) / tf.to_float(tf.shape(visibles)[0])
-        hb_grad = tf.reduce_mean(h0_props - h_samples, 0)
-        vb_grad = tf.reduce_mean(visibles - v_samples, 0)
-        return w_grad, hb_grad, vb_grad
-
-    def learn(self, visibles):
-        w_grad, hb_grad, vb_grad = self.CD_k(visibles)
-        # compute new velocities
-        new_w_v = self.momentum * self.w_v + self.lr * w_grad
-        new_hb_v = self.momentum * self.hb_v + self.lr * hb_grad
-        new_vb_v = self.momentum * self.vb_v + self.lr * vb_grad
-        # update parameters
-        update_w = tf.assign(self.w, self.w + new_w_v)
-        update_hb = tf.assign(self.hb, self.hb + new_hb_v)
-        update_vb = tf.assign(self.vb, self.vb + new_vb_v)
-        # update velocities
-        update_w_v = tf.assign(self.w_v, new_w_v)
-        update_hb_v = tf.assign(self.hb_v, new_hb_v)
-        update_vb_v = tf.assign(self.vb_v, new_vb_v)
-
-        return [update_w, update_hb, update_vb, update_w_v, update_hb_v, update_vb_v]
-
-    def sampler(self, visibles, steps=5000):
-        v_samples = visibles
-        for _ in range(steps):
-            v_samples = self.sample_v_given_h(self.sample_h_given_v(v_samples))
-        return v_samples
-
-    def free_energy(self, visibles):
-        first_term = tf.matmul(visibles, tf.reshape(self.vb, [tf.shape(self.vb)[0], 1]))
-        second_term = tf.reduce_sum(
-            tf.log(1 + tf.exp(self.hb + tf.matmul(visibles, self.w))), axis=1)
-        return - first_term - second_term
-
-    def pseudo_likelihood(self, visibles):
-        x = tf.round(visibles)
-        x_fe = self.free_energy(x)
-        split0, split1, split2 = tf.split(x, [self.i, 1, tf.shape(x)[1] - self.i - 1], 1)
-        xi = tf.concat([split0, 1 - split1, split2], 1)
-        self.i = (self.i + 1) % self.n_visible
-        xi_fe = self.free_energy(xi)
-        return tf.reduce_mean(self.n_visible * tf.log(tf.nn.sigmoid(xi_fe - x_fe)), axis=0)
-
-
-def save_images(images, size, path):
+    Variables:
+        `weight`       -> `vishid`
+        `visible_bias` -> `hidbiases`
+        `hidden_bias`  -> `visbiases`
+        `_w_inc`       -> `vishidinc`
+        `_vb_inc`      -> `hidbiasinc`
+        `_hb_inc`      -> `visbiasinc`
     """
-    Save the samples images.
-    The best size number is
-            int(max(sqrt(image.shape[0]),sqrt(image.shape[1]))) + 1
-    example:
-        The batch_size is 64, then the size is recommended [8, 8]
-        The batch_size is 32, then the size is recommended [6, 6]
-    """
-    img = (images + 1.0) / 2.0
-    h, w = img.shape[1], img.shape[2]
-    merge_img = np.zeros((h * size[0], w * size[1]))
-    for idx, image in enumerate(images):
-        i = idx % size[1]
-        j = idx // size[1]
-        merge_img[(j * h) : (j * h + h), (i * w) : (i * w + w)] = image
-    return imageio.imwrite(path, merge_img)
+
+    def __init__(
+            self,
+            train_data,
+            num_hidden: int,
+            learning_rate=0.1,
+            weight_cost=0.0002,
+            initial_momentum=0.5,
+            final_momentum=0.9,
+            momentum_epoch_threshold=5):
+        self._data = train_data
+        self._num_batches, self._batch_size, self._num_visible = train_data.shape
+        self._num_hidden = num_hidden
+        self._learning_rate = learning_rate
+        self._weight_cost = weight_cost
+        self._momentum = initial_momentum
+        self._final_momentum = final_momentum
+        self._momentum_epoch_threshold = momentum_epoch_threshold
+        self._initialize_variables()
+
+    def _initialize_variables(self):
+        # Initialize symmetric weights and biases
+        self.weight = 0.1 * np.random.randn(self._num_visible, self._num_hidden)
+        self.visible_bias = np.zeros(self._num_visible)
+        self.hidden_bias = np.zeros(self._num_hidden)
+        # Initialize increments (velocities) of weights and biases
+        self._w_inc = np.zeros_like(self.weight)
+        self._vb_inc = np.zeros_like(self.visible_bias)
+        self._hb_inc = np.zeros_like(self.hidden_bias)
+
+    def train(self, max_epoch: int):
+        """The main training procedure.
+        """
+        print(self._data.shape)
+        for epoch in range(max_epoch):
+            print("Epoch:", epoch + 1)
+            if epoch > self._momentum_epoch_threshold:
+                self._momentum = self._final_momentum
+
+            self.hidden_data = []
+            for batch in range(self._num_batches):
+                print("\tEpoch:", epoch + 1, "\tBatch:", batch + 1)
+
+                neg_data = self._positive_phase(self._data[batch])
+                self._negative_phase(neg_data)
+                self._check_error()
+                self._update()
+
+            self.hidden_data = np.array(self.hidden_data)
+
+    def _positive_phase(self, data):
+        """Evaluate the positive phase.
+
+        Args:
+            data: Data in a mini-batch that is to be fed into visible units. Its shape should be
+                `(batch_size, num_visible)`.
+        """
+        # Hidden states, i.e. the probability that hidden units equal to 1.
+        # Shape = `(batch_size, num_hidden)`
+        pos_hidden_probs = utils.sigmoid(np.matmul(data, self.weight) +
+                                         np.tile(self.hidden_bias, (self._batch_size, 1)))
+        self.hidden_data.append(pos_hidden_probs)
+        self._pos_products = np.matmul(data.transpose(), pos_hidden_probs)
+        # Positive
+        # Shape = [1, _num_visible] / [1, _num_hidden]
+        # act = activation
+        self._pos_visible_act = np.mean(data, axis=0)
+        self._pos_hidden_act = np.mean(pos_hidden_probs, axis=0)
+        pos_hidden_states = (pos_hidden_probs >
+                             np.random.rand(self._batch_size, self._num_hidden)).astype(float)
+        # Shape = [_batch_size, _num_visible]
+        neg_data = utils.sigmoid(np.matmul(pos_hidden_states, self.weight.transpose()) +
+                                 np.tile(self.visible_bias, (self._batch_size, 1)))
+        return neg_data
+
+    def _negative_phase(self, neg_data):
+        """Evaluate the negative phase.
+
+        Args:
+            neg_data: shape = [`_batch_size`, `_num_hidden`]
+        """
+        # Hidden states, using probability itself. Shape = [_batch_size, _num_hidden]
+        neg_h_probs = utils.sigmoid(np.matmul(neg_data, self.weight) +
+                                    np.tile(self.hidden_bias, (self._batch_size, 1)))
+        self._neg_products = np.matmul(neg_data.transpose(), neg_h_probs)
+        # Shape = [1, _num_visible] / [1, _num_hidden]
+        self._neg_visible_act = np.mean(neg_data, axis=0)
+        self._neg_hidden_act = np.mean(neg_h_probs, axis=0)
+
+    def _check_error(self):
+        pass
+
+    def _update(self):
+        # Update increments (gradients)
+        self._w_inc = self._momentum * self._w_inc + \
+            self._learning_rate * ((self._pos_products - self._neg_products) / self._batch_size -
+                                   self._weight_cost * self.weight)
+        self._vb_inc = self._momentum * self._vb_inc + \
+            self._learning_rate * (self._pos_visible_act - self._neg_visible_act)
+        self._hb_inc = self._momentum * self._hb_inc + \
+            self._learning_rate * (self._pos_hidden_act - self._neg_hidden_act)
+        # Update weights and biases
+        self.weight += self._w_inc
+        self.visible_bias += self._vb_inc
+        self.hidden_bias += self._hb_inc
 
 
-def train(train_data, epoches):
-    logs_dir = "./logs"
-    samples_dir = "./samples"
+def _test():
+    # Data
+    images, _ = mnist.MNIST("train", MNIST_PATH,
+                            data_size=40, batch_size=8,
+                            reshape=False, one_hot=False, binarize=True).to_ndarray()
+    num_batches, batch_size, num_visible = images.shape
+    print("num_batches:", num_batches)
+    print("batch_size:", batch_size)
+    print("num_visible:", num_visible)
 
-    x = tf.placeholder(tf.float32, shape=[None, 784])
-    noise_x, _ = train_data.sample_batch()
-    # noise_x = tf.random_normal([train_data.batch_size, 784])
-    rbm = RBM()
-    step = rbm.learn(x)
-    sampler = rbm.sampler(x, 200) # TODO
-    pl = rbm.pseudo_likelihood(x)
-
-    saver = tf.train.Saver()
-    print("Initialization finished!")
-
-    with tf.Session() as sess:
-        init = tf.global_variables_initializer()
-        sess.run(init)
-        mean_cost = []
-        epoch = 1
-        for i in range(epoches * train_data.batch_num):
-            # Draw samples (10 images)
-            if i % (epoches * train_data.batch_num / 10) == 0:
-                samples = sess.run(sampler, feed_dict = {x: noise_x})
-                samples = samples.reshape([train_data.batch_size, 28, 28])
-                save_images(samples, [8, 8],
-                            os.path.join(samples_dir,
-                                         'iteration_%d.png' % (i / train_data.batch_num)))
-                print('Saved samples.')
-            batch_x, _ = train_data.next_batch()
-            sess.run(step, feed_dict = {x: batch_x, rbm.lr: 0.1})
-            cost = sess.run(pl, feed_dict = {x: batch_x})
-            mean_cost.append(cost)
-            # Save model
-            if i is not 0 and train_data.batch_index is 0:
-                checkpoint_path = os.path.join(logs_dir, 'model.ckpt')
-                saver.save(sess, checkpoint_path, global_step = epoch + 1)
-                print('Saved Model.')
-            # Print pseudo likelihood
-            if i is not 0 and train_data.batch_index is 0:
-                print('Epoch %d Cost %g' % (epoch, np.mean(mean_cost)))
-                mean_cost = []
-                epoch += 1
-        print('Test')
-        samples = sess.run(sampler, feed_dict = {x: noise_x})
-        samples = samples.reshape([train_data.batch_size, 28, 28])
-        save_images(samples, [8, 8], os.path.join(samples_dir, 'test.png'))
-        print('Saved samples.')
+    # Model
+    num_hidden = 40
+    print("num_hidden:", num_hidden, "\n")
+    model = RBM(train_data=images, num_hidden=num_hidden)
+    model.train(max_epoch=5)
 
 
-data_path = "../../machine-learning/data/mnist/"
-train_data = mnist.MNIST("train", data_path, data_size=256, batch_size=64)
-# test_data = mnist.MNIST("test", data_path)
+if __name__ == "__main__":
+    import load_mnist as mnist
 
-train(train_data, 10)
+    # Local MNIST data
+    MNIST_PATH = "../../machine-learning/data/mnist/"
+    _test()
