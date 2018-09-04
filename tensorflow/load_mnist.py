@@ -71,7 +71,7 @@ class MNIST:
         if batch_size is None:
             self.batch_size = self.data_size
         else:
-            if batch_size < self.data_size:
+            if batch_size <= self.data_size:
                 self.batch_size = batch_size
             else:
                 raise ValueError("batch size larger than data size")
@@ -245,7 +245,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     # Local MNIST data
-    MNIST_PATH = "../machine-learning/data/mnist/"
+    MNIST_PATH = "../../machine-learning/data/mnist/"
 
     _test()
     _test_numpy()

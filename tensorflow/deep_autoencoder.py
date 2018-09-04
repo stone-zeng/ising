@@ -4,16 +4,21 @@ See http://www.cs.toronto.edu/~hinton/MatlabForSciencePaper.html.
 """
 
 import load_mnist as mnist
-import rbm_new as rbm
+import rbm
+import backpropagation as bp
 
 
 def _main():
-    data, _ = mnist.MNIST("train",
-                          path="../../machine-learning/data/mnist/",
-                          data_size=40, batch_size=8,
-                          reshape=False, one_hot=False, binarize=True).to_ndarray()
+    data, _ = mnist.MNIST(
+        "train", path="../../machine-learning/data/mnist/",
+        data_size=40, batch_size=20,
+        reshape=False, one_hot=False, binarize=True).to_ndarray()
+    test_data, _ = mnist.MNIST(
+        "test", path="../../machine-learning/data/mnist/",
+        data_size=40, batch_size=20,
+        reshape=False, one_hot=False, binarize=True).to_ndarray()
 
-    max_epoch = 10
+    max_epoch = 1
 
     # Layer 1
     print("----- Layer 1 -----")
@@ -38,6 +43,11 @@ def _main():
     layer_iv = rbm.RBM(train_data=layer_iii.hidden_data, num_hidden=30)
     layer_iv.train(max_epoch=max_epoch)
     # layer_iv_param = (layer_iv.weight, layer_iv.visible_bias, layer_iv.hidden_bias)
+
+    # Backpropagation
+    print("\n=============== Backpropagation ===============\n")
+    bp.backpropagation(layers=[layer_i, layer_ii, layer_iii, layer_iv],
+                       train_data=data, test_data=test_data, max_epoch=2)
 
 
 if __name__ == "__main__":
