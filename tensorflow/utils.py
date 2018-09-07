@@ -10,11 +10,11 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-class _point:
-    def __init__(self, point, val, diff):
-        self.x = point
-        self.y = val
-        self.dy = diff
+# class _point:
+#     def __init__(self, point, val, diff):
+#         self.x = point
+#         self.y = val
+#         self.dy = diff
 
 
 # def minimize(function, start_point, length: int, reduction=1.0):
@@ -67,19 +67,33 @@ def minimize(function,
         print("conjugate_gradient")
 
 
-def gradient_descent(function, start_point, steps, alpha, delta=0.001):
-    # Make sure `x` to be an array.
-    if np.array(start_point).shape == ():
-        x = np.array([start_point])
-    else:
-        x = np.array(start_point)
+def gradient_descent(func, start_point: np.ndarray, steps, alpha,
+                     delta, gradient_method: str):
+    point = _ensure_array(start_point)
     for i in range(steps):
-        pass
-        # gradient = _calc_gradient(function, x, delta)
-        # x = x - np.multiply(alpha, gradient)
-        # print("Step:", i + 1,
-        #       "\n\tPosition:", x,
-        #       "\n\tValue:", function(x), "\n")
+        gradient = _calc_gradient(func, point, delta=delta, method=gradient_method)
+        point = point - alpha * gradient
+        if (i + 1) % 50 == 0:
+            print("Step:", i + 1,
+                  "\n\tPosition:", point,
+                  "\n\tValue:", func(point), "\n")
+
+
+def newton_method(func, start_point: np.ndarray, steps, gamma, delta, gradient_method: str):
+    point = _ensure_array(start_point)
+    for i in range(steps):
+        gradient = _calc_gradient(func, point, delta=delta, method=gradient_method)
+        hessian = _calc_hessian(func, point, delta_1=delta, delta_2=delta, method=gradient_method)
+        point -= gamma * np.matmul(np.linalg.inv(hessian), gradient)
+        print("Step:", i + 1,
+              "\n\tPosition:", point,
+              "\n\tValue:", func(point), "\n")
+
+
+def _ensure_array(point: np.ndarray):
+    if np.array(point).shape == ():
+        return np.array([point])
+    return point
 
 
 def _calc_gradient(func, point: np.ndarray, delta, method: str):
@@ -141,57 +155,71 @@ def _calc_hessian(func, point: np.ndarray, delta_1, delta_2, method: str):
 
 
 def _test_func_1d(x):
-    return np.sin(x + np.exp(2 * x))
+    return np.power(x, 4) + 2 * np.power(x, 3) - 4 * np.power(x, 2) + 16 * x
 
 
 def _test_func_4d(arr):
     x, y, z, w = arr[0], arr[1], arr[2], arr[3]
-    f = np.sin(x * y * z) + np.cos(4 * y + np.exp(z / w))
-    # df = np.array([[np.cos(x)], [-4 * np.sin(4 * y)]])
-    return f
+    return (0.01 * np.power(x + y + z + w + 0.2, 4) +
+            3 * np.power(x + y + z - w - 1, 2) +
+            2 * np.power(x - y + z + w - 0.8, 2) +
+            4 * np.power(x - y - z + w, 2) + 1)
 
 
 def _minimize_test():
-    for i in _test_func_1d(np.array([3])):
-        print(i)
-    # minimize(_test_func, 0, 2)
+    start_point_1d = np.array([1.0])
+    start_point_4d = np.array([1.0, 2.0, 3.0, 4.0])
+
+    # Gradient descent
+    # t_begin = time.clock()
+    # gradient_descent(_test_func_1d, start_point_1d,
+    #                  steps=50, alpha=0.04, delta=1e-6, gradient_method="symmetric")
+    # print("Time:", time.clock() - t_begin, "\n")
+    t_begin = time.clock()
+    gradient_descent(_test_func_4d, start_point_4d,
+                     steps=1000, alpha=0.01, delta=1e-6, gradient_method="symmetric")
+    print("Time:", time.clock() - t_begin, "\n")
+
+    # Newton's method
+    t_begin = time.clock()
+    newton_method(_test_func_1d, start_point_1d,
+                  steps=12, gamma=1, delta=1e-6, gradient_method="symmetric")
+    print("Time:", time.clock() - t_begin, "\n")
+    t_begin = time.clock()
+    newton_method(_test_func_4d, start_point_4d,
+                  steps=15, gamma=1, delta=1e-6, gradient_method="symmetric")
+    print("Time:", time.clock() - t_begin, "\n")
 
 
 def _gradient_test():
     f_1d, f_4d = _test_func_1d, _test_func_4d
     x_1d, x_4d = np.array([1.0]), np.array([1.0, 2.0, 3.0, 4.0])
 
-    t_begin = time.clock()
-    print(_calc_gradient(f_1d, x_1d, delta=1e-6, method="simple"))
-    print("Time:", time.clock() - t_begin, "\n")
-    t_begin = time.clock()
-    print(_calc_gradient(f_4d, x_4d, delta=1e-6, method="simple"))
-    print("Time:", time.clock() - t_begin, "\n")
-    t_begin = time.clock()
-    print(_calc_gradient(f_1d, x_1d, delta=1e-6, method="symmetric"))
-    print("Time:", time.clock() - t_begin, "\n")
-    t_begin = time.clock()
-    print(_calc_gradient(f_4d, x_4d, delta=1e-6, method="symmetric"))
-    print("Time:", time.clock() - t_begin, "\n")
+    # Gradient
+    print("========== Gradient ==========\n")
+    args = [{"func": f_1d, "point": x_1d, "delta": 1e-6, "method": "simple"},
+            {"func": f_4d, "point": x_4d, "delta": 1e-6, "method": "simple"},
+            {"func": f_1d, "point": x_1d, "delta": 1e-6, "method": "symmetric"},
+            {"func": f_4d, "point": x_4d, "delta": 1e-6, "method": "symmetric"}]
+    for i in args:
+        t_begin = time.clock()
+        print(_calc_gradient(**i))
+        print("Time:", time.clock() - t_begin, "\n")
 
-    t_begin = time.clock()
-    print(_calc_hessian(f_1d, x_1d, delta_1=1e-6, delta_2=1e-6, method="simple"))
-    print("Time:", time.clock() - t_begin, "\n")
-    t_begin = time.clock()
-    print(_calc_hessian(f_4d, x_4d, delta_1=1e-6, delta_2=1e-6, method="simple"))
-    print("Time:", time.clock() - t_begin, "\n")
-    t_begin = time.clock()
-    print(_calc_hessian(f_1d, x_1d, delta_1=1e-6, delta_2=1e-6, method="symmetric"))
-    print("Time:", time.clock() - t_begin, "\n")
-    t_begin = time.clock()
-    print(_calc_hessian(f_4d, x_4d, delta_1=1e-6, delta_2=1e-6, method="symmetric"))
-    print("Time:", time.clock() - t_begin, "\n")
+    # Hessian
+    print("========== Hessian ==========\n")
+    args = [{"func": f_1d, "point": x_1d, "delta_1": 1e-6, "delta_2": 1e-6, "method": "simple"},
+            {"func": f_4d, "point": x_4d, "delta_1": 1e-6, "delta_2": 1e-6, "method": "simple"},
+            {"func": f_1d, "point": x_1d, "delta_1": 1e-6, "delta_2": 1e-6, "method": "symmetric"},
+            {"func": f_4d, "point": x_4d, "delta_1": 1e-6, "delta_2": 1e-6, "method": "symmetric"}]
+    for i in args:
+        t_begin = time.clock()
+        print(_calc_hessian(**i))
+        print("Time:", time.clock() - t_begin, "\n")
 
 
 if __name__ == "__main__":
     import time
-    # _minimize_test()
-    # print(_test_func_4d([1.1, 2.1]))
-    # minimize(_test_func_4d, [1.0, 2.0], 50, 0.1)
-    # minimize(np.sin, [2, 2])
+
     _gradient_test()
+    # _minimize_test()
